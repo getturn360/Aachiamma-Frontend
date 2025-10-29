@@ -1,0 +1,790 @@
+import React, { useState, useEffect } from "react";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
+import { Button } from "../ui/button";
+import { Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
+import api from "@/api/axios";
+
+/**
+ * CommonForm with refined variations behavior:
+ * - Default variation opens by default.
+ * - Radio moved to left and made more prominent.
+ * - Validation: every variation must have label & price; default must have price.
+ * - Per-variation description items are optional.
+ *
+ * Adjustments made:
+ * - New variations default `totalStock` to "" (empty) instead of 0.
+ * - Header summary hides price/offer/stock when they are empty or 0.
+ * - On submit, stock is normalized but empty string is preserved (i.e. blank stays blank).
+ *
+ * - Categories for the `category` select are fetched dynamically from the server
+ *   (GET /api/common/categories/get). If the control provides explicit options,
+ *   those are used instead.
+ */
+
+function CommonForm({
+  formControls = [],
+  formData = {},
+  setFormData = () => {},
+  onSubmit = () => {},
+  buttonText = "Save",
+  isBtnDisabled = false,
+}) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [openVariationIndexes, setOpenVariationIndexes] = useState([]);
+  const [bulkStock, setBulkStock] = useState("");
+
+  // dynamic categories (for controls named `category`)
+  const [categoriesList, setCategoriesList] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.get("/api/common/categories/get");
+        if (!mounted) return;
+        if (res?.data?.success) {
+          const cats = (res.data.categories || res.data.data || []).map((c) => {
+            const id = c.slug || c._id || c.name;
+            const name = c.name || c.slug || String(id);
+            return { id, label: name };
+          });
+          setCategoriesList(cats);
+          return;
+        }
+      } catch (err) {
+        // ignore; categoriesList will remain empty and the form will fall back to provided options
+        // console.warn(err?.message || err);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  function setField(name, value) {
+    setFormData({ ...(formData || {}), [name]: value });
+  }
+
+  // Preserve open state when variations array changes (don't auto-close when user typed)
+  useEffect(() => {
+    const vs = Array.isArray(formData?.variations) ? formData.variations : [];
+    if (vs.length === 0) {
+      setOpenVariationIndexes([]);
+      return;
+    }
+    // open the default variation (or first if none)
+    const idx = vs.findIndex((v) => v && v.isDefault);
+    const defaultIndex = idx === -1 ? 0 : idx;
+
+    setOpenVariationIndexes((prev) => {
+      const prevArr = Array.isArray(prev) ? prev : [];
+      // keep any previously-open indexes true; ensure default index is open
+      const merged = vs.map((_, i) => Boolean(prevArr[i]) || i === defaultIndex);
+      return merged;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData?.variations]);
+
+  function toggleVariationOpen(idx) {
+    setOpenVariationIndexes((prev) => {
+      const next = [...(Array.isArray(prev) ? prev : [])];
+      next[idx] = !next[idx];
+      return next;
+    });
+  }
+
+  function applyBulkStockToAll(name) {
+    // name: variations control name (likely "variations")
+    const nvRaw = bulkStock;
+    if (nvRaw === "" || nvRaw === null) return;
+    const nvNum = Math.max(0, Math.floor(Number(nvRaw || 0)));
+    const arr = Array.isArray(formData[name]) ? formData[name] : [];
+    // If nvNum is 0 we set "" to keep display empty, per requested behaviour
+    const next = arr.map((x) => ({ ...(x || {}), totalStock: nvNum === 0 ? "" : nvNum }));
+    setField(name, next);
+    setBulkStock("");
+  }
+
+  function renderInputsByComponentType(getControlItem) {
+    const value = formData[getControlItem.name] ?? "";
+    let element = null;
+
+    switch (getControlItem.componentType) {
+      case "input":
+        if (getControlItem.type === "password") {
+          element = (
+            <div className="relative">
+              <Input
+                name={getControlItem.name}
+                placeholder={getControlItem.placeholder || ""}
+                id={getControlItem.name}
+                type={showPassword ? "text" : "password"}
+                value={value}
+                onChange={(e) => setField(getControlItem.name, e.target.value)}
+                className="rounded-xl p-3"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                aria-label="toggle password"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+          );
+        } else {
+          element = (
+            <Input
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder || ""}
+              id={getControlItem.name}
+              type={getControlItem.type || "text"}
+              value={value}
+              onChange={(e) => setField(getControlItem.name, e.target.value)}
+              className="rounded-xl p-3"
+            />
+          );
+        }
+        break;
+
+      case "select": {
+        // Decide options: prefer explicit options from the control; otherwise if this is the `category` control
+        // use dynamic categories fetched from the server.
+        const controlOptions = Array.isArray(getControlItem.options) && getControlItem.options.length
+          ? getControlItem.options
+          : [];
+        const optionsToRender = (controlOptions.length ? controlOptions : (getControlItem.name === 'category' ? categoriesList : []));
+
+        element = (
+          <Select onValueChange={(val) => setField(getControlItem.name, val)} value={value}>
+            <SelectTrigger className="w-full rounded-xl p-2">
+              <SelectValue placeholder={getControlItem.placeholder || getControlItem.label} />
+            </SelectTrigger>
+            <SelectContent>
+              {optionsToRender.length ? (
+                optionsToRender.map((optionItem) => (
+                  <SelectItem key={optionItem.id ?? optionItem.value ?? optionItem.label} value={optionItem.id ?? optionItem.value ?? optionItem.label}>
+                    {optionItem.label ?? optionItem.name ?? optionItem}
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="px-3 py-2 text-sm text-slate-500">No options available</div>
+              )}
+            </SelectContent>
+          </Select>
+        );
+        break;
+      }
+
+      case "checkboxgroup":
+        element = (
+          <div className="flex gap-3 flex-wrap">
+            {getControlItem.options?.map((opt) => {
+              const checked = Array.isArray(formData[getControlItem.name]) && formData[getControlItem.name].includes(opt.id);
+              const toggle = () => {
+                const cur = Array.isArray(formData[getControlItem.name]) ? [...formData[getControlItem.name]] : [];
+                if (cur.includes(opt.id)) {
+                  setField(getControlItem.name, cur.filter((x) => x !== opt.id));
+                } else {
+                  cur.push(opt.id);
+                  setField(getControlItem.name, cur);
+                }
+              };
+              return (
+                <label
+                  key={opt.id}
+                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${checked ? "bg-emerald-600 text-white border-emerald-600" : "bg-transparent text-slate-700"}`}
+                >
+                  <input type="checkbox" checked={checked} onChange={toggle} className="hidden" aria-hidden />
+                  <span className="text-sm">{opt.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        );
+        break;
+
+      case "textarea":
+        element = (
+          <Textarea
+            name={getControlItem.name}
+            placeholder={getControlItem.placeholder || ""}
+            id={getControlItem.name}
+            value={value}
+            onChange={(e) => setField(getControlItem.name, e.target.value)}
+            className="rounded-xl p-3"
+            rows={4}
+          />
+        );
+        break;
+
+      case "variations": {
+        const arr = Array.isArray(value) ? value : [];
+        element = (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">Variations (weights)</div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const newArr = [
+                      ...arr,
+                      {
+                        label: "100g",
+                        price: "",
+                        salePrice: "",
+                        isDefault: arr.length === 0,
+                        descriptionItems: [],
+                        totalStock: "",
+                      },
+                    ];
+                    setField(getControlItem.name, newArr);
+                    setOpenVariationIndexes((prev) => [...(Array.isArray(prev) ? prev : []), true]);
+                  }}
+                >
+                  Add Variation
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {arr.map((it, idx) => {
+                const isOpen = !!openVariationIndexes[idx];
+
+                // prepare parts for header summary — hide when empty or zero
+                const parts = [];
+                if (it.price !== undefined && it.price !== "" && !Number.isNaN(Number(it.price)) && Number(it.price) !== 0) {
+                  parts.push(`Price: ₹${Number(it.price).toLocaleString("en-IN")}`);
+                }
+                if (it.salePrice !== undefined && it.salePrice !== "" && !Number.isNaN(Number(it.salePrice)) && Number(it.salePrice) !== 0) {
+                  parts.push(`Offer: ₹${Number(it.salePrice).toLocaleString("en-IN")}`);
+                }
+                if (it.totalStock !== undefined && it.totalStock !== "" && !Number.isNaN(Number(it.totalStock)) && Number(it.totalStock) !== 0) {
+                  parts.push(`Stock: ${Number(it.totalStock)}`);
+                }
+
+                return (
+                  <div key={idx} className="border rounded-lg p-3 bg-white">
+                    <div className="flex items-start gap-3">
+                      {/* prominent radio on left */}
+                      <div className="mt-1">
+                        <input
+                          type="radio"
+                          name={`${getControlItem.name}-default`}
+                          checked={!!it.isDefault}
+                          onChange={() => {
+                            const newArr = arr.map((x, i) => ({ ...x, isDefault: i === idx }));
+                            setField(getControlItem.name, newArr);
+                            // open the selected default
+                            setOpenVariationIndexes((prev) => (Array.isArray(prev) ? prev.map((v, i) => i === idx) : prev));
+                          }}
+                          className="accent-amber-600 w-5 h-5"
+                          title="Mark as default"
+                        />
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="font-medium">{it.label || `Variation ${idx + 1}`}</div>
+                            <div className="text-sm text-slate-500">{parts.length ? parts.join(" · ") : ""}</div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => toggleVariationOpen(idx)}
+                              className="p-1 rounded hover:bg-slate-50"
+                              aria-label={isOpen ? "Collapse" : "Expand"}
+                            >
+                              {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </button>
+
+                            <Button
+                              variant="ghost"
+                              onClick={() => {
+                                const newArr = [...arr];
+                                newArr.splice(idx, 1);
+                                setField(getControlItem.name, newArr);
+                                setOpenVariationIndexes((prev) => {
+                                  const next = [...(Array.isArray(prev) ? prev : [])];
+                                  next.splice(idx, 1);
+                                  if (next.length > 0 && !next.some(Boolean)) next[0] = true;
+                                  return next;
+                                });
+                              }}
+                              size="icon"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+
+                        {isOpen && (
+                          <div className="mt-3 space-y-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-2">
+                              <Input
+                                placeholder="Label (e.g. 100g) *"
+                                value={it.label || ""}
+                                onChange={(e) => {
+                                  const newArr = [...arr];
+                                  newArr[idx] = { ...newArr[idx], label: e.target.value };
+                                  setField(getControlItem.name, newArr);
+                                }}
+                                className="rounded-xl p-2"
+                              />
+                              <Input
+                                placeholder="Price (required) *"
+                                type="number"
+                                value={it.price ?? ""}
+                                onChange={(e) => {
+                                  const newArr = [...arr];
+                                  newArr[idx] = { ...newArr[idx], price: e.target.value === "" ? "" : Number(e.target.value) };
+                                  setField(getControlItem.name, newArr);
+                                }}
+                                className="rounded-xl p-2"
+                              />
+                              <Input
+                                placeholder="Offer Price (optional)"
+                                type="number"
+                                value={it.salePrice ?? ""}
+                                onChange={(e) => {
+                                  const newArr = [...arr];
+                                  newArr[idx] = { ...newArr[idx], salePrice: e.target.value === "" ? "" : Number(e.target.value) };
+                                  setField(getControlItem.name, newArr);
+                                }}
+                                className="rounded-xl p-2"
+                              />
+
+                              {/* Stock input */}
+                              <Input
+                                placeholder="Stock (units)"
+                                type="number"
+                                min={0}
+                                step={1}
+                                value={it.totalStock ?? ""}
+                                onChange={(e) => {
+                                  // keep empty if user clears; otherwise ensure integer >= 0
+                                  const nv = e.target.value === "" ? "" : Math.max(0, Math.floor(Number(e.target.value || 0)));
+                                  const newArr = [...arr];
+                                  newArr[idx] = { ...newArr[idx], totalStock: nv };
+                                  setField(getControlItem.name, newArr);
+                                }}
+                                className="rounded-xl p-2 bg-amber-50"
+                              />
+                            </div>
+
+                            {/* per-variation descriptions optional (no requirement) */}
+                            <div className="mt-2">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="text-sm font-medium">Description items (optional)</div>
+                                <Button
+                                  type="button"
+                                  onClick={() => {
+                                    const newArr = [...arr];
+                                    newArr[idx] = {
+                                      ...(newArr[idx] || {}),
+                                      descriptionItems: Array.isArray(newArr[idx]?.descriptionItems)
+                                        ? [...newArr[idx].descriptionItems, { title: "", content: "" }]
+                                        : [{ title: "", content: "" }],
+                                    };
+                                    setField(getControlItem.name, newArr);
+                                  }}
+                                >
+                                  Add Item
+                                </Button>
+                              </div>
+
+                              <div className="space-y-2">
+                                {(it.descriptionItems || []).map((di, didx) => (
+                                  <div key={didx} className="border p-3 rounded-md bg-white">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="text-sm font-semibold">Item {didx + 1}</div>
+                                      <Button
+                                        variant="ghost"
+                                        onClick={() => {
+                                          const newArr = [...arr];
+                                          newArr[idx].descriptionItems = [...newArr[idx].descriptionItems];
+                                          newArr[idx].descriptionItems.splice(didx, 1);
+                                          setField(getControlItem.name, newArr);
+                                        }}
+                                        size="icon"
+                                      >
+                                        Remove
+                                      </Button>
+                                    </div>
+                                    <Input
+                                      placeholder="Bold title (optional)"
+                                      value={di.title || ""}
+                                      onChange={(e) => {
+                                        const newArr = [...arr];
+                                        newArr[idx] = { ...newArr[idx], descriptionItems: [...newArr[idx].descriptionItems] };
+                                        newArr[idx].descriptionItems[didx] = { ...newArr[idx].descriptionItems[didx], title: e.target.value };
+                                        setField(getControlItem.name, newArr);
+                                      }}
+                                      className="rounded-xl p-2 mb-2"
+                                    />
+                                    <Textarea
+                                      placeholder="Paragraph content"
+                                      value={di.content || ""}
+                                      onChange={(e) => {
+                                        const newArr = [...arr];
+                                        newArr[idx] = { ...newArr[idx], descriptionItems: [...newArr[idx].descriptionItems] };
+                                        newArr[idx].descriptionItems[didx] = { ...newArr[idx].descriptionItems[didx], content: e.target.value };
+                                        setField(getControlItem.name, newArr);
+                                      }}
+                                      rows={3}
+                                      className="rounded-xl p-2"
+                                    />
+                                  </div>
+                                ))}
+                                {(it.descriptionItems || []).length === 0 && <div className="text-sm text-slate-400">No description items for this variation.</div>}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="text-xs text-slate-500">
+              Each variation requires label & price. Default variation (radio) is the displayed rate on the product tile & product detail page. Stock is optional and may be left blank.
+            </div>
+          </div>
+        );
+        break;
+      }
+
+      case "specList": {
+        const arr = Array.isArray(value) ? value : [];
+        element = (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">{getControlItem.label}</div>
+              <Button
+                type="button"
+                onClick={() => {
+                  const newArr = [...arr, { label: "", content: "" }];
+                  setField(getControlItem.name, newArr);
+                }}
+              >
+                Add Point
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {arr.map((it, idx) => (
+                <div key={idx} className="flex gap-2 items-start">
+                  <div className="mt-2">•</div>
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Label (bold part, e.g. Available packs)"
+                      value={it.label || ""}
+                      onChange={(e) => {
+                        const newArr = [...arr];
+                        newArr[idx] = { ...newArr[idx], label: e.target.value };
+                        setField(getControlItem.name, newArr);
+                      }}
+                      className="rounded-xl p-2 mb-2"
+                    />
+                    <Textarea
+                      placeholder="Content (e.g. 100g, 200g)"
+                      value={it.content || ""}
+                      onChange={(e) => {
+                        const newArr = [...arr];
+                        newArr[idx] = { ...newArr[idx], content: e.target.value };
+                        setField(getControlItem.name, newArr);
+                      }}
+                      rows={2}
+                      className="rounded-xl p-2"
+                    />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      const newArr = [...arr];
+                      newArr.splice(idx, 1);
+                      setField(getControlItem.name, newArr);
+                    }}
+                    size="icon"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              {arr.length === 0 && <div className="text-sm text-slate-400">No specifications added yet.</div>}
+            </div>
+          </div>
+        );
+        break;
+      }
+
+      case "sections": {
+        const arr = Array.isArray(value) ? value : [];
+        element = (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">{getControlItem.label}</div>
+              <Button
+                type="button"
+                onClick={() => {
+                  const newArr = [...arr, { title: "", content: "" }];
+                  setField(getControlItem.name, newArr);
+                }}
+              >
+                Add Section
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {arr.map((it, idx) => (
+                <div key={idx} className="space-y-2 border p-3 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">Section {idx + 1}</div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          const newArr = [...arr];
+                          newArr.splice(idx, 1);
+                          setField(getControlItem.name, newArr);
+                        }}
+                        size="icon"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                  <Input
+                    placeholder="Bold title (optional)"
+                    value={it.title || ""}
+                    onChange={(e) => {
+                      const newArr = [...arr];
+                      newArr[idx] = { ...newArr[idx], title: e.target.value };
+                      setField(getControlItem.name, newArr);
+                    }}
+                    className="rounded-xl p-2"
+                  />
+                  <Textarea
+                    placeholder="Paragraph / content (plain text)."
+                    value={it.content || ""}
+                    onChange={(e) => {
+                      const newArr = [...arr];
+                      newArr[idx] = { ...newArr[idx], content: e.target.value };
+                      setField(getControlItem.name, newArr);
+                    }}
+                    rows={4}
+                    className="rounded-xl p-2"
+                  />
+                </div>
+              ))}
+              {arr.length === 0 && <div className="text-sm text-slate-400">No sections added yet.</div>}
+            </div>
+          </div>
+        );
+        break;
+      }
+
+      case "qaList": {
+        const arr = Array.isArray(value) ? value : [];
+        element = (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">{getControlItem.label}</div>
+              <Button
+                type="button"
+                onClick={() => {
+                  const newArr = [...arr, { question: "", answer: "" }];
+                  setField(getControlItem.name, newArr);
+                }}
+              >
+                Add Q&A
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {arr.map((it, idx) => (
+                <div key={idx} className="space-y-2 border p-3 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">Q&A {idx + 1}</div>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        const newArr = [...arr];
+                        newArr.splice(idx, 1);
+                        setField(getControlItem.name, newArr);
+                      }}
+                      size="icon"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                  <Input
+                    placeholder="Question"
+                    value={it.question || ""}
+                    onChange={(e) => {
+                      const newArr = [...arr];
+                      newArr[idx] = { ...newArr[idx], question: e.target.value };
+                      setField(getControlItem.name, newArr);
+                    }}
+                    className="rounded-xl p-2"
+                  />
+                  <Textarea
+                    placeholder="Answer"
+                    value={it.answer || ""}
+                    onChange={(e) => {
+                      const newArr = [...arr];
+                      newArr[idx] = { ...newArr[idx], answer: e.target.value };
+                      setField(getControlItem.name, newArr);
+                    }}
+                    rows={3}
+                    className="rounded-xl p-2"
+                  />
+                </div>
+              ))}
+              {arr.length === 0 && <div className="text-sm text-slate-400">No FAQs added yet.</div>}
+            </div>
+          </div>
+        );
+        break;
+      }
+
+      default:
+        element = (
+          <Input
+            name={getControlItem.name}
+            placeholder={getControlItem.placeholder || ""}
+            id={getControlItem.name}
+            type={getControlItem.type || "text"}
+            value={value}
+            onChange={(e) => setField(getControlItem.name, e.target.value)}
+            className="rounded-xl p-3"
+          />
+        );
+    }
+
+    return element;
+  }
+
+  // grouping
+  const nameControls = formControls.filter((c) => c.name === "firstName" || c.name === "lastName");
+  const cityBlockNames = ["city", "state", "postcode", "pincode"];
+  const cityControls = formControls.filter((c) => cityBlockNames.includes(c.name));
+  const suppressOuterLabelTypes = ["variations", "specList", "sections", "qaList"];
+  const otherControls = formControls.filter((c) => !nameControls.includes(c) && !cityControls.includes(c));
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+
+        // Validation: ensure variations exist and each has label & price
+        const variationsControl = formControls.find((c) => c.componentType === "variations");
+        if (variationsControl) {
+          const vs = Array.isArray(formData[variationsControl.name]) ? formData[variationsControl.name] : [];
+          if (!Array.isArray(vs) || vs.length === 0) {
+            alert("Please add at least one variation (weight) with label and price.");
+            return;
+          }
+
+          // normalize stock but preserve empty string
+          const normalized = vs.map((v) => {
+            const stock =
+              v.totalStock === "" || v.totalStock === undefined
+                ? ""
+                : Math.max(0, Math.floor(Number(v.totalStock || 0)));
+            return { ...(v || {}), totalStock: stock };
+          });
+          // persist normalized
+          setField(variationsControl.name, normalized);
+
+          for (let i = 0; i < normalized.length; i++) {
+            const v = normalized[i];
+            if (!v.label || String(v.label).trim() === "") {
+              alert(`Variation ${i + 1} requires a label.`);
+              return;
+            }
+            if (v.price === "" || v.price === undefined || v.price === null || Number.isNaN(Number(v.price))) {
+              alert(`Variation ${i + 1} requires a valid price.`);
+              return;
+            }
+          }
+
+          // ensure one default exists
+          if (!normalized.some((x) => x.isDefault)) {
+            const newArr = normalized.map((x, i) => ({ ...x, isDefault: i === 0 }));
+            setField(variationsControl.name, newArr);
+          } else {
+            // ensure default has price
+            const def = normalized.find((x) => x.isDefault);
+            if (!def || def.price === "" || def.price === undefined || Number.isNaN(Number(def.price))) {
+              alert("Default variation must have a valid price.");
+              return;
+            }
+          }
+        }
+
+        onSubmit(e);
+      }}
+      className="space-y-4"
+    >
+      {/* name row */}
+      {nameControls.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {nameControls.map((ctrl) => (
+            <div key={ctrl.name} className="flex flex-col gap-1">
+              <Label className="text-sm font-medium text-slate-600">{ctrl.label}</Label>
+              {renderInputsByComponentType(ctrl)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* other single controls */}
+      <div className="space-y-3">
+        {otherControls.map((ctrl) => (
+          <div key={ctrl.name} className="flex flex-col gap-1">
+            {!suppressOuterLabelTypes.includes(ctrl.componentType) && (
+              <Label className="text-sm font-medium text-slate-600">{ctrl.label}</Label>
+            )}
+            {renderInputsByComponentType(ctrl)}
+          </div>
+        ))}
+      </div>
+
+      {/* city row */}
+      {cityControls.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {cityControls.map((ctrl) => (
+            <div key={ctrl.name} className="flex flex-col gap-1">
+              <Label className="text-sm font-medium text-slate-600">{ctrl.label}</Label>
+              {renderInputsByComponentType(ctrl)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="pt-2">
+        <Button disabled={isBtnDisabled} type="submit" className="w-full rounded-xl py-3">
+          {buttonText || "Submit"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export default CommonForm;
