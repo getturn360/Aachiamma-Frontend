@@ -1,4 +1,3 @@
-// client/src/utils/withGlobalLoading.js
 import store from "../store/store";
 import { setLoading } from "../store/common-slice";
 

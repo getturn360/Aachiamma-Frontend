@@ -3,7 +3,44 @@ import axios from "axios";
 import store from "../store/store";
 import { setLoading } from "../store/common-slice";
 
-let baseURL = import.meta.env.VITE_API_BASE || "/api";
+/**
+ * Robust base resolution:
+ * 1) Vite build-time: import.meta.env.VITE_API_BASE
+ * 2) Runtime override: window.REACT_APP_API_BASE_URL
+ * 3) Fallback to relative "/api"
+ */
+function normalizeBase(url) {
+  if (!url) return "";
+  return String(url).replace(/\/+$/, "");
+}
+
+let buildBase = "";
+try {
+  if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE) {
+    buildBase = String(import.meta.env.VITE_API_BASE);
+  }
+} catch (e) {
+  buildBase = "";
+}
+
+let runtimeBase = "";
+try {
+  if (typeof window !== "undefined" && window.REACT_APP_API_BASE_URL) {
+    runtimeBase = String(window.REACT_APP_API_BASE_URL);
+  }
+} catch (e) {
+  runtimeBase = "";
+}
+
+const resolvedBase = normalizeBase(buildBase || runtimeBase || "");
+const baseURL = resolvedBase || "/api";
+
+if (typeof window !== "undefined") {
+  // helpful debug info in browser console
+  try {
+    console.info("[api] baseURL =", baseURL);
+  } catch (e) {}
+}
 
 const api = axios.create({
   baseURL,
@@ -15,11 +52,11 @@ let pendingRequests = 0;
 
 function startLoading(message = null) {
   pendingRequests += 1;
-  // setLoading expects { value, message } in many projects; adjust if your slice differs
   try {
+    // keep existing payload shape ({ value: boolean, message })
     store.dispatch(setLoading({ value: true, message }));
   } catch (e) {
-    // fail-safe: if store or action not available, swallow error to avoid breaking requests
+    // fail-safe
   }
 }
 
@@ -48,7 +85,6 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    // in case request creation fails
     stopLoading();
     return Promise.reject(error);
   }
@@ -62,16 +98,19 @@ api.interceptors.response.use(
   },
   (error) => {
     stopLoading();
+    // small hint if backend route not found
+    try {
+      if (error?.response?.status === 404 && error?.response?.data?.message) {
+        console.warn("[api] response 404:", error.response.data.message);
+      }
+    } catch (e) {}
     return Promise.reject(error);
   }
 );
 
 /**
- * === NEW: attach Authorization header automatically from localStorage ===
- * Reads `localStorage.auth_token` (if present) and sets:
- *   api.defaults.headers.common['Authorization'] = `Bearer ${token}`
- *
- * Also listens to `storage` events so other tabs/login flows update header.
+ * Attach Authorization header automatically from localStorage
+ * and listen to storage changes so other tabs update header.
  */
 try {
   let raw = null;

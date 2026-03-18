@@ -1,14 +1,9 @@
-// client/src/pages/admin-view/newsletter.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { SearchIcon } from "lucide-react";
 import { useSelector } from "react-redux";
 
-/**
- * Admin Newsletter page — updated to include Authorization header and backend base URL.
- * Replace existing file with this.
- */
 
 function IconSend(props) {
   return (
@@ -23,11 +18,14 @@ function IconSend(props) {
 export default function AdminNewsletter() {
   const { toast } = useToast();
 
-  // get token from redux (auth slice). Adjust selector if your store shape differs.
+
   const token = useSelector((s) => (s.auth ? s.auth.token : null));
 
-  // backend base (Vite env optional)
-  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+  const API_BASE =
+    import.meta.env.VITE_API_BASE ||
+    import.meta.env.VITE_API_URL ||
+    import.meta.env.VITE_API ||
+    "https://aachiamma-backend.fly.dev";
 
   const [subscribers, setSubscribers] = useState([]);
   const [total, setTotal] = useState(0);
@@ -36,28 +34,23 @@ export default function AdminNewsletter() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
-  // send form
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("<p>Hi there! This is an offer from Aachiamma Foods.</p>");
   const [sending, setSending] = useState(false);
 
-  // action lock to avoid double clicks
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
-  // Top notification
   const [notification, setNotification] = useState(null);
 
-  // pending unsubscribe state (for modal)
   const [pendingUnsubscribe, setPendingUnsubscribe] = useState(null);
   const confirmCancelRef = useRef(null);
   const confirmPrimaryRef = useRef(null);
 
-  // debounce ref for live search
   const searchDebounceRef = useRef(null);
 
   useEffect(() => {
     fetchSubscribers();
-    // eslint-disable-next-line
+ 
   }, [page]);
 
   useEffect(() => {
@@ -75,14 +68,13 @@ export default function AdminNewsletter() {
     return () => clearTimeout(t);
   }, [notification]);
 
-  // helper to build headers (adds Authorization if token present)
+
   const buildHeaders = (extra = {}) => {
-    const h = { "Content-Type": "application/json", ...extra };
+    const h = { Accept: "application/json", "Content-Type": "application/json", ...extra };
     if (token) h["Authorization"] = `Bearer ${token}`;
     return h;
   };
 
-  // if no token, show warning (prevents calling protected endpoints)
   const ensureAuth = () => {
     if (!token) {
       setNotification({ type: "error", title: "Not authenticated", message: "Please login as admin/superadmin to access this page." });
@@ -103,7 +95,7 @@ export default function AdminNewsletter() {
       });
 
       if (res.status === 401 || res.status === 403) {
-        // auth error
+      
         setNotification({ type: "error", title: "Unauthorized", message: "You are not authorized — please login." });
         setSubscribers([]);
         setTotal(0);
@@ -254,7 +246,6 @@ export default function AdminNewsletter() {
     }
   }
 
-  // small presentational components inside file for ease of paste
   const Header = () => (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div>
@@ -329,7 +320,6 @@ export default function AdminNewsletter() {
 
       <TopNotification />
 
-      {/* list card */}
       <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
         <div className="grid grid-cols-12 gap-2 text-sm font-medium border-b pb-2 mb-3 text-slate-600">
           <div className="col-span-4">Email</div>
@@ -442,7 +432,6 @@ export default function AdminNewsletter() {
         </div>
       </div>
 
-      {/* Confirm modal */}
       {pendingUnsubscribe && (
         <div
           role="dialog"

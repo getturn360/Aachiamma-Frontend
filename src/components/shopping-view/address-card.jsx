@@ -1,22 +1,9 @@
-// src/components/shopping-view/address-card.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Label } from "../ui/label";
 
-/**
- * AddressCard
- * - unchanged main behaviour
- * - Delete now opens an in-file ConfirmDialog with the same look/behaviour as AdminShipping's dialog
- *
- * Props:
- * - addressInfo
- * - handleDeleteAddress(address)    // called when user confirms delete
- * - handleEditAddress(address)
- * - setCurrentSelectedAddress(...)
- * - selectedId
- * - showUse
- */
+
 
 function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading = false }) {
   const cancelRef = useRef(null);
@@ -24,14 +11,13 @@ function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading 
   useEffect(() => {
     if (!open) return;
 
-    // lock horizontal overflow while modal open (same pattern used elsewhere)
     const html = document.documentElement;
     const prevHtmlOverflowX = html.style.overflowX;
     const prevBodyOverflowX = document.body.style.overflowX;
     html.style.overflowX = "hidden";
     document.body.style.overflowX = "hidden";
 
-    // focus cancel button
+
     setTimeout(() => {
       cancelRef.current?.focus();
     }, 0);
@@ -151,14 +137,14 @@ function AddressCard({
     setDeleting(true);
     try {
       if (typeof handleDeleteAddress === "function") {
-        // allow parent to handle API + refresh; await if it returns a promise
+  
         const res = handleDeleteAddress(addressInfo);
         if (res && typeof res.then === "function") {
           await res;
         }
       }
     } catch (e) {
-      // bubble to console but keep UI stable
+   
       console.error("delete handler error", e);
     } finally {
       setDeleting(false);
@@ -257,7 +243,6 @@ function AddressCard({
             Edit
           </Button>
 
-          {/* red delete button (opens the ConfirmDialog below) */}
           <Button
             variant="destructive"
             className="bg-[#dc2626] hover:bg-[#b91c1c] text-white"
@@ -268,7 +253,6 @@ function AddressCard({
         </CardFooter>
       </Card>
 
-      {/* Confirm dialog (styled like admin dialog) */}
       <ConfirmDialog
         open={confirmDeleteOpen}
         title="Delete address?"

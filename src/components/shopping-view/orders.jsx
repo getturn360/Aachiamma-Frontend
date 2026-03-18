@@ -31,14 +31,12 @@ export default function ShoppingOrdersResponsive() {
   }, [dispatch, user?.id]);
 
   useEffect(() => {
-    // when orderDetails arrives open dialog (helps when fetching async data)
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
 
   const handleOpenDetails = (id) => {
     setSelectedOrderId(id);
     dispatch(getOrderDetails(id));
-    // dialog will open automatically when orderDetails is populated
   };
 
   const closeDialog = () => {
@@ -83,7 +81,6 @@ export default function ShoppingOrdersResponsive() {
       </CardHeader>
 
       <CardContent className="p-2 sm:p-4">
-        {/* Desktop / Tablet: table view */}
         <div className="hidden md:block">
           <div className="overflow-x-auto">
             <Table className="min-w-full">
@@ -177,7 +174,6 @@ export default function ShoppingOrdersResponsive() {
           </div>
         </div>
 
-        {/* Mobile: stacked card list (compact) */}
         <div className="md:hidden space-y-2">
           {orderList && orderList.length > 0 ? (
             orderList.map((orderItem) => (
@@ -219,7 +215,6 @@ export default function ShoppingOrdersResponsive() {
           )}
         </div>
 
-        {/* Dialog showing order details */}
         <Dialog
           open={openDetailsDialog}
           onOpenChange={(open) => {
@@ -227,7 +222,6 @@ export default function ShoppingOrdersResponsive() {
             else setOpenDetailsDialog(true);
           }}
         >
-          {/* ShoppingOrderDetailsView should render the dialog content internally or be wrapped in the dialog content component */}
           <ShoppingOrderDetailsView orderDetails={orderDetails} />
         </Dialog>
       </CardContent>

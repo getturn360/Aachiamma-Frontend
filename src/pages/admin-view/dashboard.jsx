@@ -1,4 +1,3 @@
-// client/src/pages/admin-view/dashboard.jsx
 import React, { useEffect, useState, useRef } from "react";
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import { Button } from "@/components/ui/button";
@@ -7,18 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
-import PopupsManager from "@/components/admin-view/popups-manager"; // NEW: Popups manager
+import PopupsManager from "@/components/admin-view/popups-manager"; 
 
-/**
- * AdminDashboard - Responsive improvements
- * - keeps existing API & ProductImageUpload component and behavior
- * - improves responsiveness: stacked controls on small screens, full-width inputs/buttons,
- *   responsive grids and fixed-ish image heights to avoid layout shifts
- *
- * Drop-in replacement for client/src/pages/admin-view/dashboard.jsx
- */
-
-const API_HOST = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const API_HOST = import.meta.env.VITE_API_BASE || "https://aachiamma-backend.fly.dev";
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -28,18 +18,15 @@ export default function AdminDashboard() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [imageLoadingState, setImageLoadingState] = useState(false);
 
-  // logos state
   const [logos, setLogos] = useState([]);
   const [logoFiles, setLogoFiles] = useState({ front: null, back: null });
   const [logoLoading, setLogoLoading] = useState(false);
   const [logoMsg, setLogoMsg] = useState("");
 
-  // modal / delete state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // logo-delete confirm flow
   const [logoToDeleteId, setLogoToDeleteId] = useState(null);
   const [logoConfirmOpen, setLogoConfirmOpen] = useState(false);
   const [logoDeleteLoading, setLogoDeleteLoading] = useState(false);
@@ -49,7 +36,6 @@ export default function AdminDashboard() {
     fetchLogos();
   }, [dispatch]);
 
-  // feature image functions (unchanged)
   async function handleSaveFeatureImage() {
     if (!uploadedImageUrl) return toastAlert("Upload an image first");
     try {
@@ -67,7 +53,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // logo management functions
   async function fetchLogos() {
     try {
       const res = await axios.get(`${API_HOST}/api/admin/site-media/get`);
@@ -99,7 +84,7 @@ export default function AdminDashboard() {
       const fd = new FormData();
       fd.append("my_file", file);
       fd.append("variant", variant);
-      // DO NOT manually set Content-Type — let browser add boundary
+
       const res = await axios.post(`${API_HOST}/api/admin/site-media/upload`, fd);
       if (res.data && res.data.success) {
         setLogoMsg("Logo uploaded");
@@ -117,7 +102,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // request logo delete -> opens themed confirm dialog
   function requestDeleteLogo(id) {
     setLogoToDeleteId(id);
     setLogoConfirmOpen(true);
@@ -141,7 +125,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // open confirm modal (feature image)
   function openConfirm(item) {
     setImageToDelete(item);
     setConfirmOpen(true);
@@ -153,7 +136,6 @@ export default function AdminDashboard() {
     setImageToDelete(null);
   }
 
-  // delete feature image
   async function handleConfirmDelete() {
     if (!imageToDelete?._id) return;
     try {
@@ -170,14 +152,13 @@ export default function AdminDashboard() {
     }
   }
 
-  // small toast replacement
   function toastAlert(message = "", type = "info") {
     console.log("TOAST::", type, message);
   }
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-      {/* header */}
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent truncate">
@@ -189,12 +170,10 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Popups manager (NEW) */}
       <div>
         <PopupsManager />
       </div>
 
-      {/* Site Logos card */}
       <div className="rounded-2xl bg-white p-4 sm:p-6 shadow-lg border">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -206,7 +185,7 @@ export default function AdminDashboard() {
 
           <div className="w-full md:w-1/2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Front logo block */}
+        
               <div className="flex flex-col gap-2">
                 <label className="block text-sm font-medium">Logo Front</label>
                 <input
@@ -216,7 +195,7 @@ export default function AdminDashboard() {
                   aria-label="Select front logo file"
                   className="w-full"
                 />
-                {/* Highlight: required size only — added as requested */}
+          
                 <div className="mt-2 p-2 border-2 border-dashed border-amber-400 bg-amber-50 text-sm text-amber-800 rounded">
                   <strong>Required size:</strong> 700 × 598 px — please upload logo at these exact dimensions.
                 </div>
@@ -241,7 +220,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Back logo block */}
+       
               <div className="flex flex-col gap-2">
                 <label className="block text-sm font-medium">Logo Back</label>
                 <input
@@ -284,7 +263,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* existing logos list */}
         <div className="mt-4">
           <h4 className="text-sm font-medium mb-2">Existing uploaded logos</h4>
           {logos.length === 0 && (
@@ -329,7 +307,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* original upload card (Feature images) */}
       <div className="rounded-2xl bg-gradient-to-r from-white/60 via-white/40 to-white/30 p-4 sm:p-6 shadow-lg border border-slate-100">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -376,7 +353,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* gallery */}
       <section className="rounded-2xl bg-white p-4 sm:p-5 shadow-sm border">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium">Existing feature images</h3>
@@ -393,7 +369,7 @@ export default function AdminDashboard() {
                 exit={{ opacity: 0, y: 6 }}
                 className="relative rounded-xl overflow-hidden shadow-md border hover:shadow-xl transition-shadow bg-slate-50"
               >
-                {/* image area */}
+            
                 <div className="group relative bg-gray-100">
                   <img
                     src={it.image}
@@ -403,7 +379,7 @@ export default function AdminDashboard() {
                     style={{ minHeight: 120 }}
                   />
 
-                  {/* overlay shown on hover */}
+               
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
                     <div className="p-3 w-full flex items-center justify-between">
                       <div className="text-xs text-white/90 truncate max-w-[70%]">{it._id}</div>
@@ -421,7 +397,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* caption area */}
+           
                 <div className="p-3">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-medium truncate">Feature image</div>
@@ -438,7 +414,6 @@ export default function AdminDashboard() {
         )}
       </section>
 
-      {/* Confirm dialogs (themed) */}
       <ConfirmDialog
         open={confirmOpen}
         title="Delete feature image"
@@ -460,7 +435,6 @@ export default function AdminDashboard() {
   );
 }
 
-// Reusable ConfirmDialog component (same design as in AdminShipping)
 function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading = false }) {
   const cancelRef = useRef(null);
 

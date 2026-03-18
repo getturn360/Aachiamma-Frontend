@@ -1,4 +1,3 @@
-// client/src/store/shop/review-slice/index.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/api/axios";
 
@@ -13,7 +12,7 @@ export const addReview = createAsyncThunk(
   async (formdata, { rejectWithValue }) => {
     try {
       const response = await api.post(`api/shop/review/add`, formdata);
-      // return the server response body (expected: { success: true, data: {...}, message: "..." })
+    
       return response.data;
     } catch (err) {
       const payload = err.response?.data || { message: err.message || "Network error" };
@@ -47,21 +46,20 @@ const reviewSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // addReview
+   
       .addCase(addReview.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(addReview.fulfilled, (state, action) => {
         state.isLoading = false;
-        // server may return created review or a message; we won't mutate list here
+  
       })
       .addCase(addReview.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload?.message || action.error?.message || "Failed to add review";
       })
 
-      // getReviews
       .addCase(getReviews.pending, (state) => {
         state.isLoading = true;
         state.error = null;

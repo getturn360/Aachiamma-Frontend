@@ -1,4 +1,3 @@
-// client/src/components/admin-view/ProductFormTabs.jsx
 import React, { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -8,14 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import VariantEditor from "./variant-editor";
 import api from "@/api/axios";
 
-/**
- * ProductFormTabs
- * - Uses VariantEditor for variations (per-variant stock)
- *
- * Props:
- * - initialData: {} (product when editing)
- * - onSaved: function(product)
- */
 function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
   const [activeTab, setActiveTab] = useState("basic");
   const [form, setForm] = useState({
@@ -33,11 +24,10 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
     specList: [],
     faqList: [],
     ingredients: "",
-    hsn: "", // <-- new optional HSN field
+    hsn: "", 
   });
   const [saving, setSaving] = useState(false);
 
-  // dynamic categories from server (array of { id, label })
   const [categoryOptions, setCategoryOptions] = useState([
     { id: "pickles", label: "Pickles" },
     { id: "snacks", label: "Snacks" },
@@ -61,16 +51,15 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
       images: Array.isArray(initialData.images) ? initialData.images : [],
       image: initialData.image || "",
       special: Array.isArray(initialData.special) ? initialData.special : [],
-      // keep whatever variations come from server (may contain _id)
       variations: Array.isArray(initialData.variations) ? initialData.variations : [],
       specList: Array.isArray(initialData.specList) ? initialData.specList : [],
       faqList: Array.isArray(initialData.faqList) ? initialData.faqList : [],
       ingredients: initialData.ingredients || "",
-      hsn: initialData.hsn || "", // <-- initialize from initialData if present
+      hsn: initialData.hsn || "", 
     });
   }, [initialData]);
 
-  // fetch categories from server on mount (non-blocking)
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -80,7 +69,7 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
         if (res?.data?.success) {
           const raw = res.data.categories || res.data.data || [];
           const mapped = raw.map((c) => {
-            // prefer slug, then _id, then name
+    
             const id = c.slug || c._id || c.name;
             const label = c.name || c.slug || String(id);
             return { id, label };
@@ -92,7 +81,6 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
           }
         }
       } catch (err) {
-        // ignore: fallback already set
       } finally {
         setCatsLoaded(true);
       }
@@ -115,7 +103,7 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
     setField("faqList", [...(form.faqList || []), { question: "", answer: "" }]);
   }
 
-  // Validation: ensure variations present and each has label & price & totalStock >= 0
+
   function validateForm() {
     if (!form.title || !form.title.trim()) {
       alert("Title is required");
@@ -125,7 +113,6 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
       alert("At least one variation is required (per-variant stock required).");
       return false;
     }
-    // normalize and check
     for (let i = 0; i < form.variations.length; i++) {
       const v = form.variations[i];
       if (!v || !v.label || String(v.label).trim() === "") {
@@ -136,15 +123,14 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
         alert(`Variation "${v.label || i + 1}" must have price > 0`);
         return false;
       }
-      // allow zero stock but not null/undefined
       if (v.totalStock == null || isNaN(Number(v.totalStock))) {
         alert(`Variation "${v.label || i + 1}" has invalid stock`);
         return false;
       }
     }
-    // ensure one default
+  
     if (!form.variations.some((x) => x.isDefault)) {
-      // set first as default (mutate local form copy)
+
       const vs = form.variations.map((x, idx) => ({ ...x, isDefault: idx === 0 }));
       setField("variations", vs);
     }
@@ -156,9 +142,9 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
     if (!validateForm()) return;
     setSaving(true);
     try {
-      // prepare payload
+
       const mappedVariations = (form.variations || []).map((v) => ({
-        // use server-friendly _id property if present
+    
         ...(v._id ? { _id: v._id } : (v.id ? { _id: v.id } : {})),
         label: String(v.label || "").trim(),
         sku: v.sku || "",
@@ -186,10 +172,9 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
         specList: form.specList,
         faqList: form.faqList,
         ingredients: form.ingredients,
-        hsn: form.hsn || "", // <-- include hsn in payload
+        hsn: form.hsn || "", 
       };
 
-      // send to server via project's api instance
       const isUpdate = !!initialData?._id;
       const resp = isUpdate
         ? await api.put(`/api/admin/products/${initialData._id}`, payload)

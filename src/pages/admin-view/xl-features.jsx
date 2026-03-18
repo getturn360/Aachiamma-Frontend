@@ -1,29 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-/*
-  XLWorkbook.react.jsx
-  Improved single-file React XL-style spreadsheet component.
 
-  Features implemented / improved:
-    - Editable grid (configurable rows × cols)
-    - Keyboard navigation (arrows, Enter to edit, Tab/Shift+Tab for move)
-    - Formula parser with functions (SUM, AVERAGE, MIN, MAX, COUNT), ranges and cell refs
-    - Proper cycle detection (per-cell)
-    - Undo / Redo history (captures grid size & col widths)
-    - Add / remove rows and columns
-    - CSV import/export (more robust CSV parser for quoted fields)
-    - Copy / Paste (tab/CSV style) with clipboard API fallback
-    - Column resizing (drag handle)
-    - Row/column freezing (toggle first row & first column)
-    - Simple formatting: bold, italic, number format (plain/number/currency)
-    - Sort selected column (asc/desc)
-    - LocalStorage autosave and manual Save / Load JSON
-    - Lightweight memoization for cell rendering
-
-  Usage: drop this file into a React project (Tailwind optional). The component is self-contained
-  and exports default XLWorkbook.
-*/
-
-// ------------------ Utilities ------------------
 const colIndexToName = (n) => {
   let name = "";
   while (n >= 0) {
@@ -73,7 +49,6 @@ const parseRange = (rangeStr) => {
   return cells;
 };
 
-// safer small tokenizer (keeps identifiers like A1, SUM, numbers, parentheses and operators)
 const tokenizeFormula = (formula) => {
   const tokens = [];
   let i = 0;
@@ -104,29 +79,26 @@ const tokenizeFormula = (formula) => {
       i = j;
       continue;
     }
-    // unknown char, skip
+
     i++;
   }
   return tokens;
 };
 
-// Evaluate formula string. getCellValue should return raw cell (string or number) for given r,c
 function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new Set()) {
   if (!formula) return "";
   if (!String(formula).startsWith("=")) return String(formula);
 
   const expr = String(formula).slice(1).trim();
 
-  // detect cyclic references per-cellKey context
   if (cellKey) {
     if (seen.has(cellKey)) return "#CYCLE";
   }
 
-  // helper to evaluate an argument (number, cell, range or nested formula)
   const evalArgRaw = (raw, localSeen) => {
     if (typeof raw !== "string") return Number(raw) || 0;
     const s = raw.trim();
-    // range or cell like A1 or A1:B2
+
     if (/^[A-Za-z]+\d+(:[A-Za-z]+\d+)?$/.test(s)) {
       if (s.includes(":")) {
         const cells = parseRange(s);
@@ -134,7 +106,7 @@ function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new
           const key = coordsToCell(c.r, c.c);
           const val = getCellValue(c.r, c.c);
           if (typeof val === "string" && val.startsWith("=")) {
-            // pass seen copy and include current cellKey if available
+       
             const nextSeen = new Set(localSeen);
             if (cellKey) nextSeen.add(cellKey);
             const ev = evaluateFormulaString(val, getCellValue, key, nextSeen);
@@ -155,7 +127,7 @@ function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new
         return Number(val) || 0;
       }
     }
-    // nested formula like =A1+2
+  
     if (s.startsWith("=")) {
       const nextSeen = new Set(localSeen);
       if (cellKey) nextSeen.add(cellKey);
@@ -164,7 +136,6 @@ function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new
     return Number(s) || 0;
   };
 
-  // Function call at top-level: NAME(arg1,arg2,...)
   const funcMatch = /^([A-Za-z]+)\((.*)\)$/.exec(expr);
   if (funcMatch) {
     const fname = funcMatch[1].toUpperCase();
@@ -208,21 +179,20 @@ function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new
     }
   }
 
-  // Replace cell references with numeric values (or quoted strings) and evaluate arithmetic.
   const replaced = expr.replace(/([A-Za-z]+\d+)/g, (m) => {
     const coords = cellToCoords(m);
     if (!coords) return "0";
     const key = coordsToCell(coords.r, coords.c);
     const raw = getCellValue(coords.r, coords.c);
     if (typeof raw === "string" && raw.startsWith("=")) {
-      // track seen per key
+    
       if (cellKey) seen.add(cellKey);
       const v = evaluateFormulaString(raw, getCellValue, key, new Set(seen));
       return Number(v) || 0;
     }
     if (raw === undefined || raw === null || raw === "") return "0";
     if (!isNaN(Number(raw))) return String(Number(raw));
-    // non-numeric string -> quote it so arithmetic won't try to operate (makes expression invalid and caught later)
+
     return `"${String(raw).replace(/"/g, '\\"')}`;
   });
 
@@ -230,7 +200,7 @@ function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new
     return "#ERR";
   }
   try {
-    // eslint-disable-next-line no-new-func
+ 
     const fn = new Function(`return (${replaced})`);
     const res = fn();
     if (res === Infinity || res === -Infinity) return "#DIV/0";
@@ -241,7 +211,6 @@ function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new
   }
 }
 
-// Simple robust CSV parser that handles quoted fields and commas inside quotes.
 function parseCSV(text) {
   const rows = [];
   let row = [];
@@ -252,8 +221,8 @@ function parseCSV(text) {
     const nxt = text[i + 1];
     if (ch === '"') {
       if (inQuotes && nxt === '"') {
-        cur += '"'; // escaped quote
-        i++; // skip next
+        cur += '"'; 
+        i++; 
       } else {
         inQuotes = !inQuotes;
       }
@@ -265,7 +234,7 @@ function parseCSV(text) {
       continue;
     }
     if (!inQuotes && (ch === '\n' || (ch === '\r' && text[i + 1] === '\n'))) {
-      // handle CRLF
+    
       row.push(cur);
       rows.push(row);
       row = [];
@@ -275,18 +244,16 @@ function parseCSV(text) {
     }
     cur += ch;
   }
-  // final cell
+
   if (cur !== '' || inQuotes) row.push(cur);
   if (row.length > 0) rows.push(row);
   return rows;
 }
 
-// ------------------ Main component ------------------
 export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_workbook_v2" }) {
   const [rowCount, setRowCount] = useState(rows);
   const [colCount, setColCount] = useState(cols);
 
-  // data: { A1: { value: string|number, format: { bold, italic, type } } }
   const [data, setData] = useState(() => {
     try {
       const raw = localStorage.getItem(storageKey);
@@ -295,23 +262,19 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     return {};
   });
 
-  // structural state
   const [colWidths, setColWidths] = useState(() => Array(cols).fill(120));
   const [freezeTop, setFreezeTop] = useState(true);
   const [freezeLeft, setFreezeLeft] = useState(true);
 
-  // selection: r,c top-left and r2,c2 bottom-right, editing flag
   const [sel, setSel] = useState({ r: 0, c: 0, r2: 0, c2: 0, editing: false });
   const [formulaBar, setFormulaBar] = useState("");
 
-  // history snapshots hold {data, rowCount, colCount, colWidths}
   const [history, setHistory] = useState([]);
   const [future, setFuture] = useState([]);
 
   const fileInputRef = useRef(null);
   const editorRef = useRef(null);
 
-  // helpers
   const getKey = (r, c) => coordsToCell(r, c);
   const getRaw = useCallback((r, c) => {
     const k = getKey(r, c);
@@ -324,7 +287,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
 
   const pushHistory = useCallback(() => {
     setHistory((h) => [...h, { data: JSON.parse(JSON.stringify(data)), rowCount, colCount, colWidths: [...colWidths] }]);
-    // clamp history size
     setHistory((h) => (h.length > 100 ? h.slice(h.length - 100) : h));
   }, [data, rowCount, colCount, colWidths]);
 
@@ -343,7 +305,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     });
   }, [pushHistory]);
 
-  // Undo / Redo
   const undo = useCallback(() => {
     setHistory((h) => {
       if (h.length === 0) return h;
@@ -370,7 +331,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     });
   }, [data, rowCount, colCount, colWidths, rows, cols]);
 
-  // Evaluate cell (with cellKey based cycle detection)
   const evaluateCell = useCallback((r, c) => {
     const raw = getRaw(r, c);
     const k = coordsToCell(r, c);
@@ -380,17 +340,15 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     return raw;
   }, [getRaw]);
 
-  // autosave
   useEffect(() => {
     const payload = { data, rowCount, colCount, colWidths };
     try { localStorage.setItem(storageKey, JSON.stringify(payload)); } catch (e) {}
   }, [data, rowCount, colCount, colWidths, storageKey]);
 
-  // keyboard handling
   useEffect(() => {
     const handler = (e) => {
       if (sel.editing) {
-        // when editing, only capture specific keys (Escape to cancel)
+ 
         if (e.key === 'Escape') {
           setSel((s) => ({ ...s, editing: false }));
         }
@@ -411,7 +369,7 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
         setSel((s) => ({ ...s, c: Math.min(colCount - 1, s.c + 1), c2: Math.min(colCount - 1, s.c2 + 1) }));
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        // Enter edits. If editing and not multiline, commit
+ 
         setSel((s) => ({ ...s, editing: true }));
       } else if (e.key === 'Tab') {
         e.preventDefault();
@@ -430,7 +388,7 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
         e.preventDefault();
         pasteFromClipboard();
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        // clear selection
+ 
         const { r, c, r2, c2 } = sel;
         const rr1 = Math.min(r, r2);
         const rr2 = Math.max(r, r2);
@@ -452,9 +410,9 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     return () => window.removeEventListener('keydown', handler);
   }, [sel, rowCount, colCount, undo, redo, pushHistory]);
 
-  // CSV export
+
   const exportCSV = useCallback(() => {
-    // compute extents
+  
     let maxR = 0;
     let maxC = 0;
     Object.keys(data).forEach((k) => {
@@ -473,7 +431,7 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
         if (v === undefined || v === null) colsA.push("");
         else {
           const s = String(v);
-          // quote fields with commas or quotes or newlines
+        
           if (/[,"\n\r]/.test(s)) colsA.push(`"${s.replace(/"/g, '""')}"`);
           else colsA.push(s);
         }
@@ -487,7 +445,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     URL.revokeObjectURL(url);
   }, [data, rowCount, colCount, getRaw]);
 
-  // CSV import
   const importCSV = useCallback((text) => {
     const parsed = parseCSV(text);
     const next = {};
@@ -504,7 +461,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     setColCount(Math.max(colCount, parsed[0] ? parsed[0].length : colCount));
   }, [pushHistory, rowCount, colCount]);
 
-  // file input handler for CSV
   const onFile = (e) => {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
@@ -514,7 +470,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     e.target.value = null;
   };
 
-  // clipboard helpers
   const copySelectionToClipboard = useCallback(async () => {
     const { r, c, r2, c2 } = sel;
     const rr1 = Math.min(r, r2);
@@ -567,7 +522,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     });
   }, [sel, pushHistory]);
 
-  // add / remove rows / cols
   const addRow = useCallback((index = rowCount) => {
     pushHistory(); setFuture([]);
     const next = {};
@@ -629,7 +583,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     pushHistory(); setFuture([]); setData(next);
   }, [sel, rowCount, colCount, data, getRaw, pushHistory]);
 
-  // column resize
   const startResize = useCallback((index, startX) => {
     const initial = colWidths[index] || 120;
     const onMove = (e) => {
@@ -640,7 +593,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
   }, [colWidths]);
 
-  // formatting toolbar for selected cells
   const toggleFormat = useCallback((fmt) => {
     const { r, c, r2, c2 } = sel;
     const rr1 = Math.min(r, r2); const rr2 = Math.max(r, r2);
@@ -661,10 +613,8 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     });
   }, [sel, pushHistory]);
 
-  // clear all
   const clearAll = useCallback(() => { pushHistory(); setFuture([]); setData({}); setRowCount(rows); setColCount(cols); setColWidths(Array(cols).fill(120)); }, [pushHistory, rows, cols]);
 
-  // save/load as JSON
   const saveToFile = useCallback(() => {
     const obj = { rowCount, colCount, colWidths, data };
     const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' });
@@ -689,7 +639,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     reader.readAsText(file);
   }, [pushHistory, rows, cols]);
 
-  // editor focus management
   useEffect(() => {
     if (sel.editing && editorRef.current) {
       editorRef.current.focus();
@@ -711,7 +660,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
 
   const headers = useMemo(() => Array.from({ length: colCount }).map((_, i) => colIndexToName(i)), [colCount]);
 
-  // Cell component (keeps renders reasonable)
   function Cell({ r, c }) {
     const key = coordsToCell(r, c);
     const cellObj = data[key] || { value: '', format: {} };
@@ -726,7 +674,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     const style = { width: colWidths[c] || 120, minWidth: colWidths[c] || 120 };
     const className = `border border-gray-200 relative p-2 min-h-[36px] overflow-hidden ${selected ? 'bg-blue-50' : 'bg-white'}`;
 
-    // sticky left column
     const cellStyle = { ...style };
     if (freezeLeft && c === 0) {
       cellStyle.position = 'sticky'; cellStyle.left = 0; cellStyle.zIndex = 5; cellStyle.background = selected ? '#eef2ff' : '#fff';
@@ -758,10 +705,9 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     );
   }
 
-  // render grid
   return (
     <div className="p-4">
-      {/* Toolbar */}
+
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         <button className="px-3 py-1 rounded bg-gray-100" onClick={() => setSel((s) => ({ ...s, editing: true }))}>Edit</button>
         <button className="px-3 py-1 rounded bg-gray-100" onClick={() => addRow()}>Add Row</button>
@@ -787,7 +733,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
         </div>
       </div>
 
-      {/* Formatting toolbar */}
       <div className="flex items-center gap-2 mb-2">
         <button className="px-2 py-1 rounded border" onClick={() => toggleFormat('bold')}>B</button>
         <button className="px-2 py-1 rounded border" onClick={() => toggleFormat('italic')}>I</button>
@@ -795,7 +740,6 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
         <button className="px-2 py-1 rounded border" onClick={() => toggleFormat('currency')}>Currency</button>
       </div>
 
-      {/* Formula bar */}
       <div className="flex gap-2 items-center mb-2">
         <div className="px-3 py-1 rounded bg-gray-100">{coordsToCell(sel.r, sel.c)}</div>
         <input
@@ -806,10 +750,9 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
         />
       </div>
 
-      {/* Grid */}
       <div className="border rounded overflow-auto" style={{ maxHeight: '70vh' }}>
         <div style={{ minWidth: colCount * 100 + 120 }}>
-          {/* Header row */}
+      
           <div className="flex sticky top-0 bg-white z-20" style={{ position: 'sticky', top: 0 }}>
             <div className="w-16 border-r border-b p-2 bg-gray-50" style={{ position: freezeLeft ? 'sticky' : 'static', left: freezeLeft ? 0 : 'auto', zIndex: 25 }}>{/* corner */}</div>
             {headers.map((h, idx) => (
@@ -824,7 +767,7 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
             ))}
           </div>
 
-          {/* Rows */}
+         
           {Array.from({ length: rowCount }).map((_, r) => (
             <div className="flex" key={r}>
               <div className="w-16 border-r border-b p-2 bg-gray-50 text-sm" style={{ position: freezeLeft ? 'sticky' : 'static', left: freezeLeft ? 0 : 'auto', zIndex: 10 }}>{r + 1}</div>
@@ -836,7 +779,7 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
         </div>
       </div>
 
-      {/* Footer summary */}
+      
       <div className="mt-2 text-sm text-gray-600">
         {Object.keys(data).length} cells used • {rowCount} rows × {colCount} cols
       </div>

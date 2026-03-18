@@ -1,4 +1,3 @@
-// client/src/components/admin-view/image-upload.jsx
 import { FileIcon, UploadCloudIcon, XIcon, Loader2 } from "lucide-react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -18,6 +17,9 @@ function ProductImageUpload({
   isCustomStyling = false,
 }) {
   const inputRef = useRef(null);
+
+  const API_BASE =
+    (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
 
   function handleImageFileChange(event) {
     const selectedFile = event.target.files?.[0];
@@ -41,18 +43,27 @@ function ProductImageUpload({
   }
 
   async function uploadImageToCloudinary() {
+    if (!imageFile) return;
     setImageLoadingState(true);
+
     const data = new FormData();
     data.append("my_file", imageFile);
 
+    const endpoint = API_BASE
+      ? `${API_BASE}/api/admin/products/upload-image`
+      : "/api/admin/products/upload-image";
+
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/admin/products/upload-image",
-        data
-      );
+      const response = await axios.post(endpoint, data, {
+        headers: {
+        },
+      });
 
       if (response?.data?.success) {
         setUploadedImageUrl(response.data.result.url);
+      } else {
+    
+        console.error("Upload response:", response?.data);
       }
     } catch (error) {
       console.error("Upload failed:", error);
@@ -63,7 +74,7 @@ function ProductImageUpload({
 
   useEffect(() => {
     if (imageFile !== null) uploadImageToCloudinary();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [imageFile]);
 
   return (
@@ -73,7 +84,7 @@ function ProductImageUpload({
         onDrop={handleDrop}
         className={`relative border-2 border-dashed rounded-xl p-6 transition-all duration-300 hover:border-primary hover:shadow-lg bg-white/30 backdrop-blur-md`}
       >
-        {/* keep input enabled so users can replace image while editing */}
+    
         <Input
           id="image-upload"
           type="file"
@@ -82,7 +93,7 @@ function ProductImageUpload({
           onChange={handleImageFileChange}
         />
 
-        {/* Show uploading loader */}
+      
         {imageLoadingState ? (
           <motion.div className="flex flex-col items-center justify-center h-40">
             <motion.div
@@ -112,14 +123,11 @@ function ProductImageUpload({
                     className="w-28 h-28 object-cover rounded-md"
                   />
                   <div className="flex flex-col">
-                    {/* <span className="text-sm font-medium">Current image</span> */}
-                    {/* URL / filename removed on purpose */}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Label htmlFor="image-upload" className="cursor-pointer">
-                    {/* <Button size="sm">Replace</Button> */}
                   </Label>
                   <Button
                     variant="ghost"
@@ -154,15 +162,23 @@ function ProductImageUpload({
                 </Button>
               </motion.div>
             ) : (
-              /* rest of fallback UI */
-              <Label htmlFor="image-upload" className={`flex flex-col items-center justify-center h-40 cursor-pointer transition-transform hover:scale-105`}>
-                <motion.div className="mb-3" whileHover={{ scale: 1.2 }} transition={{ duration: 0.3 }}>
+  
+              <Label
+                htmlFor="image-upload"
+                className={`flex flex-col items-center justify-center h-40 cursor-pointer transition-transform hover:scale-105`}
+              >
+                <motion.div
+                  className="mb-3"
+                  whileHover={{ scale: 1.2 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <UploadCloudIcon className="w-12 h-12 text-muted-foreground" />
                 </motion.div>
-                <span className="text-sm font-medium text-muted-foreground text-center">Drag & drop or click to upload</span>
+                <span className="text-sm font-medium text-muted-foreground text-center">
+                  Drag & drop or click to upload
+                </span>
               </Label>
             )}
-
           </>
         )}
       </div>

@@ -1,10 +1,8 @@
-// client/src/pages/admin-view/add-coupon.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 
-/* UI components (checkbox + select) from your components/ui folder. */
 import { Checkbox } from "@/components/ui/checkbox";
 import {
     Select,
@@ -14,26 +12,13 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 
-/**
- * Build a resilient API base and join helper to avoid duplicate "/api"
- */
 const API_BASE_ROOT = (() => {
     try {
-        if (typeof window !== "undefined" && window.REACT_APP_API_BASE_URL) {
-            return String(window.REACT_APP_API_BASE_URL).replace(/\/$/, "");
-        }
-    } catch (e) { }
-    try {
-        if (typeof window !== "undefined") {
-            const loc = window.location || {};
-            const hostname = loc.hostname || "";
-            if (hostname === "localhost" || hostname === "127.0.0.1") {
-                return `${loc.protocol || "http:"}//${hostname}:5000`;
-            }
-        }
-    } catch (e) { }
-    // return empty string for relative paths
-    return "";
+        const raw = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
+        return raw || "";
+    } catch (e) {
+        return "";
+    }
 })();
 
 const joinPath = (root, path) => {
@@ -41,15 +26,8 @@ const joinPath = (root, path) => {
     return root.replace(/\/$/, "") + (path.startsWith("/") ? path : "/" + path);
 };
 
-/**
- * Admin coupons endpoints
- */
 const API_ADMIN = joinPath(API_BASE_ROOT, "/api/admin/coupons");
 
-/**
- * PRODUCTS endpoints---we'll attempt several common paths if one 404s.
- * <- REORDERED: try /api/admin/products/get first (server often exposes this)
- */
 const PRODUCTS_ENDPOINT_CANDIDATES = [
     "/api/admin/products/get",
     "/api/admin/products/list",
@@ -82,7 +60,7 @@ const localDatetimeToISO = (val) => {
 
 export default function AddCoupon() {
     const navigate = useNavigate();
-    const { id: routeId } = useParams(); // if editing, route param present
+    const { id: routeId } = useParams(); 
     const isEditing = !!routeId;
 
     const nameRef = useRef(null);
@@ -91,31 +69,28 @@ export default function AddCoupon() {
     const [form, setForm] = useState({
         name: "",
         code: "",
-        type: "fixed", // fixed | percent
+        type: "fixed", 
         value: "",
         usageLimit: "",
         perUserLimit: 1,
         startsAt: "",
         endsAt: "",
         active: true,
-        // NEW fields for applicability
-        applicableFor: "all", // "all" | "custom"
-        applicableProducts: [], // array of product ids (strings)
+   
+        applicableFor: "all", 
+        applicableProducts: [], 
     });
     const [saving, setSaving] = useState(false);
     const [createdCoupon, setCreatedCoupon] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
 
-    // products list for custom selection
     const [allProducts, setAllProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(false);
 
-    // notification state
     const [notification, setNotification] = useState({ open: false, type: "info", title: "", message: "" });
 
-    // load coupon when editing (and always load products)
     useEffect(() => {
-        // always load products first so UI can show checkboxes
+   
         loadProducts();
 
         if (!isEditing) return;
@@ -132,7 +107,7 @@ export default function AddCoupon() {
                     setNotification({ open: true, type: "error", title: "Load failed", message: msg });
                     return;
                 }
-                // populate form (dates to local datetime) and normalize applicable ids to strings
+              
                 setForm((s) => ({
                     ...s,
                     name: data.name || "",
@@ -157,10 +132,10 @@ export default function AddCoupon() {
             }
         };
         load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+       
     }, [isEditing, routeId]);
 
-    // Attempt multiple product endpoints until one succeeds
+    
     const loadProducts = async () => {
         setLoadingProducts(true);
         try {
@@ -170,14 +145,14 @@ export default function AddCoupon() {
                 const url = joinPath(API_BASE_ROOT, ep);
                 try {
                     const res = await axios.get(url);
-                    // try to find array in common locations
+               
                     products = (res.data && (res.data.data || res.data)) || [];
                     if (!Array.isArray(products) && typeof products === "object") {
                         if (Array.isArray(products.items)) products = products.items;
                         else products = [];
                     }
                     if (Array.isArray(products)) {
-                        // normalize ids to strings so comparisons work reliably
+                 
                         const normalized = products.map((p) => ({ ...p, _id: String(p._id || p.id || p.productId) }));
                         setAllProducts(normalized);
                         lastErr = null;
@@ -185,12 +160,12 @@ export default function AddCoupon() {
                     }
                 } catch (e) {
                     lastErr = e;
-                    // try next candidate
+                 
                 }
             }
 
             if (lastErr && (!Array.isArray(products) || products.length === 0)) {
-                // final fallback: try relative path "/api/admin/products/get"
+          
                 try {
                     const res2 = await axios.get("/api/admin/products/get");
                     const products2 = (res2.data && (res2.data.data || res2.data)) || [];
@@ -209,7 +184,7 @@ export default function AddCoupon() {
         }
     };
 
-    // auto hide notification after 4s
+
     useEffect(() => {
         if (!notification.open) return;
         const t = setTimeout(() => setNotification((s) => ({ ...s, open: false })), 4000);
@@ -248,7 +223,6 @@ export default function AddCoupon() {
         if (form.perUserLimit && Number(form.perUserLimit) <= 0) return "Per-user limit must be >= 1.";
         if (form.usageLimit !== "" && Number(form.usageLimit) <= 0) return "Usage limit must be empty or > 0.";
         if (form.startsAt && form.endsAt && new Date(form.startsAt) > new Date(form.endsAt)) return "Start must be before end.";
-        // if custom, ensure at least one product selected
         if (form.applicableFor === "custom" && (!Array.isArray(form.applicableProducts) || form.applicableProducts.length === 0)) {
             return "For custom applicability select at least one product (or choose All products).";
         }
@@ -284,10 +258,10 @@ export default function AddCoupon() {
 
             let res;
             if (isEditing) {
-                // update existing
+       
                 res = await axios.put(`${API_ADMIN}/${routeId}`, payload);
             } else {
-                // create new
+           
                 res = await axios.post(`${API_ADMIN}/create`, payload);
             }
 
@@ -303,7 +277,7 @@ export default function AddCoupon() {
                     message: `${data.code || payload.code} ${isEditing ? "updated" : "created"} successfully.`,
                 });
                 if (!isEditing) resetForm();
-                // if editing, update form with returned data (to reflect any server-normalized fields)
+
                 if (isEditing) {
                     setForm((s) => ({
                         ...s,
@@ -351,10 +325,8 @@ export default function AddCoupon() {
     const valuePreview = () =>
         form.value ? (form.type === "percent" ? `${Number(form.value)}% off` : `₹${Number(form.value).toFixed(2)}`) : "-";
 
-    // gray-button hover class: slight darken (tailwind slate-200)
     const grayHoverClass = "hover:bg-slate-200";
 
-    // product selection toggle (normalize to string)
     const toggleProductSelection = (productId) => {
         const pid = String(productId);
         setForm((prev) => {
@@ -365,7 +337,6 @@ export default function AddCoupon() {
         });
     };
 
-    // memoized selected set for fast checks
     const selectedSet = useMemo(() => new Set((form.applicableProducts || []).map(String)), [form.applicableProducts]);
 
     return (
@@ -388,7 +359,6 @@ export default function AddCoupon() {
                     </div>
                 </div>
 
-                {/* notification strip */}
                 {notification.open && (
                     <div className="mb-4" aria-live="polite">
                         <div className="rounded-lg overflow-hidden shadow-sm border bg-white p-3 flex items-center justify-between gap-4">
@@ -418,7 +388,6 @@ export default function AddCoupon() {
                     </div>
                 )}
 
-                {/* success strip (inline) */}
                 {createdCoupon && (
                     <div className="mb-4 flex items-center justify-between gap-4 rounded-lg bg-emerald-50 border border-emerald-100 p-3">
                         <div className="flex items-center gap-3">
@@ -552,7 +521,6 @@ export default function AddCoupon() {
                             <label htmlFor="coupon-active" className="text-sm text-slate-700">Active</label>
                         </div>
 
-                        {/* Applicability controls */}
                         <div className="col-span-1 sm:col-span-2 mt-2">
                             <label className="text-xs font-medium text-slate-600">Applicable for</label>
                             <div className="mt-2 flex items-center gap-4">
@@ -562,7 +530,7 @@ export default function AddCoupon() {
                                         name="appFor"
                                         checked={form.applicableFor === "all"}
                                         onChange={() => onChange("applicableFor", "all")}
-                                        // Tailwind arbitrary accent + inline style fallback for wider browser support
+                              
                                         className="accent-[#08665F]"
                                         style={{ accentColor: "#08665F" }}
                                     />
@@ -575,7 +543,7 @@ export default function AddCoupon() {
                                         name="appFor"
                                         checked={form.applicableFor === "custom"}
                                         onChange={() => {
-                                            // when switching to custom, if no products selected, select all by default
+                                 
                                             setForm((prev) => {
                                                 const allIds = (allProducts || []).map((p) => p._id || p.id || p.productId);
                                                 return {

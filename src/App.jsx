@@ -12,8 +12,6 @@ import AdminOrders from "./pages/admin-view/orders";
 import AdminFeatures from "./pages/admin-view/features";
 import AdminXLFeatures from "./pages/admin-view/xl-features";
 import AdminNewsletter from "./pages/admin-view/newsletter";
-
-// NEW imports
 import MessageTemplatesPage from "./pages/admin-view/message-templates";
 import InvoiceControlPage from "./pages/admin-view/invoice-control";
 import AdminReviews from "./pages/admin-view/reviews";
@@ -23,7 +21,6 @@ import AdminShipping from "./pages/admin-view/shipping";
 import AdminTopbar from "./pages/admin-view/topbar";
 import AdminCategories from "./pages/admin-view/categories";
 import AdminContactMessages from "./pages/admin-view/contact-messages";
-
 import ShoppingLayout from "./components/shopping-view/layout";
 import NotFound from "./pages/not-found";
 import ShoppingHome from "./pages/shopping-view/home";
@@ -42,7 +39,6 @@ import PrivacyPolicy from "./pages/shopping-view/PrivacyPolicy";
 import RefundPolicy from "./pages/shopping-view/RefundPolicy";
 import ShippingPolicy from "./pages/shopping-view/ShippingPolicy";
 import ProductDetailsPage from "./pages/shopping-view/product-details";
-
 import { ConnectedLoader } from "@/components/common/Loader";
 
 function ScrollManager() {
@@ -51,7 +47,6 @@ function ScrollManager() {
   const prevHashRef = useRef(null);
   const timeoutsRef = useRef([]);
 
-  // Always clear timeouts on unmount / before running new attempts
   useEffect(() => {
     return () => {
       timeoutsRef.current.forEach((t) => clearTimeout(t));
@@ -59,7 +54,6 @@ function ScrollManager() {
     };
   }, []);
 
-  // 1) On any pathname change, scroll to top (unless there is a hash — in that case we'll try to scroll to the anchor instead).
   useEffect(() => {
     if (location.hash) return;
 
@@ -79,7 +73,6 @@ function ScrollManager() {
     }
   }, [location.pathname]);
 
-  // 2) If there's a hash (anchor), attempt to scroll to that element (robustly).
   useEffect(() => {
     timeoutsRef.current.forEach((t) => clearTimeout(t));
     timeoutsRef.current = [];
@@ -210,7 +203,6 @@ function App() {
           <Route path="coupons/add/:id" element={<AdminAddCoupon />} />
           <Route path="shipping" element={<AdminShipping />} />
 
-          {/* NEW admin pages */}
           <Route path="templates" element={<MessageTemplatesPage />} />
           <Route path="invoice-control" element={<InvoiceControlPage />} />
           <Route path="contact-messages" element={<AdminContactMessages />} />

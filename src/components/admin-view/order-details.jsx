@@ -1,4 +1,3 @@
-// src/components/admin-view/order-details.jsx
 import { useState } from "react";
 import CommonForm from "../common/form";
 import { DialogContent } from "../ui/dialog";
@@ -99,7 +98,6 @@ function AdminOrderDetailsView({ orderDetails }) {
 
   return (
     <DialogContent className="sm:max-w-[600px] p-0 bg-white rounded-xl shadow-lg">
-      {/* Header */}
       <div className="p-6 flex items-center justify-between border-b">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">Order Information</h2>
@@ -110,10 +108,8 @@ function AdminOrderDetailsView({ orderDetails }) {
         </div>
       </div>
 
-      {/* Scrollable content area */}
       <div className="p-6 max-h-[70vh] overflow-y-auto">
         <div className="grid gap-6">
-          {/* Order Info */}
           <div className="grid gap-3">
             <div className="grid gap-2">
               {[
@@ -147,7 +143,6 @@ function AdminOrderDetailsView({ orderDetails }) {
 
           <Separator />
 
-          {/* Order Details */}
           <div className="grid gap-3">
             <h3 className="text-md font-semibold text-slate-900">Order Details</h3>
             <ul className="grid gap-2">
@@ -175,7 +170,6 @@ function AdminOrderDetailsView({ orderDetails }) {
 
           <Separator />
 
-          {/* Shipping Info */}
           <div className="grid gap-3">
             <h3 className="text-md font-semibold text-slate-900">Shipping Info</h3>
             <div className="grid gap-1 text-sm text-slate-700">
@@ -202,7 +196,6 @@ function AdminOrderDetailsView({ orderDetails }) {
 
           <Separator />
 
-          {/* Update Order Status Form */}
           <div>
             <CommonForm
               formControls={[

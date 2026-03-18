@@ -1,38 +1,21 @@
-// client/src/components/checkout/ApplyCoupon.jsx
 import React, { useState } from "react";
 import axios from "axios";
 
-/**
- * Safe API base for shop coupon apply:
- * - runtime window.REACT_APP_API_BASE_URL (preferred)
- * - if running on localhost, default to http://localhost:5000
- * - otherwise use relative '/api/shop/coupons'
- *
- * NOTE: This file deliberately avoids any reference to `process` or `import.meta`.
- */
-const API = (() => {
-  try {
-    if (typeof window !== "undefined" && window.REACT_APP_API_BASE_URL) {
-      return String(window.REACT_APP_API_BASE_URL).replace(/\/$/, "") + "/api/shop/coupons";
+
+const API_BASE_RAW = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
+function buildUrl(path = "/apply") {
+
+  if (!path.startsWith("/")) path = `/${path}`;
+  if (API_BASE_RAW) {
+
+    if (API_BASE_RAW.includes("/api")) {
+      return `${API_BASE_RAW}${path}`;
     }
-  } catch (e) {
-    /* ignore */
+    return `${API_BASE_RAW}/api/shop/coupons${path}`;
   }
 
-  try {
-    if (typeof window !== "undefined") {
-      const loc = window.location || {};
-      const hostname = loc.hostname || "";
-      if (hostname === "localhost" || hostname === "127.0.0.1") {
-        return `${loc.protocol || "http:"}//${hostname}:5000/api/shop/coupons`;
-      }
-    }
-  } catch (e) {
-    /* ignore */
-  }
-
-  return "/api/shop/coupons";
-})();
+  return `/api/shop/coupons${path}`;
+}
 
 export default function ApplyCoupon({ cartTotal, onApplied }) {
   const [code, setCode] = useState("");
@@ -45,8 +28,9 @@ export default function ApplyCoupon({ cartTotal, onApplied }) {
     }
     setLoading(true);
     try {
-      const mobile = window.checkoutPhone || "";
-      const res = await axios.post(`${API}/apply`, { code, mobile, cartTotal });
+      const mobile = (typeof window !== "undefined" && window.checkoutPhone) ? window.checkoutPhone : "";
+      const endpoint = buildUrl("/apply");
+      const res = await axios.post(endpoint, { code, mobile, cartTotal });
       if (res.data && res.data.success) {
         onApplied && onApplied(res.data.data);
       } else {

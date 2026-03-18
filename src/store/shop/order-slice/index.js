@@ -1,8 +1,7 @@
-// src/store/shop/order-slice/index.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api/shop/order";
+const API_BASE = "https://aachiamma-backend.fly.dev/api/shop/order";
 
 const initialState = {
   razorpayOrder: null,
@@ -11,7 +10,7 @@ const initialState = {
   orderId: null,
   orderList: [],
   orderDetails: null,
-  approvalURL: null, // kept for compatibility though not used for razorpay
+  approvalURL: null,
   lastError: null,
 };
 
@@ -21,7 +20,7 @@ export const createNewOrder = createAsyncThunk("order/createNewOrder", async (or
 });
 
 export const capturePayment = createAsyncThunk("order/capturePayment", async (payload) => {
-  // payload: { paymentId, orderId, signature, internalOrderId }
+
   const response = await axios.post(`${API_BASE}/capture`, payload);
   return response.data;
 });

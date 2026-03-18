@@ -1,4 +1,3 @@
-// aachiamma/client/src/components/shopping-view/header.jsx
 import React, { useEffect, useState, useRef } from "react";
 import {
   HousePlug,
@@ -44,7 +43,7 @@ import { logoutUser } from "@/store/auth-slice";
 import UserCartWrapper from "./cart-wrapper";
 import { fetchCartItems } from "@/store/shop/cart-slice";
 import { Label } from "../ui/label";
-import api from "@/api/axios"; // axios instance for API calls
+import api from "@/api/axios"; 
 
 const ACCENT = "#08665F";
 const YELLOW = "#FFD166";
@@ -256,7 +255,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                     ))
                   )}
 
-                  {/* trending/best/new removed inside product expansion per request */}
+                
                 </div>
               </div>
             );
@@ -280,7 +279,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
   const baseClass = `cursor-pointer text-base lg:text-sm font-medium rounded-md px-2 py-1 transition transform hover:-translate-y-0.5 whitespace-nowrap`;
 
   return (
-    // make nav horizontally scrollable on smaller widths to avoid wrapping onto two lines
+
     <nav className="flex flex-col gap-4 lg:flex-row lg:gap-6 items-start lg:items-center overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: "touch" }}>
       {filtered.map((menuItem) => {
         const isProducts = menuItem.id === "products";
@@ -324,7 +323,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* When the products dropdown is open, hide the Trending/Best/New shortcuts (per request). */}
+        
               {!productsOpenDesktop && (
                 <div className="hidden lg:flex items-center gap-2 ml-2">
                   <button onClick={() => navigateToAnchor("trending")} className="text-sm font-medium px-2 py-1 rounded-md hover:bg-[rgba(8,102,95,0.06)] whitespace-nowrap">Trending</button>
@@ -598,7 +597,7 @@ function FloatingCartButton() {
     <button
       aria-label="open cart"
       onClick={() => {
-        // Primary: try to trigger the header cart button (will open the Sheet controlled there)
+   
         try {
           const headerBtn = document.querySelector('.header-cart-button');
           if (headerBtn && typeof headerBtn.click === 'function') {
@@ -607,7 +606,7 @@ function FloatingCartButton() {
           }
         } catch (e) {}
 
-        // Fallback: dispatch the global event the header listens for
+   
         try {
           window.dispatchEvent(new Event("open-cart-sheet"));
         } catch (e) {}
@@ -781,7 +780,7 @@ function MobileMenu({ navigateTo } = {}) {
 
   return (
     <Sheet open={open} onOpenChange={(v) => setOpen(v)}>
-      {/* hide the sheet trigger while sheet is open to avoid duplicate/overlapping buttons */}
+ 
       <SheetTrigger asChild>
         <Button
           variant="ghost"
@@ -794,9 +793,9 @@ function MobileMenu({ navigateTo } = {}) {
         </Button>
       </SheetTrigger>
 
-      {/* Full-screen mobile sheet for a premium modern feel */}
+    
       <SheetContent side="left" className="w-full max-w-none h-full p-6 bg-white/95 backdrop-blur-md shadow-2xl overflow-auto">
-        {/* hide any library-inserted small close buttons (if present) while keeping our large close visible */}
+
         <style>{`
           /* common aria/ title variants used by some Sheet libs — hide them to avoid duplicate close icons */
           .sheet-content button[aria-label="close"], .sheet-content button[aria-label="Close"], .sheet-content button[title="Close"] { display: none !important; }
@@ -817,7 +816,6 @@ function MobileMenu({ navigateTo } = {}) {
             <MenuItems onItemClick={() => setOpen(false)} navigateTo={(p) => { navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }} excludeIds={['about','faq','contact']} mobile />
           </div>
 
-          {/* About / FAQ / Contact grouped as quick actions */}
           <div className="mt-2 grid grid-cols-3 gap-3">
             <button
               className="py-3 rounded-lg font-medium shadow-sm border"
@@ -838,7 +836,6 @@ function MobileMenu({ navigateTo } = {}) {
             >Contact</button>
           </div>
 
-          {/* Explore shortcuts (kept outside product-expansion; products expansion no longer renders the inline quick shortcuts per request) */}
           <div className="pt-4 border-t border-gray-100">
             <div className="text-sm font-medium mb-2">Explore</div>
             <div className="flex gap-3">
@@ -851,7 +848,7 @@ function MobileMenu({ navigateTo } = {}) {
 
         <div className="mt-6 border-t border-gray-100 pt-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Account avatar / login — compact */}
+        
             <HeaderRightContent avatarOnly navigateTo={(p) => { setOpen(false); navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }} />
             <div className="text-sm">
               <div className="font-medium">{user ? (user.userName || user.name) : "Guest"}</div>
@@ -860,7 +857,7 @@ function MobileMenu({ navigateTo } = {}) {
           </div>
 
           <div>
-            {/* Cart button, visible and prominent on the sheet footer */}
+   
             <HeaderRightContent cartOnly navigateTo={(p) => { setOpen(false); navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }} />
           </div>
         </div>
@@ -1028,7 +1025,7 @@ function ShoppingHeader() {
         }}
       >
         <div className="relative h-20 flex items-center px-4 md:px-6 shadow-sm">
-          {/* left area - responsive and allowed to shrink */}
+         
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="lg:hidden">
               <MobileMenu navigateTo={navigateTo} />
@@ -1039,7 +1036,7 @@ function ShoppingHeader() {
             </div>
           </div>
 
-          {/* center logo - keep centered and clickable */}
+    
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center pointer-events-auto" style={{ maxWidth: 240 }}>
             <Link
               to="/shop/home"
@@ -1065,7 +1062,7 @@ function ShoppingHeader() {
             </Link>
           </div>
 
-          {/* right area - responsive */}
+        
           <div className="flex items-center justify-end gap-4 flex-1 min-w-0 ml-auto">
             <div className="hidden md:flex items-center gap-4 mr-4">
               <button onClick={() => { navigateTo("/shop/about"); }} className="text-sm font-medium" style={{ color: ACCENT }}>

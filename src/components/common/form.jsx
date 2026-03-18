@@ -13,22 +13,6 @@ import { Button } from "../ui/button";
 import { Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
 import api from "@/api/axios";
 
-/**
- * CommonForm with refined variations behavior:
- * - Default variation opens by default.
- * - Radio moved to left and made more prominent.
- * - Validation: every variation must have label & price; default must have price.
- * - Per-variation description items are optional.
- *
- * Adjustments made:
- * - New variations default `totalStock` to "" (empty) instead of 0.
- * - Header summary hides price/offer/stock when they are empty or 0.
- * - On submit, stock is normalized but empty string is preserved (i.e. blank stays blank).
- *
- * - Categories for the `category` select are fetched dynamically from the server
- *   (GET /api/common/categories/get). If the control provides explicit options,
- *   those are used instead.
- */
 
 function CommonForm({
   formControls = [],
@@ -42,7 +26,7 @@ function CommonForm({
   const [openVariationIndexes, setOpenVariationIndexes] = useState([]);
   const [bulkStock, setBulkStock] = useState("");
 
-  // dynamic categories (for controls named `category`)
+
   const [categoriesList, setCategoriesList] = useState([]);
 
   useEffect(() => {
@@ -61,8 +45,7 @@ function CommonForm({
           return;
         }
       } catch (err) {
-        // ignore; categoriesList will remain empty and the form will fall back to provided options
-        // console.warn(err?.message || err);
+
       }
     })();
     return () => {
@@ -74,24 +57,23 @@ function CommonForm({
     setFormData({ ...(formData || {}), [name]: value });
   }
 
-  // Preserve open state when variations array changes (don't auto-close when user typed)
   useEffect(() => {
     const vs = Array.isArray(formData?.variations) ? formData.variations : [];
     if (vs.length === 0) {
       setOpenVariationIndexes([]);
       return;
     }
-    // open the default variation (or first if none)
+
     const idx = vs.findIndex((v) => v && v.isDefault);
     const defaultIndex = idx === -1 ? 0 : idx;
 
     setOpenVariationIndexes((prev) => {
       const prevArr = Array.isArray(prev) ? prev : [];
-      // keep any previously-open indexes true; ensure default index is open
+ 
       const merged = vs.map((_, i) => Boolean(prevArr[i]) || i === defaultIndex);
       return merged;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [formData?.variations]);
 
   function toggleVariationOpen(idx) {
@@ -103,12 +85,11 @@ function CommonForm({
   }
 
   function applyBulkStockToAll(name) {
-    // name: variations control name (likely "variations")
+   
     const nvRaw = bulkStock;
     if (nvRaw === "" || nvRaw === null) return;
     const nvNum = Math.max(0, Math.floor(Number(nvRaw || 0)));
     const arr = Array.isArray(formData[name]) ? formData[name] : [];
-    // If nvNum is 0 we set "" to keep display empty, per requested behaviour
     const next = arr.map((x) => ({ ...(x || {}), totalStock: nvNum === 0 ? "" : nvNum }));
     setField(name, next);
     setBulkStock("");
@@ -158,8 +139,7 @@ function CommonForm({
         break;
 
       case "select": {
-        // Decide options: prefer explicit options from the control; otherwise if this is the `category` control
-        // use dynamic categories fetched from the server.
+
         const controlOptions = Array.isArray(getControlItem.options) && getControlItem.options.length
           ? getControlItem.options
           : [];
@@ -262,7 +242,6 @@ function CommonForm({
               {arr.map((it, idx) => {
                 const isOpen = !!openVariationIndexes[idx];
 
-                // prepare parts for header summary — hide when empty or zero
                 const parts = [];
                 if (it.price !== undefined && it.price !== "" && !Number.isNaN(Number(it.price)) && Number(it.price) !== 0) {
                   parts.push(`Price: ₹${Number(it.price).toLocaleString("en-IN")}`);
@@ -277,7 +256,7 @@ function CommonForm({
                 return (
                   <div key={idx} className="border rounded-lg p-3 bg-white">
                     <div className="flex items-start gap-3">
-                      {/* prominent radio on left */}
+  
                       <div className="mt-1">
                         <input
                           type="radio"
@@ -286,7 +265,7 @@ function CommonForm({
                           onChange={() => {
                             const newArr = arr.map((x, i) => ({ ...x, isDefault: i === idx }));
                             setField(getControlItem.name, newArr);
-                            // open the selected default
+            
                             setOpenVariationIndexes((prev) => (Array.isArray(prev) ? prev.map((v, i) => i === idx) : prev));
                           }}
                           className="accent-amber-600 w-5 h-5"
@@ -367,7 +346,7 @@ function CommonForm({
                                 className="rounded-xl p-2"
                               />
 
-                              {/* Stock input */}
+          
                               <Input
                                 placeholder="Stock (units)"
                                 type="number"
@@ -375,7 +354,7 @@ function CommonForm({
                                 step={1}
                                 value={it.totalStock ?? ""}
                                 onChange={(e) => {
-                                  // keep empty if user clears; otherwise ensure integer >= 0
+         
                                   const nv = e.target.value === "" ? "" : Math.max(0, Math.floor(Number(e.target.value || 0)));
                                   const newArr = [...arr];
                                   newArr[idx] = { ...newArr[idx], totalStock: nv };
@@ -385,7 +364,7 @@ function CommonForm({
                               />
                             </div>
 
-                            {/* per-variation descriptions optional (no requirement) */}
+            
                             <div className="mt-2">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="text-sm font-medium">Description items (optional)</div>
@@ -680,7 +659,7 @@ function CommonForm({
     return element;
   }
 
-  // grouping
+
   const nameControls = formControls.filter((c) => c.name === "firstName" || c.name === "lastName");
   const cityBlockNames = ["city", "state", "postcode", "pincode"];
   const cityControls = formControls.filter((c) => cityBlockNames.includes(c.name));
@@ -692,7 +671,7 @@ function CommonForm({
       onSubmit={(e) => {
         e.preventDefault();
 
-        // Validation: ensure variations exist and each has label & price
+
         const variationsControl = formControls.find((c) => c.componentType === "variations");
         if (variationsControl) {
           const vs = Array.isArray(formData[variationsControl.name]) ? formData[variationsControl.name] : [];
@@ -701,7 +680,6 @@ function CommonForm({
             return;
           }
 
-          // normalize stock but preserve empty string
           const normalized = vs.map((v) => {
             const stock =
               v.totalStock === "" || v.totalStock === undefined
@@ -709,7 +687,7 @@ function CommonForm({
                 : Math.max(0, Math.floor(Number(v.totalStock || 0)));
             return { ...(v || {}), totalStock: stock };
           });
-          // persist normalized
+
           setField(variationsControl.name, normalized);
 
           for (let i = 0; i < normalized.length; i++) {
@@ -724,12 +702,12 @@ function CommonForm({
             }
           }
 
-          // ensure one default exists
+
           if (!normalized.some((x) => x.isDefault)) {
             const newArr = normalized.map((x, i) => ({ ...x, isDefault: i === 0 }));
             setField(variationsControl.name, newArr);
           } else {
-            // ensure default has price
+
             const def = normalized.find((x) => x.isDefault);
             if (!def || def.price === "" || def.price === undefined || Number.isNaN(Number(def.price))) {
               alert("Default variation must have a valid price.");
@@ -742,7 +720,7 @@ function CommonForm({
       }}
       className="space-y-4"
     >
-      {/* name row */}
+
       {nameControls.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {nameControls.map((ctrl) => (
@@ -754,7 +732,6 @@ function CommonForm({
         </div>
       )}
 
-      {/* other single controls */}
       <div className="space-y-3">
         {otherControls.map((ctrl) => (
           <div key={ctrl.name} className="flex flex-col gap-1">
@@ -766,7 +743,6 @@ function CommonForm({
         ))}
       </div>
 
-      {/* city row */}
       {cityControls.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {cityControls.map((ctrl) => (

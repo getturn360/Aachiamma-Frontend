@@ -1,10 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-// TermsPage.jsx
-// Vite + React + Tailwind + Framer Motion
-// Premium, print-friendly Terms of Service inner page for Aachiamma Foods
-// Usage: import TermsPage from './TermsPage'; <TermsPage accent="#08665F" />
 
 export default function TermsPage({ accent = '#08665F' }) {
   const sections = [
@@ -60,7 +56,7 @@ export default function TermsPage({ accent = '#08665F' }) {
         </motion.header>
 
         <div className="mt-10 grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* TOC */}
+
           <aside className="hidden md:block md:col-span-1 sticky top-24 h-[calc(100vh-6rem)] overflow-auto pb-6">
             <div className="rounded-2xl border p-6 bg-white shadow-sm">
               <div className="text-xs text-gray-400">On this page</div>
@@ -76,7 +72,6 @@ export default function TermsPage({ accent = '#08665F' }) {
             </div>
           </aside>
 
-          {/* Content */}
           <main className="md:col-span-3 space-y-8">
             <article className="rounded-2xl border p-8 bg-white shadow-lg">
               <section id="overview" className="prose prose-sm max-w-none">

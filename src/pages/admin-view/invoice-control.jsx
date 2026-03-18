@@ -7,15 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import api from "@/api/axios";
 import { toast } from "@/lib/toast";
 
-/**
- * Invoice Control (patched, resilient)
- *
- * Additional fixes added because refresh/reload loop persisted:
- * - stop polling after N consecutive failures (default 3)
- * - pause polling when tab is hidden (visibilitychange)
- * - track initial successful fetch so we only restart polling when initial fetch succeeded
- * - still clear polling immediately on 401/403
- */
 
 function InvoiceControlPage() {
   const [settings, setSettings] = useState({});
@@ -23,18 +14,16 @@ function InvoiceControlPage() {
   const [isSaving, setIsSaving] = useState(false);
   const fileRef = useRef(null);
 
-  // refs for controlling polling and lifecycle
   const pollRef = useRef(null);
   const mountedRef = useRef(true);
-  const initialSuccessRef = useRef(false); // whether first fetch succeeded
-  const failCountRef = useRef(0); // consecutive failure counter
+  const initialSuccessRef = useRef(false); 
+  const failCountRef = useRef(0); 
   const MAX_CONSECUTIVE_FAILURES = 3;
   const POLL_INTERVAL_MS = 5000;
 
   useEffect(() => {
     mountedRef.current = true;
 
-    // start initial load + conditional polling
     (async () => {
       const ok = await fetchSettings();
       if (ok && mountedRef.current) {
@@ -43,7 +32,6 @@ function InvoiceControlPage() {
       }
     })();
 
-    // pause polling when tab hidden to avoid silent background requests
     const onVisibility = () => {
       if (document.hidden) {
         if (pollRef.current) {
@@ -51,7 +39,7 @@ function InvoiceControlPage() {
           pollRef.current = null;
         }
       } else {
-        // when tab becomes visible, restart polling only if initial load succeeded
+      
         if (initialSuccessRef.current && !pollRef.current) {
           pollRef.current = setInterval(() => fetchSettings(), POLL_INTERVAL_MS);
         }
@@ -68,25 +56,20 @@ function InvoiceControlPage() {
         pollRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, []);
 
-  /**
-   * fetchSettings
-   * - returns true on success, false on error
-   * - clears polling on auth errors and after too many consecutive failures
-   */
   async function fetchSettings() {
     try {
       const res = await api.get("/api/admin/invoice-settings/settings");
       const j = res?.data;
 
       if (j && j.success) {
-        failCountRef.current = 0; // reset on success
+        failCountRef.current = 0; 
         if (mountedRef.current) setSettings(j.data || {});
         return true;
       } else {
-        // server returned success: false
+     
         failCountRef.current += 1;
         console.warn("fetchSettings returned success:false", j);
         if (mountedRef.current) {
@@ -102,7 +85,7 @@ function InvoiceControlPage() {
       const status = err?.response?.status;
       console.error("fetchSettings err", status, err?.message || err);
 
-      // Auth errors: stop polling immediately to avoid reload loops triggered by interceptors
+  
       if (status === 401 || status === 403) {
         if (mountedRef.current) {
           toast({ title: "Unauthorized", description: "Please login with an admin account", variant: "destructive" });
@@ -112,7 +95,6 @@ function InvoiceControlPage() {
         return false;
       }
 
-      // transient/network errors: increment fail counter and stop if too many
       failCountRef.current += 1;
       if (mountedRef.current) {
         toast({ title: "Failed to load invoice settings", description: err?.message || "See console", variant: "destructive" });
@@ -134,7 +116,6 @@ function InvoiceControlPage() {
     }
   }
 
-  // explicit payload save
   async function save() {
     if (isSaving) return;
     setIsSaving(true);
@@ -189,7 +170,6 @@ function InvoiceControlPage() {
     }
   }
 
-  // upload with axios to /api/admin/site-media/upload
   const handleLogoSelect = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -305,12 +285,11 @@ function InvoiceControlPage() {
           <Input value={settings.companyZip || ""} onChange={(e) => setSettings({ ...settings, companyZip: e.target.value })} />
         </div>
 
-        {/* Logo upload */}
         <div className="col-span-full">
           <label className="block text-sm mb-2">Logo (upload)</label>
 
           <div className="flex items-center gap-4">
-            {/* preview */}
+        
             <div className="flex-shrink-0">
               {settings.logoUrl ? (
                 <img
@@ -325,7 +304,6 @@ function InvoiceControlPage() {
               )}
             </div>
 
-            {/* controls: file input + delete button aligned on one row */}
             <div className="flex flex-col justify-center">
               <div className="flex items-center gap-3">
                 <input
@@ -361,7 +339,6 @@ function InvoiceControlPage() {
           </div>
         </div>
 
-        {/* Signature URL */}
         <div className="col-span-full">
           <label className="block text-sm mb-2">Signature (use URL)</label>
           <Input value={settings.signatureUrl || ""} onChange={(e) => setSettings({ ...settings, signatureUrl: e.target.value })} />
@@ -383,7 +360,6 @@ function InvoiceControlPage() {
           <Textarea rows={4} value={settings.invoiceNote || ""} onChange={(e) => setSettings({ ...settings, invoiceNote: e.target.value })} />
         </div>
 
-        {/* NEW: Last Invoice Number (persistent) */}
         <div className="col-span-full">
           <Label className="block text-sm mb-1">Last Invoice Number (persistent)</Label>
           <Input

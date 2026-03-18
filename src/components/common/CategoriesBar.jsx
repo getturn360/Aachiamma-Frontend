@@ -1,13 +1,6 @@
-// aachiamma/client/src/components/common/CategoriesBar.jsx
 import React, { useEffect, useState } from "react";
 import api from "@/api/axios";
 import { useNavigate } from "react-router-dom";
-
-/**
- * CategoriesBar - lightweight sticky category bar for Home page
- * Usage: import CategoriesBar and put <CategoriesBar /> where your old snippet was.
- * It fetches categories (sticky=true) and renders similar UI to your snippet.
- */
 
 const ACCENT = "#08665F";
 
@@ -37,10 +30,8 @@ export default function CategoriesBar({ max = 12 }) {
   }, [max]);
 
   function handleNavigateToListingPage(cat) {
-    // navigate to listing with category slug
     if (!cat) return;
     navigate(`/shop/listing?category=${encodeURIComponent(cat.slug)}`);
-    // scroll to top to match listing behavior
     setTimeout(() => {
       try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
     }, 60);
@@ -65,8 +56,6 @@ export default function CategoriesBar({ max = 12 }) {
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-4 overflow-x-auto py-3 no-scrollbar">
           {categories.map((c) => {
-            // If your Category model later includes image URL (e.g. c.image),
-            // this will use it. Otherwise show a fallback circle with initial.
             const imgSrc = c.image || c.img || null;
             return (
               <button

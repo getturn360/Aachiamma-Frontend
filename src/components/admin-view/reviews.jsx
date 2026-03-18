@@ -15,14 +15,6 @@ import { Eye } from "lucide-react";
 import { useSelector } from "react-redux";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 
-
-/**
- * Admin Reviews View — edit option removed
- * - View dialog shows full review.
- * - If no admin reply: textarea + Send Reply.
- * - If admin reply exists: show reply read-only + Delete button only (no Edit/Save).
- */
-
 function shortText(txt, len = 80) {
   if (!txt) return "";
   return txt.length > len ? txt.slice(0, len) + "..." : txt;
@@ -48,21 +40,21 @@ export default function AdminReviewsView() {
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
 
-  // view dialog
+
   const [viewOpen, setViewOpen] = useState(false);
   const [viewTarget, setViewTarget] = useState(null);
 
-  // reply creation state
+
   const [replyText, setReplyText] = useState("");
   const [replySaving, setReplySaving] = useState(false);
 
-  // filters
+
   const [showTodayOnly, setShowTodayOnly] = useState(true);
   const [dateFilter, setDateFilter] = useState("");
 
   useEffect(() => {
     fetchReviews({ today: showTodayOnly });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [showTodayOnly]);
 
   async function fetchReviews(opts = {}) {
@@ -88,10 +80,10 @@ export default function AdminReviewsView() {
     }
   }
 
-  // open view dialog
+
   function openViewDialog(review) {
     setViewTarget(review);
-    setReplyText(""); // only used when creating new reply
+    setReplyText(""); 
     setViewOpen(true);
   }
 
@@ -102,7 +94,6 @@ export default function AdminReviewsView() {
     setReplySaving(false);
   }
 
-  // create reply (POST). No edit support here.
   async function createReply() {
     if (!viewTarget) return;
     if (!replyText.trim()) {
@@ -117,7 +108,6 @@ export default function AdminReviewsView() {
         alert("Failed to create reply");
       } else {
         const updated = resp.data.data;
-        // update list and dialog
         setReviews((prev) => prev.map((r) => (r._id === updated._id ? updated : r)));
         setViewTarget(updated);
         setReplyText("");
@@ -130,7 +120,6 @@ export default function AdminReviewsView() {
     }
   }
 
-  // DELETE reply immediately (no confirmation)
   async function deleteReply() {
     if (!viewTarget || !viewTarget._id) return;
     try {
@@ -140,9 +129,9 @@ export default function AdminReviewsView() {
         alert("Failed to delete reply");
       } else {
         const updated = resp.data.data;
-        // update list: replace with updated (which has adminReply unset)
+  
         setReviews((prev) => prev.map((r) => (r._id === updated._id ? updated : r)));
-        // update dialog to reflect no reply
+  
         setViewTarget((prev) => (prev ? { ...prev, adminReply: undefined } : prev));
         setReplyText("");
       }
@@ -281,7 +270,6 @@ export default function AdminReviewsView() {
         </div>
       </CardContent>
 
-      {/* VIEW DIALOG */}
       <Dialog open={viewOpen} onOpenChange={(open) => { if (!open) closeViewDialog(); }}>
         <DialogContent>
           <DialogHeader>
@@ -318,13 +306,13 @@ export default function AdminReviewsView() {
               {isAdmin && (
                 <div className="mt-3 space-y-2">
                   {viewTarget.adminReply?.text ? (
-                    // reply exists: show Delete button only (no edit)
+
                     <div className="flex gap-2 justify-end">
                       <Button variant="destructive" onClick={deleteReply} disabled={replySaving}>Delete Replay</Button>
                       <Button variant="outline" onClick={closeViewDialog}>Close</Button>
                     </div>
                   ) : (
-                    // no reply: allow creating reply
+        
                     <>
                       <label className="block text-sm font-medium">Write reply</label>
                       <textarea

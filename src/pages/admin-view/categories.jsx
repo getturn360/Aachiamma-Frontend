@@ -1,4 +1,3 @@
-// aachiamma/client/src/pages/admin-view/categories.jsx
 import React, { useEffect, useRef, useState } from "react";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
@@ -7,14 +6,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Trash2, Edit, PlusCircle, GripVertical } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
-/**
- * Debuggable Admin Categories
- * - Extensive console logs for every network call (url, method, status, body)
- * - Helps pinpoint 401/403/404 or unexpected server responses
- */
-
 try {
-  // eslint-disable-next-line no-console
+
   console.log("ADMIN-CATEGORIES: instrumented file loaded", {
     time: new Date().toISOString(),
     axiosBase: api?.defaults?.baseURL ?? "(no baseURL)",
@@ -23,7 +16,7 @@ try {
   });
 } catch (e) {}
 
-/* helper */
+
 function safeLog(label, ...args) {
   try { console.log(`[ADMIN-CATS] ${label}`, ...args); } catch (e) {}
 }
@@ -39,14 +32,14 @@ export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // form state
+
   const [formName, setFormName] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [formError, setFormError] = useState(null);
 
-  // delete confirm
+
   const [deleteId, setDeleteId] = useState(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -58,7 +51,7 @@ export default function AdminCategories() {
     return () => {
       if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   async function loadCategories() {
@@ -138,12 +131,12 @@ export default function AdminCategories() {
       if (editingId) {
         const url = `/api/admin/categories/update/${editingId}`;
         safeLog("PUT ->", url, { name: nameVal, hasImage: !!selectedFile });
-        // DO NOT set Content-Type manually for FormData — let browser set boundary
+    
         res = await api.put(url, fd);
       } else {
         const url = "/api/admin/categories/create";
         safeLog("POST ->", url, { name: nameVal, hasImage: !!selectedFile });
-        // DO NOT set Content-Type manually for FormData — let browser set boundary
+    
         res = await api.post(url, fd);
       }
 
@@ -201,7 +194,7 @@ export default function AdminCategories() {
     }
   };
 
-  // Drag & drop handlers
+
   async function onDragEnd(result) {
     if (!result.destination) return;
     if (result.destination.index === result.source.index) return;
@@ -210,7 +203,6 @@ export default function AdminCategories() {
     const withOrder = next.map((it, idx) => ({ ...it, order: idx }));
     setCategories(withOrder);
 
-    // Persist orders (parallel)
     try {
       setLoading(true);
       safeLog("Persisting order updates", withOrder.map((i) => ({ id: i._id, order: i.order })));
@@ -388,7 +380,6 @@ export default function AdminCategories() {
   );
 }
 
-/* ConfirmDialog same as before (omitted here to keep file shorter in message) */
 function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading = false }) {
   const cancelRef = useRef(null);
 

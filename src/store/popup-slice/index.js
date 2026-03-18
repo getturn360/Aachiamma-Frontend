@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "@/api/axios"; // use configured axios instance (withCredentials)
+import api from "@/api/axios";
 
-// Thunks
 export const fetchPopups = createAsyncThunk(
   "popup/fetchPopups",
   async (_, { rejectWithValue }) => {
@@ -9,7 +8,7 @@ export const fetchPopups = createAsyncThunk(
       const res = await api.get(`/api/common/popups/get`);
       return res.data.list || [];
     } catch (err) {
-      // prefer server-provided error body when available
+  
       return rejectWithValue(err.response?.data || err.message || "Unknown error");
     }
   }
@@ -38,11 +37,11 @@ const slice = createSlice({
   name: "popup",
   initialState,
   reducers: {
-    // Keep reducers empty for now — thunks handle async flows.
+
   },
   extraReducers: (builder) => {
     builder
-      // fetchPopups
+     
       .addCase(fetchPopups.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -56,7 +55,7 @@ const slice = createSlice({
         state.error = action.payload || action.error?.message;
       })
 
-      // fetchAdminPopups
+ 
       .addCase(fetchAdminPopups.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -72,7 +71,7 @@ const slice = createSlice({
   },
 });
 
-// Selectors
+
 export const selectPopups = (state) => state.popup?.list || [];
 export const selectAdminPopups = (state) => state.popup?.adminList || [];
 export const selectPopupLoading = (state) => !!state.popup?.isLoading;

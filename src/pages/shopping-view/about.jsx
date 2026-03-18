@@ -2,9 +2,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import heroImageDefault from "@/assets/feature-hero.jpg";
 
-// AboutInner.jsx — Premium, airy layout with single Contact CTA
-// Focus: fresh, homemade, no chemicals. Minimal actions — only one Contact button on the page.
-// Designed as an inner page section (no header/footer). Vite + React + Tailwind + Framer Motion
 
 export default function AboutInner({ heroImage = heroImageDefault, onContact }) {
     const accent = "#08665F";
@@ -18,7 +15,7 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
     return (
         <section className="w-full bg-white text-gray-900 py-24 px-8 md:px-16 lg:px-28" aria-label="About Aachi Amma Foods">
             <div className="max-w-5xl mx-auto">
-                {/* Hero: more airy spacing */}
+            
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                     <div>
                         <div className="flex items-center gap-4">
@@ -67,7 +64,6 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                 </motion.div>
 
 
-                {/* How we make — spread out and clear */}
                 <section id="how-we-make" className="mt-24">
                     <motion.h3 initial={{ opacity: 0, y: 6 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-2xl font-bold">
                         How we make
@@ -87,7 +83,6 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                     </div>
                 </section>
 
-                {/* Values & single Contact CTA card — roomy and premium */}
                 <section className="mt-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     <div>
                         <motion.h4 initial={{ opacity: 0, y: 6 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-2xl font-bold">Our promise</motion.h4>
@@ -125,7 +120,6 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                     </motion.aside>
                 </section>
 
-                {/* Final subtle note */}
                 <div className="mt-20 text-center text-sm text-gray-500">Made with care in our Agraharam kitchen • No preservatives • Consume fresh for best taste</div>
             </div>
         </section>

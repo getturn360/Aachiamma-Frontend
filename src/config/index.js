@@ -1,5 +1,3 @@
-// client/src/config/index.js
-
 export const registerFormControls = [
   {
     name: "userName",
@@ -41,7 +39,6 @@ export const loginFormControls = [
   },
 ];
 
-// NOTE: removed any "base price" fields. Product must have at least one variation.
 export const addProductFormElements = [
   {
     label: "Title",
@@ -59,8 +56,6 @@ export const addProductFormElements = [
     placeholder: "Enter HSN / SAC code (optional)",
   },
 
-  // DESCRIPTION SECTIONS: multiple paragraphs, each can have an optional title.
-  // Admin can add many sections, or sections without titles (just paragraph).
   {
     label: "Description — multiple paragraphs (each paragraph may have an optional title)",
     name: "descriptionSections",
@@ -68,7 +63,6 @@ export const addProductFormElements = [
     placeholder: "Add paragraph blocks. Each block can have an optional bold title and paragraph content. Use this for product description (multiple paragraphs).",
   },
 
-  // How to use: single paragraph (admin should add only one paragraph here)
   {
     label: "How to use (single paragraph, optional)",
     name: "howTo",
@@ -81,7 +75,6 @@ export const addProductFormElements = [
     label: "Category",
     name: "category",
     componentType: "select",
-    // static options removed here — category options will be fetched from API in UI
     options: [],
   },
   {
@@ -95,10 +88,6 @@ export const addProductFormElements = [
     ],
   },
 
-  // NOTE: Top-level product `Total Stock` removed.
-  // Stock must be provided per-variation in `variations[].totalStock`
-
-  // Variations: required at least one. Each variation has label, price (required), salePrice (optional), isDefault, descriptionItems, totalStock
   {
     label: "Variations (weights) — REQUIRED",
     name: "variations",
@@ -106,7 +95,6 @@ export const addProductFormElements = [
     placeholder: "Add weight rows (e.g. 100g). Each variation requires label & price & totalStock. Mark one default.",
   },
 
-  // Product Specifications: list of points { label, content } -> displayed as bullet points with bold label
   {
     label: "Product Specifications (bullet points)",
     name: "specList",
@@ -114,7 +102,6 @@ export const addProductFormElements = [
     placeholder: "Add spec points like: Available packs (label) and values (content).",
   },
 
-  // Ingredients: single field (no sections) — one title and content
   {
     label: "Ingredients (single block)",
     name: "ingredients",
@@ -122,7 +109,6 @@ export const addProductFormElements = [
     placeholder: "Enter ingredients text (single block).",
   },
 
-  // FAQ as Q&A pairs
   {
     label: "FAQ (Q & A)",
     name: "faqList",
@@ -145,7 +131,7 @@ export const shoppingViewHeaderMenuItems = [
 ];
 
 export const filterOptions = {
-  // category options removed here — filter component will fetch categories dynamically
+
 };
 
 export const sortOptions = [
@@ -208,7 +194,7 @@ export const addressFormControls = [
     name: "state",
     componentType: "select",
     options: [
-      // --- SOUTH first (as you asked) ---
+   
       { id: "Kerala", label: "Kerala" },
       { id: "Tamil Nadu", label: "Tamil Nadu" },
       { id: "Karnataka", label: "Karnataka" },
@@ -216,7 +202,6 @@ export const addressFormControls = [
       { id: "Telangana", label: "Telangana" },
       { id: "Puducherry", label: "Puducherry" },
 
-      // --- rest in alphabetical order ---
       { id: "Andaman and Nicobar Islands", label: "Andaman and Nicobar Islands" },
       { id: "Arunachal Pradesh", label: "Arunachal Pradesh" },
       { id: "Assam", label: "Assam" },

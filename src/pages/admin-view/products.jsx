@@ -1,4 +1,3 @@
-// client/src/pages/admin-view/products.jsx
 import React, { Fragment, useEffect, useState, useRef, useMemo } from "react";
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import SupportingImages from "@/components/admin-view/supporting-images";
@@ -22,7 +21,6 @@ import {
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
-// UI primitives (swapped in per request)
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -32,7 +30,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon, SearchIcon } from "lucide-react";
 
-import api from "@/api/axios"; // <-- NEW: fetch categories from server
+import api from "@/api/axios";
 
 const initialFormData = {
   image: null,
@@ -42,13 +40,13 @@ const initialFormData = {
   shortDescription: "",
   category: "",
   special: [],
-  // top-level totalStock removed — stock is managed per-variation
+ 
   variations: [],
   specList: [],
   ingredients: "",
   descriptionSections: [],
   faqList: [],
-  hsn: "", // <-- new optional HSN
+  hsn: "", 
 };
 
 export default function AdminProducts() {
@@ -64,17 +62,15 @@ export default function AdminProducts() {
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // --- new states for advanced features
   const [query, setQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(""); // single quick-select (category id/slug)
-  const [activeCategories, setActiveCategories] = useState([]); // multi-select filter (array of ids)
+  const [selectedCategory, setSelectedCategory] = useState(""); 
+  const [activeCategories, setActiveCategories] = useState([]); 
   const [sortBy, setSortBy] = useState("newest");
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
   const [bulkDeleteLoading, setBulkDeleteLoading] = useState(false);
 
-  // NEW: categories fetched from server (array of { id, name })
   const [categoriesList, setCategoriesList] = useState([]);
 
   const { productList = [] } = useSelector((state) => state.adminProducts || {});
@@ -85,18 +81,17 @@ export default function AdminProducts() {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
-  // NEW: fetch categories from server once on mount
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        // using public/common endpoint used elsewhere; change to admin endpoint if required
+        
         const res = await api.get("/api/common/categories/get");
         if (!mounted) return;
         if (res?.data?.success) {
-          // server might return array of objects like { _id, name, slug }
+     
           const cats = (res.data.categories || res.data.data || []).map((c) => {
-            // prefer slug if present otherwise _id or name
+            
             const id = c.slug || c._id || c.name;
             const name = c.name || c.slug || String(id);
             return { id, name };
@@ -105,15 +100,15 @@ export default function AdminProducts() {
           return;
         }
       } catch (err) {
-        // ignore silently; fallback below to derive from products
+    
         console.warn("fetch categories err", err && err.message);
       }
-      // mounted and failed: leave categoriesList as []
+  
     })();
     return () => { mounted = false; };
   }, []);
 
-  // When edit mode is set, keep uploaded image and supporting images in sync
+  
   useEffect(() => {
     if (currentEditedId !== null) {
       setUploadedImageUrl(formData?.image || "");
@@ -128,12 +123,12 @@ export default function AdminProducts() {
     }
   }, [currentEditedId, formData?.image, formData?.images]);
 
-  // derive categories from server-first, fallback to productList
+
   const categories = useMemo(() => {
     if (Array.isArray(categoriesList) && categoriesList.length > 0) {
-      return categoriesList; // array of { id, name }
+      return categoriesList; 
     }
-    // fallback: derive unique category ids from products and present as id=name pairs
+
     const setIds = new Map();
     (productList || []).forEach((p) => {
       if (p?.category) {
@@ -144,14 +139,13 @@ export default function AdminProducts() {
     return Array.from(setIds.values()).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   }, [categoriesList, productList]);
 
-  // utility to get default variation price (fallback to first variation)
   function getDefaultPrice(product) {
     try {
       const variations = Array.isArray(product?.variations) ? product.variations : [];
       if (!variations.length) return null;
-      // pick variation with `isDefault` flag or first
+
       const defaultVar = variations.find((v) => v?.isDefault) || variations[0];
-      // price could be number or string
+     
       const price = defaultVar?.price ?? defaultVar?.mrp ?? defaultVar?.salePrice ?? null;
       return price;
     } catch (err) {
@@ -159,11 +153,9 @@ export default function AdminProducts() {
     }
   }
 
-  // Filtering + searching + sorting
   const filteredProducts = useMemo(() => {
     let list = Array.isArray(productList) ? [...productList] : [];
 
-    // search (title / subtitle / shortDescription)
     if (query && query.trim().length) {
       const q = query.trim().toLowerCase();
       list = list.filter((p) => {
@@ -175,16 +167,15 @@ export default function AdminProducts() {
       });
     }
 
-    // category filters: if activeCategories has items, filter by those, otherwise if selectedCategory set use that
     if (activeCategories.length) {
       list = list.filter((p) => activeCategories.includes(p?.category));
     } else if (selectedCategory) {
       list = list.filter((p) => p?.category === selectedCategory);
     }
 
-    // Sorting
+
     if (sortBy === "newest") {
-      // assume product has createdAt - fallback to keeping original order
+
       list.sort((a, b) => {
         const ta = new Date(a?.createdAt || (a?._id?.slice(0, 8) ? parseInt(a._id.slice(0, 8), 16) * 1000 : 0));
         const tb = new Date(b?.createdAt || (b?._1d?.slice(0, 8) ? parseInt(b._id.slice(0, 8), 16) * 1000 : 0));
@@ -209,19 +200,17 @@ export default function AdminProducts() {
     return list;
   }, [productList, query, activeCategories, selectedCategory, sortBy]);
 
-  // Pagination calculations - CHANGED: show all products on single page
   const totalPages = 1;
   useEffect(() => {
     if (page > totalPages) setPage(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [totalPages]);
 
-  // CHANGED: return full filtered list (no slicing) so all products show
+  
   const paginatedProducts = useMemo(() => {
     return filteredProducts;
   }, [filteredProducts]);
 
-  // selection utilities
   function toggleSelect(id) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -268,14 +257,13 @@ export default function AdminProducts() {
   async function onSubmit(event) {
     event.preventDefault();
 
-    // Compose payload with sensible fallbacks
     const payload = {
       ...formData,
       image:
         uploadedImageUrl || formData.image || (supportingImages && supportingImages[0]) || "",
       images: supportingImages || [],
       special: Array.isArray(formData.special) ? formData.special : [],
-      hsn: formData.hsn || "", // include hsn in payload
+      hsn: formData.hsn || "", 
     };
 
     if (currentEditedId !== null) {
@@ -331,7 +319,7 @@ export default function AdminProducts() {
       setDeleteLoading(false);
       setConfirmOpen(false);
       setProductToDelete(null);
-      // also remove from selection if present
+
       setSelectedIds((prev) => {
         const next = new Set(prev);
         if (productToDelete?.id) next.delete(productToDelete.id);
@@ -340,14 +328,13 @@ export default function AdminProducts() {
     }
   }
 
-  // Bulk delete handler (deletes selectedIds one-by-one)
   async function handleConfirmedBulkDelete() {
     if (!selectedIds || selectedIds.size === 0) return;
     try {
       setBulkDeleteLoading(true);
       const ids = Array.from(selectedIds);
       const results = await Promise.allSettled(ids.map((id) => dispatch(deleteProduct(id))));
-      // refresh and derive success/fail counts
+
       const successCount = results.filter((r) => r.status === "fulfilled" && r.value?.payload?.success).length;
       const failCount = ids.length - successCount;
       dispatch(fetchAllProducts());
@@ -369,13 +356,11 @@ export default function AdminProducts() {
 
   function isFormValid() {
     const skipKeys = ["image", "images"];
-    // require at minimum: title + at least one variation
     const hasTitle = !!formData.title;
     const hasVariations = Array.isArray(formData.variations) && formData.variations.length > 0;
     return hasTitle && hasVariations;
   }
 
-  // helpers to show human friendly label for sort
   const sortLabel = useMemo(() => {
     if (sortBy === "newest") return "Newest";
     if (sortBy === "alpha") return "A → Z";
@@ -386,10 +371,6 @@ export default function AdminProducts() {
 
   return (
     <Fragment>
-      {/*
-        Responsive tweak: grid allows up to 4 columns on large screens so desktop shows 4 tiles per row.
-        No other logic or structure changed.
-      */}
 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
         <div className="flex-1 min-w-0">
@@ -426,11 +407,10 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      {/* Controls: search, category filters, sort, bulk actions, pagination controls */}
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex-1 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            {/* search with icon */}
+   
             <div className="relative w-full sm:w-64">
               <SearchIcon
                 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -449,7 +429,7 @@ export default function AdminProducts() {
             </div>
 
 
-            {/* Sort dropdown (uses project's DropdownMenu) — trigger styled neutral like add product's dropdown and with arrow */}
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="px-3 py-2 border rounded-md focus:outline-none inline-flex items-center gap-2" aria-label="Sort products">
@@ -469,11 +449,11 @@ export default function AdminProducts() {
           <div className="flex items-center gap-2 flex-wrap">
             <label className="text-sm text-muted-foreground">Category:</label>
 
-            {/* Category dropdown (uses project's DropdownMenu) — neutral trigger with arrow */}
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="px-3 py-2 border rounded-md focus:outline-none inline-flex items-center gap-2" aria-label="Select category">
-                  {/* find name to display for selectedCategory */}
+                  
                   <span>
                     {selectedCategory
                       ? (categories.find((c) => c.id === selectedCategory)?.name || selectedCategory)
@@ -501,7 +481,7 @@ export default function AdminProducts() {
 
             <button
               onClick={() => {
-                // quick toggle clear
+   
                 setSelectedCategory("");
                 setActiveCategories([]);
                 setPage(1);
@@ -516,7 +496,7 @@ export default function AdminProducts() {
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            {/* per-page removed — fixed to 12 */}
+   
           </div>
 
           <div className="flex items-center gap-2">
@@ -530,7 +510,6 @@ export default function AdminProducts() {
               {isAllSelectedOnPage() ? "Deselect page" : "Select page"}
             </Button>
 
-            {/* Delete selected button made red per request */}
             <Button
               onClick={() => {
                 if (selectedIds.size === 0) {
@@ -547,7 +526,6 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      {/* Optional multi-category chips (advanced) */}
       <div className="mb-4 flex gap-2 flex-wrap">
         {categories.map((c) => {
           const active = activeCategories.includes(c.id);
@@ -571,7 +549,6 @@ export default function AdminProducts() {
         })}
       </div>
 
-      {/* Responsive grid with highlighted items: left accent + hover lift */}
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
@@ -584,7 +561,7 @@ export default function AdminProducts() {
               whileHover={{ scale: 1.02 }}
               className="rounded-2xl bg-white shadow-sm border overflow-hidden transform-gpu transition hover:shadow-lg relative"
             >
-              {/* Checkbox for selection (project Checkbox component) */}
+       
               <div className="absolute right-3 top-3 z-10">
                 <Checkbox
                   checked={selectedIds.has(productItem._id)}
@@ -593,14 +570,14 @@ export default function AdminProducts() {
                 />
               </div>
 
-              {/* left accent + visual highlight */}
+
               <div className="p-4 flex items-stretch gap-4">
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold truncate">{productItem.title}</div>
                       <div className="text-xs text-slate-500 mt-1 line-clamp-2">{productItem.shortDescription || productItem.subtitle}</div>
-                      {/* category removed per request — only name + rate shown in tile */}
+              
                     </div>
                   </div>
 
@@ -649,7 +626,6 @@ export default function AdminProducts() {
               </div>
             </SheetHeader>
 
-            {/* content area: make this the scrollable region */}
             <div className="p-6 space-y-6 overflow-auto flex-1 min-h-0">
               <div className="rounded-lg border bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm">
                 <div className="flex flex-col md:flex-row gap-4">
@@ -696,7 +672,6 @@ export default function AdminProducts() {
         loading={deleteLoading}
       />
 
-      {/* Bulk confirm dialog */}
       <ConfirmDialog
         open={bulkConfirmOpen}
         title="Delete selected products"
@@ -713,12 +688,10 @@ export default function AdminProducts() {
   );
 }
 
-// Reusable ConfirmDialog component (unchanged)
 function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading = false }) {
   const cancelRef = useRef(null);
   const dialogRef = useRef(null);
 
-  // ConfirmDialog component (only the updated effect shown)
   useEffect(() => {
     if (!open) return;
 
@@ -726,17 +699,15 @@ function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading 
     const prevHtmlOverflowX = html.style.overflowX;
     const prevBodyOverflowX = document.body.style.overflowX;
 
-    // Horizontal scroll maathram hide cheyyunnu
     html.style.overflowX = "hidden";
     document.body.style.overflowX = "hidden";
 
-    // focus handling
     setTimeout(() => {
       cancelRef.current?.focus();
     }, 0);
 
     return () => {
-      // previous values restore cheyyuka
+
       html.style.overflowX = prevHtmlOverflowX;
       document.body.style.overflowX = prevBodyOverflowX;
     };

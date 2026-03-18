@@ -8,7 +8,6 @@ export default function SupportingImages({ images = [], setImages }) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef(null);
 
-  // pending delete state: store both index and url for robust removal
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState(null);
   const [pendingDeleteUrl, setPendingDeleteUrl] = useState(null);
 
@@ -42,7 +41,6 @@ export default function SupportingImages({ images = [], setImages }) {
     handleFiles(e.target.files);
   }
 
-  // keep removeAt for direct programmatic use, but UI uses confirmation modal
   function removeAt(index) {
     setImages((prev) => prev.filter((_, i) => i !== index));
   }
@@ -56,7 +54,6 @@ export default function SupportingImages({ images = [], setImages }) {
     });
   }
 
-  // reorder helper
   function reorder(list, startIndex, endIndex) {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
@@ -71,19 +68,16 @@ export default function SupportingImages({ images = [], setImages }) {
     setImages(next);
   }
 
-  // show confirm modal
   function askDelete(index, url) {
     setPendingDeleteIndex(index);
     setPendingDeleteUrl(url);
   }
 
-  // cancel
   function handleDeleteCancel() {
     setPendingDeleteIndex(null);
     setPendingDeleteUrl(null);
   }
-
-  // confirmed delete
+e
   function handleDeleteConfirmed() {
     const url = pendingDeleteUrl;
     const idx = pendingDeleteIndex;
@@ -93,20 +87,20 @@ export default function SupportingImages({ images = [], setImages }) {
     }
 
     setImages((prev) => {
-      // prefer removing by stored index if the same item still at that index
+
       if (typeof idx === "number" && prev[idx] === url) {
         const copy = [...prev];
         copy.splice(idx, 1);
         return copy;
       }
-      // otherwise remove the first occurrence of the stored URL
+
       const found = prev.findIndex((u) => u === url);
       if (found !== -1) {
         const copy = [...prev];
         copy.splice(found, 1);
         return copy;
       }
-      // fallback: if nothing matched, return prev unchanged
+
       return prev;
     });
 
@@ -206,7 +200,7 @@ export default function SupportingImages({ images = [], setImages }) {
                           </div>
 
                           <div>
-                            {/* now ask for confirmation instead of deleting immediately */}
+          
                             <button
                               onClick={() => askDelete(idx, img)}
                               title="Delete"
@@ -236,7 +230,6 @@ export default function SupportingImages({ images = [], setImages }) {
 
       <div className="mt-3 text-xs text-gray-500">Tip: drag the handle to reorder images. Click the <span className="font-semibold">Star</span> to set the primary image (it will be moved to the first position).</div>
 
-      {/* Confirm modal - same style as your coupons modal */}
       {pendingDeleteUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="max-w-lg w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -253,7 +246,6 @@ export default function SupportingImages({ images = [], setImages }) {
                   <h3 className="text-lg font-semibold">Delete image?</h3>
                   <p className="text-sm text-slate-600 mt-2">Are you sure you want to delete this image? This action cannot be undone.</p>
 
-                  {/* optional small preview */}
                   <div className="mt-4">
                     <div className="w-28 h-28 rounded-md overflow-hidden border bg-gray-50">
                       <img src={pendingDeleteUrl} alt="to delete preview" className="object-cover w-full h-full" />

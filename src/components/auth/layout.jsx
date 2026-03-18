@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Outlet } from "react-router-dom";
-import logoDefault from "../../assets/logo-3.png"; // front logo
-import backLogoDefault from "../../assets/logo-4.png"; // back logo (can be different)
+import logoDefault from "../../assets/logo-3.png"; 
+import backLogoDefault from "../../assets/logo-4.png"; 
 
 export default function AuthLayout({
   logoUrl,
   backLogoUrl,
-  pauseDuration = 3,        // seconds to wait between flips (you wanted 3s)
-  transitionSeconds = 0.6,  // smooth flip duration (in seconds)
-  loop = true,              // continuous flipping by default
+  pauseDuration = 3,        
+  transitionSeconds = 0.6, 
+  loop = true,            
 }) {
   const logoSrc = logoUrl || logoDefault;
   const backSrc = backLogoUrl || backLogoDefault;
@@ -17,12 +17,12 @@ export default function AuthLayout({
   const flipperRef = useRef(null);
 
   useEffect(() => {
-    // small initial delay so the first transition animates nicely
+  
     const kickoff = setTimeout(() => setFlipped((v) => !v), 150);
 
     let intervalId = null;
     if (loop) {
-      // toggle every `pauseDuration` seconds
+   
       intervalId = setInterval(() => setFlipped((v) => !v), pauseDuration * 1000);
     }
 
@@ -34,9 +34,9 @@ export default function AuthLayout({
 
   return (
     <div className="flex min-h-screen w-full">
-      {/* Left / visual panel */}
+     
       <div className="hidden lg:flex w-1/2 relative overflow-hidden items-center justify-center bg-gradient-to-br from-[#08665F] via-[#06665F] to-[#044c43] px-12">
-        {/* Background decorative SVG */}
+    
         <svg
           className="absolute inset-0 h-full w-full opacity-10"
           xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +58,6 @@ export default function AuthLayout({
           </g>
         </svg>
 
-        {/* Centered logo + text */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
           <div
             style={{ ["--transition-duration"]: `${transitionSeconds}s` }}
@@ -92,7 +91,6 @@ export default function AuthLayout({
           </p>
         </div>
 
-        {/* Subtle glass card */}
         <div className="absolute bottom-10 right-10 hidden md:block">
           <div className="rounded-2xl bg-white/6 px-6 py-4 shadow-lg backdrop-blur-sm max-w-xs text-sm text-white/90">
             Premium quality ingredients • Freshly prepared • Delivered with love
@@ -100,7 +98,6 @@ export default function AuthLayout({
         </div>
       </div>
 
-      {/* Right / form panel */}
       <div className="flex flex-1 items-center justify-center bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
           <div className="rounded-2xl bg-white p-8 shadow-lg">
@@ -112,7 +109,6 @@ export default function AuthLayout({
         </div>
       </div>
 
-      {/* Inline CSS for 3D flip */}
       <style>{`
         .logo-3d { perspective: 1200px; }
         .logo-flipper {

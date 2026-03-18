@@ -4,7 +4,7 @@ import axios from "axios";
 const initialState = {
   orderList: [],
   orderDetails: null,
-  invoiceSettings: {}, // NEW: store invoice settings from server
+  invoiceSettings: {}, 
   isLoading: false,
   error: null,
 };
@@ -12,8 +12,8 @@ const initialState = {
 export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
   async () => {
-    const response = await axios.get(`http://localhost:5000/api/admin/orders/get`);
-    // response.data expected shape: { success: true, data: { orders, invoiceSettings } }
+    const response = await axios.get(`https://aachiamma-backend.fly.dev/api/admin/orders/get`);
+
     return response.data;
   }
 );
@@ -21,8 +21,8 @@ export const getAllOrdersForAdmin = createAsyncThunk(
 export const getOrderDetailsForAdmin = createAsyncThunk(
   "/order/getOrderDetailsForAdmin",
   async (id) => {
-    const response = await axios.get(`http://localhost:5000/api/admin/orders/details/${id}`);
-    // response.data expected shape: { success: true, data: { order, invoiceSettings } }
+    const response = await axios.get(`https://aachiamma-backend.fly.dev/api/admin/orders/details/${id}`);
+ 
     return response.data;
   }
 );
@@ -30,18 +30,17 @@ export const getOrderDetailsForAdmin = createAsyncThunk(
 export const updateOrderStatus = createAsyncThunk(
   "/order/updateOrderStatus",
   async ({ id, orderStatus }) => {
-    const response = await axios.put(`http://localhost:5000/api/admin/orders/update/${id}`, {
+    const response = await axios.put(`https://aachiamma-backend.fly.dev/api/admin/orders/update/${id}`, {
       orderStatus,
     });
     return response.data;
   }
 );
 
-// NEW: delete order thunk
 export const deleteOrderForAdmin = createAsyncThunk(
   "/order/deleteOrderForAdmin",
   async (id) => {
-    const response = await axios.delete(`http://localhost:5000/api/admin/orders/delete/${id}`);
+    const response = await axios.delete(`https://aachiamma-backend.fly.dev/api/admin/orders/delete/${id}`);
     return { id, data: response.data };
   }
 );
@@ -64,9 +63,6 @@ const adminOrderSlice = createSlice({
         state.isLoading = false;
         const payloadData = action.payload && action.payload.data;
 
-        // Backward compatible handling:
-        // - Old: data === [orders array]
-        // - New: data = { orders: [...], invoiceSettings: {...} }
         if (Array.isArray(payloadData)) {
           state.orderList = payloadData;
         } else if (payloadData && payloadData.orders) {
@@ -75,7 +71,7 @@ const adminOrderSlice = createSlice({
         } else if (Array.isArray(action.payload)) {
           state.orderList = action.payload;
         } else {
-          // fallback: unknown shape -> leave orderList empty
+       
           state.orderList = payloadData || [];
         }
       })
@@ -97,7 +93,7 @@ const adminOrderSlice = createSlice({
             state.invoiceSettings = payloadData.invoiceSettings;
           }
         } else {
-          // older shape: payload.data === order object
+
           state.orderDetails = payloadData || action.payload?.data || null;
         }
       })
@@ -107,7 +103,7 @@ const adminOrderSlice = createSlice({
         state.error = action.error?.message || "Failed to load order details";
       })
 
-      // delete handlers
+   
       .addCase(deleteOrderForAdmin.pending, (state) => {
         state.isLoading = true;
         state.error = null;

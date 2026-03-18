@@ -1,23 +1,10 @@
-// client/src/store/auth-slice/index.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-/**
- * Auth slice (final version)
- *
- * - loginUser → /auth/login
- * - registerUser → /auth/register
- * - checkAuth → /auth/check-auth
- * - logoutUser → clears token + user
- * - token auto-saved to localStorage and attached to axios headers
- */
+const API_BASE = "https://aachiamma-backend.fly.dev/api";
 
-const API_BASE = "http://localhost:5000/api";
-
-// ensure axios baseURL
 axios.defaults.baseURL = API_BASE;
 
-// Normalize saved token (strip accidental quotes) & set default header
 let savedToken = null;
 try {
   const raw = localStorage.getItem("auth_token");
@@ -32,9 +19,6 @@ if (savedToken) {
   axios.defaults.headers.common["Authorization"] = `Bearer ${savedToken}`;
 }
 
-// -------------------- THUNKS --------------------
-
-// ✅ REGISTER USER
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (formData, { rejectWithValue }) => {
@@ -49,7 +33,6 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// ✅ LOGIN USER (stores token immediately & triggers checkAuth)
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, { rejectWithValue, dispatch }) => {
@@ -63,7 +46,7 @@ export const loginUser = createAsyncThunk(
           localStorage.setItem("auth_token", token);
         } catch (e) {}
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        // trigger server-side validation & user fetch
+     h
         dispatch(checkAuth());
       }
 
@@ -76,12 +59,11 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// ✅ CHECK AUTH (explicitly attaches token from localStorage to avoid timing issues)
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
-      // Read token freshly from localStorage to avoid timing issues
+
       let token = null;
       try {
         const raw = localStorage.getItem("auth_token");
@@ -93,7 +75,6 @@ export const checkAuth = createAsyncThunk(
       const headers = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      // send token explicitly (do not rely only on axios.defaults)
       const resp = await axios.get(`/auth/check-auth`, { headers });
       return resp.data;
     } catch (err) {
@@ -104,7 +85,6 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
-// -------------------- SLICE --------------------
 
 const authSlice = createSlice({
   name: "auth",
@@ -132,7 +112,7 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // REGISTER USER
+
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -153,7 +133,7 @@ const authSlice = createSlice({
           localStorage.setItem("auth_token", token);
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         } else {
-          // registration successful but no auto-login
+       
           state.user = user;
           state.isAuthenticated = false;
         }
@@ -164,7 +144,6 @@ const authSlice = createSlice({
         state.error = action.payload || action.error;
       });
 
-    // LOGIN USER
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -184,7 +163,7 @@ const authSlice = createSlice({
         state.error = null;
 
         if (token) {
-          // store token raw (no JSON.stringify)
+        
           localStorage.setItem("auth_token", token);
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         }
@@ -195,7 +174,6 @@ const authSlice = createSlice({
         state.error = action.payload || action.error || { message: "Login failed" };
       });
 
-    // CHECK AUTH
     builder
       .addCase(checkAuth.pending, (state) => {
         state.loading = true;

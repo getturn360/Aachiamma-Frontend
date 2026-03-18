@@ -1,24 +1,20 @@
-// client/src/pages/admin-view/message-templates.jsx
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/lib/toast"; // adjust import if your project uses different toast
+import { toast } from "@/lib/toast"; 
 import api from "@/api/axios";
 
-// Keys used by server logic (make sure these match server expectations)
 const TEMPLATE_KEYS = {
   THANKS: "order_payment_success",
   SHIPPING: "order_status_inShipping",
   DELIVERED: "order_status_delivered",
 };
 
-// Allowed placeholders (only those actually available in your project)
 const ALLOWED_PLACEHOLDERS = [
-  // Order / identity
+ 
   "orderId",
   "status",
-  // Customer / address
   "customerName",
   "firstName",
   "lastName",
@@ -30,7 +26,6 @@ const ALLOWED_PLACEHOLDERS = [
   "state",
   "postcode",
   "pincode",
-  // Payment / money
   "totalAmount",
   "subtotal",
   "shippingAmount",
@@ -39,20 +34,16 @@ const ALLOWED_PLACEHOLDERS = [
   "paymentStatus",
   "paymentId",
   "orderDate",
-  // Items (derived from cartItems)
   "itemsList",
   "shortItems",
   "itemCount",
-  // Shipping/meta
   "trackingNumber",
   "courier",
   "estimatedDelivery",
-  // Support / store
   "supportPhone",
   "storeName",
 ];
 
-// Sample values used in preview (for admin visual)
 const SAMPLE = {
   orderId: "ORD12345",
   status: "Processing",
@@ -92,7 +83,7 @@ function applySample(body = "") {
     const re = new RegExp(`{{\\s*${k}\\s*}}`, "gi");
     out = out.replace(re, SAMPLE[k]);
   }
-  // remove any unknown placeholders visually (replace with empty)
+
   out = out.replace(/{{\s*[^}]+\s*}}/g, "");
   return out;
 }
@@ -163,7 +154,6 @@ function MessageBlock({ label, typeKey, data, onChange, onSave, saving }) {
         <div className="mt-3 text-xs">
           <div className="mb-1 font-medium">Used in body</div>
 
-          {/* badges container: wraps and aligns neatly */}
           <div className="flex flex-wrap gap-2 items-center">
             {placeholders.map(p => {
               const valid = ALLOWED_PLACEHOLDERS.includes(p);
@@ -202,21 +192,21 @@ function MessageTemplatesPage() {
     [TEMPLATE_KEYS.DELIVERED]: { key: TEMPLATE_KEYS.DELIVERED, title: "", body: "" },
   });
   const [loading, setLoading] = useState(false);
-  const [savingKeys, setSavingKeys] = useState({}); // map key->bool
+  const [savingKeys, setSavingKeys] = useState({}); 
 
   useEffect(() => {
     fetchTemplates();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+ 
   }, []);
 
   async function fetchTemplates() {
     setLoading(true);
     try {
-      // include /api prefix if your server uses it
+  
       const res = await api.get("/api/admin/templates/templates");
       const j = res?.data;
       if (j && j.success && Array.isArray(j.data)) {
-        // Map server templates into our 3 keys
+     
         const copy = { ...templates };
         for (const t of j.data) {
           if (!t || !t.key) continue;
@@ -230,7 +220,7 @@ function MessageTemplatesPage() {
         }
         setTemplates(copy);
       } else {
-        // no templates yet — keep defaults
+
       }
     } catch (e) {
       console.error("fetch templates error", e);
@@ -260,7 +250,6 @@ function MessageTemplatesPage() {
       return;
     }
 
-    // client-side placeholder validation
     const v = validatePlaceholders(tpl.body);
     if (!v.ok) {
       toast({ title: "Invalid placeholder", description: `Unknown placeholder: ${v.invalid}`, variant: "destructive" });
@@ -269,12 +258,12 @@ function MessageTemplatesPage() {
 
     setSavingKeys((s) => ({ ...s, [key]: true }));
     try {
-      // include /api prefix if your server uses it
+     
       const res = await api.post("/api/admin/templates/templates", { key: tpl.key, title: tpl.title || tpl.key, body: tpl.body });
       const j = res?.data;
       if (j && j.success) {
         toast({ title: "Saved" });
-        // update local (server returns doc)
+       
         setTemplates((prev) => ({ ...prev, [key]: { key: tpl.key, title: j.data.title || tpl.title, body: j.data.body || tpl.body } }));
       } else {
         toast({ title: "Save failed", description: j && j.message ? j.message : "Unknown", variant: "destructive" });
@@ -295,11 +284,10 @@ function MessageTemplatesPage() {
   async function saveAll() {
     const keys = Object.values(TEMPLATE_KEYS);
     for (const k of keys) {
-      // sequential saves to avoid spamming; simple approach
-      // skip if no body
+   
       const tpl = templates[k];
       if (!tpl || !tpl.body || String(tpl.body).trim() === "") continue;
-      // eslint-disable-next-line no-await-in-loop
+    
       await saveTemplate(k);
     }
     toast({ title: "All done" });

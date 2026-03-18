@@ -22,7 +22,7 @@ export default function AdminProductTile({
         </div>
 
         <CardFooter className="bottom-4 left-4 right-4 p-2 flex items-center justify-between gap-3">
-          {/* Edit button made larger: takes ~2/3 of the footer width */}
+       
           <Button
             onClick={() => {
               setOpenCreateProductsDialog(true);
@@ -34,7 +34,7 @@ export default function AdminProductTile({
             Edit
           </Button>
 
-          {/* Delete button made smaller and red */}
+       
           <Button
             onClick={() => handleDelete(product?._id)}
             className="basis-1/3 w-full !bg-red-600 !hover:!bg-red-700 !text-white"

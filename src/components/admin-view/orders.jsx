@@ -1,4 +1,3 @@
-// client/src/components/admin-view/AdminOrdersView.jsx
 import React, { useEffect, useRef, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,14 +26,9 @@ import {
   deleteOrderForAdmin,
 } from "@/store/admin/order-slice";
 
-/* -------------------------
-   Small helpers / constants
-   ------------------------- */
 const INVOICE_SUFFIX_LENGTH = 5;
 
-/**
- * statusVariant now matches the same palette used in order-details.jsx
- */
+
 function statusVariant(status) {
   switch (status) {
     case "confirmed":
@@ -101,9 +95,7 @@ const isToday = (dateStr) => {
   return isSameLocalDay(dateStr, now.toISOString());
 };
 
-/* -------------------------
-   Invoice formatting logic
-   ------------------------- */
+
 const getInvoiceNumber = (order, invoiceSettings = {}) => {
   if (!order) return "";
 
@@ -132,9 +124,7 @@ const getInvoiceNumber = (order, invoiceSettings = {}) => {
   return `${prefix}${suffix}`;
 };
 
-/* -------------------------
-   Component
-   ------------------------- */
+
 export default function AdminOrdersView() {
   const dispatch = useDispatch();
   const { orderList, orderDetails, invoiceSettings } = useSelector((state) => state.adminOrder);
@@ -143,22 +133,19 @@ export default function AdminOrdersView() {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [copySuccess, setCopySuccess] = useState(null);
 
-  // show only today's orders by default
+
   const [showTodayOnly, setShowTodayOnly] = useState(true);
 
   const prefetchedIds = useRef(new Set());
 
-  // date range state for export
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  // invoice suffix range (now last INVOICE_SUFFIX_LENGTH chars)
   const [invoiceFromSuffix, setInvoiceFromSuffix] = useState("");
   const [invoiceToSuffix, setInvoiceToSuffix] = useState("");
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
 
-  // NEW: track which order(s) are currently being downloaded
-  const [downloadingIds, setDownloadingIds] = useState([]); // array of orderId strings
+  const [downloadingIds, setDownloadingIds] = useState([]); 
 
   useEffect(() => {
     dispatch(getAllOrdersForAdmin());
@@ -228,12 +215,11 @@ export default function AdminOrdersView() {
     return showTodayOnly ? sortedOrders.filter((o) => isToday(o?.orderDate)) : sortedOrders;
   }, [sortedOrders, showTodayOnly]);
 
-  /* ---------- CSV export helpers (unchanged) ---------- */
   const exportTodayAsCSV = () => {
     if (!Array.isArray(sortedOrders)) return;
     const todayOrders = sortedOrders.filter((o) => isToday(o?.orderDate));
     if (!todayOrders.length) {
-      // eslint-disable-next-line no-alert
+     
       alert("No orders for today to export.");
       return;
     }
@@ -308,7 +294,7 @@ export default function AdminOrdersView() {
     if (!Array.isArray(sortedOrders)) return;
 
     if (!fromDate || !toDate) {
-      // eslint-disable-next-line no-alert
+
       alert("Please select both From and To dates.");
       return;
     }
@@ -317,12 +303,12 @@ export default function AdminOrdersView() {
     const to = new Date(`${toDate}T23:59:59.999`);
 
     if (isNaN(from.getTime()) || isNaN(to.getTime())) {
-      // eslint-disable-next-line no-alert
+
       alert("Invalid date range.");
       return;
     }
     if (from > to) {
-      // eslint-disable-next-line no-alert
+
       alert("From date cannot be after To date.");
       return;
     }
@@ -334,7 +320,6 @@ export default function AdminOrdersView() {
     });
 
     if (!rangeOrders.length) {
-      // eslint-disable-next-line no-alert
       alert("No orders found for the selected date range.");
       return;
     }
@@ -414,8 +399,6 @@ export default function AdminOrdersView() {
     }, 0);
   }, [fromDate, toDate, sortedOrders]);
 
-  /* ---------- Invoice suffix helpers (unchanged) ---------- */
-  // NOTE: replaced original "open in new tab" handle with download flow that shows state
   const isDownloading = (orderId) => downloadingIds.includes(String(orderId));
 
   const startDownloading = (orderId) => {
@@ -429,8 +412,6 @@ export default function AdminOrdersView() {
     setDownloadingIds((prev) => prev.filter((i) => i !== String(orderId)));
   };
 
-  // Replaced handler: fetch blob, parse filename from Content-Disposition if present,
-  // show "Downloading..." and disable the button while fetching.
   const handleDownloadInvoice = async (orderId) => {
     if (!orderId) return;
     startDownloading(orderId);
@@ -440,16 +421,15 @@ export default function AdminOrdersView() {
         headers: { Accept: "application/pdf" },
       });
 
-      // If response is not ok, fallback to opening the link in a new tab (server might redirect)
       if (!resp.ok) {
         console.error("Invoice download failed", resp.status);
-        // fallback: try opening the direct URL in a new tab/window
+ 
         window.open(`/api/invoices/download/${orderId}`, "_blank", "noopener");
         return;
       }
 
       const blob = await resp.blob();
-      // try to determine filename from headers
+
       let filename = `invoice_${orderId}.pdf`;
       const cd = resp.headers.get("content-disposition");
       if (cd) {
@@ -467,11 +447,10 @@ export default function AdminOrdersView() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("download invoice error", err);
-      // fallback: open direct URL so user can still try
+
       try {
         window.open(`/api/invoices/download/${orderId}`, "_blank", "noopener");
       } catch (openErr) {
-        // ignore
       }
       alert("Failed to download invoice. Check console for details or try opening the invoice in a new tab.");
     } finally {
@@ -554,30 +533,22 @@ export default function AdminOrdersView() {
     }
   };
 
-  /* -------------------------
-     Render
-     ------------------------- */
   return (
     <Card className="w-full">
-      {/* Header: responsive stacking */}
+
       <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
         <div className="flex-1 min-w-0">
           <CardTitle className="text-xl md:text-2xl font-semibold truncate">
             All Orders
           </CardTitle>
 
-          {/* Showing/count: visible on small (block) and also on md+ (hidden-sm handled below) */}
           <div className="mt-1 text-sm text-slate-500 block md:hidden">
             {showTodayOnly ? "Showing: Today" : "Showing: All"} • {displayOrders.length}
           </div>
         </div>
 
-        {/* Controls: on small -> stacked, on md+ -> horizontal
-            Both the middle (export range) and right (invoice suffix + print) clusters now
-            have the same subtle background + rounded grouping on md+ for a balanced UI.
-        */}
         <div className="w-full md:w-auto flex flex-col md:flex-row gap-2 md:gap-3 items-stretch md:items-center">
-          {/* Left cluster (toggles + small info for md+) */}
+    
           <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
             <div className="inline-flex rounded-md border overflow-hidden w-full md:w-auto">
               <button
@@ -598,15 +569,11 @@ export default function AdminOrdersView() {
               </button>
             </div>
 
-            {/* showing/count for md+ */}
             <div className="hidden md:block text-sm text-slate-500">
               {showTodayOnly ? "Showing: Today" : "Showing: All"} • {displayOrders.length}
             </div>
           </div>
 
-          {/* Middle cluster: date inputs + export (stack on small)
-              now uses subtle background + rounded box on md+ for grouping
-          */}
           <div className="flex gap-2 md:gap-3 items-center w-full md:w-auto flex-wrap md:bg-slate-50 md:rounded-md md:px-3 md:py-1 md:shadow-sm">
             <div className="flex gap-2 w-full md:w-auto">
               <input
@@ -640,9 +607,7 @@ export default function AdminOrdersView() {
             </div>
           </div>
 
-          {/* Right cluster: invoice suffix inputs + bulk print + export today's
-              also uses the same subtle bg + rounded box on md+, aligned to the middle cluster
-          */}
+
           <div className="flex gap-2 md:gap-3 items-center w-full md:w-auto flex-wrap md:bg-slate-50 md:rounded-md md:px-3 md:py-1 md:shadow-sm md:ml-2">
             <div className="flex gap-2 w-full md:w-auto items-center">
               <input
@@ -682,7 +647,6 @@ export default function AdminOrdersView() {
       </CardHeader>
 
       <CardContent className="p-0">
-        {/* Desktop / tablet table */}
         <div className="overflow-x-auto">
           <Table className="min-w-full sm:min-w-[760px]">
             <TableHeader>
@@ -839,7 +803,7 @@ export default function AdminOrdersView() {
                             )}
                           </Button>
 
-                          {/* Delete button */}
+                
                           <Button
                             size="sm"
                             variant="ghost"
@@ -847,17 +811,16 @@ export default function AdminOrdersView() {
                               if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
                               try {
                                 await dispatch(deleteOrderForAdmin(id)).unwrap();
-                                // show success using available toast/alert
+                         
                                 if (typeof window !== 'undefined' && window?.toast && window.toast.success) {
                                   window.toast.success && window.toast.success("Order deleted");
                                 } else {
-                                  // fallback to alert or existing toast hook
-                                  // eslint-disable-next-line no-alert
+      
                                   alert("Order deleted");
                                 }
                               } catch (err) {
                                 console.error("Delete order failed", err);
-                                // eslint-disable-next-line no-alert
+           
                                 alert("Failed to delete order. See console.");
                               }
                             }}
@@ -886,7 +849,7 @@ export default function AdminOrdersView() {
           </Table>
         </div>
 
-        {/* Mobile: stacked cards */}
+
         <div className="md:hidden space-y-3 px-3 py-4">
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => (
@@ -999,10 +962,10 @@ export default function AdminOrdersView() {
                               if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
                               try {
                                 await dispatch(deleteOrderForAdmin(id)).unwrap();
-                                // eslint-disable-next-line no-alert
+            
                                 alert("Order deleted");
                               } catch (err) {
-                                // eslint-disable-next-line no-alert
+      
                                 alert("Failed to delete order. See console.");
                                 console.error("Delete order failed", err);
                               }
@@ -1021,7 +984,6 @@ export default function AdminOrdersView() {
               )}
         </div>
 
-        {/* Details dialog */}
         <Dialog
           open={openDetailsDialog}
           onOpenChange={(open) => {

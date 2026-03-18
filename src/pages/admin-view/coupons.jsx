@@ -4,28 +4,41 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { SearchIcon } from "lucide-react";
 
-/**
- * Safe API base:
- */
 const API_ADMIN = (() => {
   try {
+
+    if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE) {
+      const b = String(import.meta.env.VITE_API_BASE).replace(/\/$/, "");
+      return b + "/api/admin/coupons";
+    }
+  } catch (e) {}
+
+  try {
+ 
     if (typeof window !== "undefined" && window.REACT_APP_API_BASE_URL) {
       return String(window.REACT_APP_API_BASE_URL).replace(/\/$/, "") + "/api/admin/coupons";
     }
   } catch (e) {}
 
   try {
+
     if (typeof window !== "undefined") {
       const loc = window.location || {};
       const hostname = loc.hostname || "";
       if (hostname === "localhost" || hostname === "127.0.0.1") {
-        return `${loc.protocol || "http:"}//${hostname}:5000/api/admin/coupons`;
+        return "https://aachiamma-backend.fly.dev/api/admin/coupons";
       }
     }
   } catch (e) {}
 
   return "/api/admin/coupons";
 })();
+
+try {
+  if (typeof window !== "undefined") {
+    console.info("[API_ADMIN] resolved to", API_ADMIN);
+  }
+} catch (e) {}
 
 const PRIMARY_COLOR = "#08665F";
 const PRIMARY_HOVER = "#064e4a";
@@ -99,7 +112,7 @@ export default function AdminCouponsPage() {
 
   useEffect(() => {
     fetchCoupons();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [refreshFlag]);
 
   useEffect(() => {

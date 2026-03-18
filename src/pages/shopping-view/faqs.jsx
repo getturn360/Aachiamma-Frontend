@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// FAQsPage.jsx
-// Smooth, chevron-only toggle accordion for Aachi Amma Foods theme
-// + keyboard support: focus question text with Tab and press Enter/Space to toggle
 
 export default function FAQsPage({ accent = '#08665F', onContact }) {
     const faqs = [
@@ -52,9 +49,9 @@ export default function FAQsPage({ accent = '#08665F', onContact }) {
     }
 
     function handleKeyDown(e, i) {
-        // Activate on Enter or Space
+    
         if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
-            e.preventDefault(); // prevent page scroll on Space
+            e.preventDefault(); 
             toggle(i);
         }
     }
@@ -93,7 +90,7 @@ export default function FAQsPage({ accent = '#08665F', onContact }) {
                                 transition={{ duration: 0.5, delay: i * 0.04 }}
                                 className="rounded-2xl border border-gray-100 overflow-hidden bg-white shadow-sm"
                             >
-                                {/* Header row: question text (focusable for keyboard) + chevron button (click toggles) */}
+                            
                                 <div className="w-full flex items-center justify-between p-6 text-left">
                                     <div
                                         role="button"
@@ -102,7 +99,7 @@ export default function FAQsPage({ accent = '#08665F', onContact }) {
                                         aria-expanded={openIndex === i}
                                         aria-controls={contentId}
                                         className="outline-none"
-                                    // keep it non-clickable for mouse (only keyboard toggles), so no onClick here
+                                 
                                     >
                                         <div className="text-lg font-semibold" style={{ color: accent }}>
                                             {f.q}
@@ -130,7 +127,7 @@ export default function FAQsPage({ accent = '#08665F', onContact }) {
                                             >
                                                 <path
                                                     d="M6 9l6 6 6-6"
-                                                    stroke={openIndex === i ? '#08665F' : accent} // green when open
+                                                    stroke={openIndex === i ? '#08665F' : accent} 
                                                     strokeWidth="2"
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -141,7 +138,7 @@ export default function FAQsPage({ accent = '#08665F', onContact }) {
                                     </div>
                                 </div>
 
-                                {/* Animated answer area: use AnimatePresence to smoothly expand/collapse height + fade */}
+                                
                                 <AnimatePresence initial={false}>
                                     {openIndex === i && (
                                         <motion.div
@@ -164,7 +161,6 @@ export default function FAQsPage({ accent = '#08665F', onContact }) {
                     })}
                 </div>
 
-                {/* Extra question block with Contact button */}
                 <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     whileInView={{ opacity: 1, y: 0 }}

@@ -1,4 +1,3 @@
-// aachiamma/client/src/pages/admin-view/topbar.jsx
 import React, { useEffect, useState, useRef } from "react";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
@@ -36,16 +35,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-
-/**
- * AdminTopbar - manage top items shown in header marquee
- *
- * - Icon picker uses DropdownMenu (preview on right)
- * - Drag-to-reorder using @hello-pangea/dnd with a Grip handle (same theme as SupportingImages)
- * - Removed "Order" field — ordering determined by drag-and-drop
- * - Maximum 6 items enforced and highlighted above the form
- * - Delete uses ConfirmDialog (better UX)
- */
 
 const ICON_OPTIONS = [
   "Truck",
@@ -95,18 +84,15 @@ export default function AdminTopbar() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // form state
   const [text, setText] = useState("");
   const [icon, setIcon] = useState("Truck");
   const [link, setLink] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState(null);
 
-  // delete confirm
   const [deleteId, setDeleteId] = useState(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
-  // constants
   const MAX_ITEMS = 6;
 
   async function load() {
@@ -210,7 +196,6 @@ export default function AdminTopbar() {
     }
   }
 
-  // reorder handler for react-beautiful-dnd style (@hello-pangea/dnd)
   function reorder(list, startIndex, endIndex) {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
@@ -223,11 +208,10 @@ export default function AdminTopbar() {
     if (res.destination.index === res.source.index) return;
 
     const next = reorder(items, res.source.index, res.destination.index);
-    // assign order indices
     const withOrder = next.map((it, idx) => ({ ...it, order: idx }));
     setItems(withOrder);
 
-    // persist orders (one request per item)
+
     try {
       setLoading(true);
       await Promise.all(
@@ -253,7 +237,6 @@ export default function AdminTopbar() {
     <div className="p-4">
       <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Topbar (Top Items)</h2>
 
-      {/* MAX ITEMS HIGHLIGHT */}
       <div className={`mb-4 p-3 rounded-md border ${items.length >= MAX_ITEMS ? "bg-rose-50 border-rose-200 text-rose-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
         <div className="flex items-center justify-between gap-2">
           <div className="text-sm font-medium">
@@ -361,13 +344,13 @@ export default function AdminTopbar() {
                             </div>
                             <div>
                               <div className="font-medium">{it.text}</div>
-                              {/* link should be clearly visible (dark text) */}
+                        
                               <div className="text-xs text-muted-foreground">{it.link || "—"}</div>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            {/* drag handle */}
+                  
                             <button
                               {...dragProvided.dragHandleProps}
                               title="Drag to reorder"
@@ -401,7 +384,6 @@ export default function AdminTopbar() {
         </div>
       </div>
 
-      {/* Confirm dialog used for deleting an item */}
       <ConfirmDialog
         open={confirmDeleteOpen}
         title={"Delete top item"}
@@ -413,7 +395,6 @@ export default function AdminTopbar() {
   );
 }
 
-// Reusable ConfirmDialog component (same design as AdminShipping)
 function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading = false }) {
   const cancelRef = useRef(null);
 

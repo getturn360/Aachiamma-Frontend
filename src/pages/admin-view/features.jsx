@@ -5,10 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Shield, LogIn, Settings } from "lucide-react";
 
-/**
- * AdminFeatures - Premium XL features page
- * Drop-in: paste as src/pages/admin-view/features.jsx (or the path you use)
- */
 
 function ToggleRow({ label, checked, onChange, hint }) {
   return (
@@ -32,7 +28,7 @@ function ToggleRow({ label, checked, onChange, hint }) {
 }
 
 export default function AdminFeatures() {
-  // toggles for ultra features
+
   const [featureFlags, setFeatureFlags] = useState({
     privateMode: true,
     detailedAudit: true,
@@ -47,17 +43,17 @@ export default function AdminFeatures() {
 
   function setFlag(key, val) {
     setFeatureFlags((s) => ({ ...s, [key]: val }));
-    // here you'd call API to persist flags
+
     console.log("FLAG UPDATE:", key, val);
   }
 
   async function handleExport(type = "csv") {
     setExporting(true);
     try {
-      // demo: replace with real export API
+   
       await new Promise((res) => setTimeout(res, 900));
       console.log("Exported", type);
-      // show toast in your app (not included) or console
+
     } catch (e) {
       console.error(e);
     } finally {
@@ -67,7 +63,7 @@ export default function AdminFeatures() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
+  
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">XL — Private & Ultra Features</h1>
@@ -84,9 +80,9 @@ export default function AdminFeatures() {
         </div>
       </div>
 
-      {/* grid */}
+ 
       <div className="grid gap-6 md:grid-cols-3">
-        {/* 1. Private Details */}
+    
         <Card className="col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -131,7 +127,6 @@ export default function AdminFeatures() {
           </CardFooter>
         </Card>
 
-        {/* 2. Feature Flags */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -179,7 +174,6 @@ export default function AdminFeatures() {
         </Card>
       </div>
 
-      {/* Audit logs + export */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -205,7 +199,7 @@ export default function AdminFeatures() {
                 </tr>
               </thead>
               <tbody>
-                {/* demo rows */}
+              
                 <tr className="border-t">
                   <td className="p-2">2025-10-01 14:02</td>
                   <td className="p-2">admin@you.com</td>
@@ -239,7 +233,6 @@ export default function AdminFeatures() {
         </CardFooter>
       </Card>
 
-      {/* small utilities */}
       <div className="flex gap-3">
         <Button onClick={() => console.log("Open role manager")}>Role & Permission Manager</Button>
         <Button onClick={() => console.log("Open sessions")}>Active Sessions</Button>

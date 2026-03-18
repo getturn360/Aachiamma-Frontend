@@ -23,10 +23,8 @@ import { setProductDetails, updateProductInList } from "@/store/shop/products-sl
 import { addReview, getReviews } from "@/store/shop/review-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 
-/* ACCENT constant used by SectionTitle (match previous components) */
 const ACCENT = "#08665F";
 
-/* SectionTitle component (responsive, same color & size as requested) */
 const SectionTitle = ({ text }) => (
     <div className="flex items-center justify-center mb-8 px-2">
         <div
@@ -53,7 +51,6 @@ const SectionTitle = ({ text }) => (
     </div>
 );
 
-/* ThumbnailSlider component (responsive adjustments) - increased sizes */
 function ThumbnailSlider({ images = [], selectedImage, setSelectedImage }) {
     const [index, setIndex] = React.useState(0);
     const [visible, setVisible] = React.useState(3);
@@ -94,7 +91,6 @@ function ThumbnailSlider({ images = [], selectedImage, setSelectedImage }) {
     );
 }
 
-/* Helper: pick default variant (isDefault or first) */
 function pickDefaultVariant(variations = []) {
     if (!Array.isArray(variations) || variations.length === 0) return null;
     const explicit = variations.find((v) => v && v.isDefault);
@@ -102,7 +98,6 @@ function pickDefaultVariant(variations = []) {
     return variations[0];
 }
 
-/* Helper: compare variants (label+price+salePrice) */
 function variantEqual(a, b) {
     if (!a && !b) return true;
     if (!a || !b) return false;
@@ -111,7 +106,6 @@ function variantEqual(a, b) {
         (Number(a.salePrice || 0) === Number(b.salePrice || 0));
 }
 
-/* PremiumTabs component: fit-content tabs, clearer on mobile (background + borders) */
 function PremiumTabs({ tabs = [], activeKey, onChangeKey }) {
     return (
         <div className="flex justify-center">
@@ -152,21 +146,17 @@ export default function ProductDetailsPage() {
     const [productDetails, setProductDetailsState] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // local UI state
     const [selectedImage, setSelectedImage] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [reviewMsg, setReviewMsg] = useState("");
     const [rating, setRating] = useState(0);
 
-    // VARIATION state
     const [selectedVariantIndex, setSelectedVariantIndex] = useState(null);
     const [selectedVariant, setSelectedVariant] = useState(null);
 
-    // related products state
     const [relatedProducts, setRelatedProducts] = useState([]);
 
-    // Active section for description/reviews tabs
-    const [activeSection, setActiveSection] = useState('description'); // 'description'|'specs'|'ingredients'|'howto'|'faq'|'reviews'
+    const [activeSection, setActiveSection] = useState('description'); 
 
     useEffect(() => {
         let mounted = true;
@@ -182,7 +172,7 @@ export default function ProductDetailsPage() {
                 if (mounted && pd) {
                     setProductDetailsState(pd);
                     setSelectedImage(pd?.images?.[0] ?? pd?.image ?? "");
-                    // initial variant
+                   
                     const vs = Array.isArray(pd?.variations) ? pd.variations : [];
                     if (vs.length > 0) {
                         const defaultVar = pickDefaultVariant(vs);
@@ -193,9 +183,9 @@ export default function ProductDetailsPage() {
                         setSelectedVariant(null);
                         setSelectedVariantIndex(null);
                     }
-                    // fetch reviews via redux
+                    
                     if (pd?._id) dispatch(getReviews(pd._id));
-                    // fetch related products (by category)
+              
                     try {
                         if (pd?.category) {
                             const category = encodeURIComponent(pd.category);
@@ -227,7 +217,6 @@ export default function ProductDetailsPage() {
         return () => { mounted = false; };
     }, [id, dispatch, toast]);
 
-    // keep selectedVariant in sync if productDetails or selectedVariantIndex change
     useEffect(() => {
         if (!productDetails) return;
         const vs = Array.isArray(productDetails?.variations) ? productDetails.variations : [];
@@ -247,8 +236,6 @@ export default function ProductDetailsPage() {
     const price = Number(productDetails?.price ?? 0);
     const salePrice = Number(productDetails?.salePrice ?? 0);
 
-    // Compute the price/salePrice to display based on selectedVariant (if present)
-    // NOTE: salePrice will fallback to price to avoid 0 showing unexpectedly
     const effectivePrice = useMemo(() => {
         if (selectedVariant) {
             const p = Number(selectedVariant.price ?? 0);
@@ -260,11 +247,9 @@ export default function ProductDetailsPage() {
         return { price: p, salePrice: s > 0 ? s : p };
     }, [selectedVariant, price, salePrice]);
 
-    // compute product-level totalStock (legacy). Prefer per-variant stock when available.
     const productLevelStock = Number(productDetails?.totalStock ?? 0);
     const selectedVariantStock = selectedVariant ? Number(selectedVariant.totalStock || 0) : null;
 
-    // availableStockForActions logic:
     const availableStockForActions = (() => {
         if (selectedVariant !== null) return selectedVariantStock;
         const vs = Array.isArray(productDetails?.variations) ? productDetails.variations : [];
@@ -277,7 +262,6 @@ export default function ProductDetailsPage() {
         ? Math.round(((effectivePrice.price - effectivePrice.salePrice) / effectivePrice.price) * 100)
         : 0;
 
-    // mirror product-tile stock/badge logic
     const inStock = (availableStockForActions || 0) > 0;
     const lowStock = inStock && (availableStockForActions || 0) <= 5;
 
@@ -295,7 +279,6 @@ export default function ProductDetailsPage() {
         return dist;
     }, [reviews]);
 
-    // update increment / decrement to respect selectedVariantStock when present
     const increment = () => {
         const max = availableStockForActions || 99;
         setQuantity((q) => Math.min(max, q + 1));
@@ -306,7 +289,7 @@ export default function ProductDetailsPage() {
         if (!productDetails) return;
         const maxStock = availableStockForActions ?? 0;
         const getCartItems = (cartItems && cartItems.items) || [];
-        // match existing by productId + selectedVariant
+  
         const existingIndex = getCartItems.findIndex(
             (item) =>
                 item.productId === productDetails?._id &&
@@ -321,7 +304,6 @@ export default function ProductDetailsPage() {
             return;
         }
 
-        // build product object to pass: override top-level price/salePrice with selectedVariant if present
         const productForCart = {
             ...productDetails,
             price: effectivePrice.price,
@@ -368,7 +350,7 @@ export default function ProductDetailsPage() {
             productId: productDetails?._id,
             title: productDetails?.title || "",
             image: selectedImage ?? productDetails?.image ?? "",
-            // ensure numeric fields and expected keys
+          
             price: priceVal,
             salePrice: saleVal,
             unitPriceSaved: unitSaved,
@@ -382,7 +364,6 @@ export default function ProductDetailsPage() {
             } : null,
         };
 
-        // keep existing app behavior but pass the built item to checkout via state
         dispatch(setProductDetails());
         navigate("/shop/checkout", { state: { buyNow: true, items: [buyNowItem] } });
     }
@@ -406,13 +387,13 @@ export default function ProductDetailsPage() {
                 setRating(0);
                 setReviewMsg("");
                 if (productDetails?._id) {
-                    // fetch latest reviews then update productList entry so ProductTile shows new counts
+                   
                     dispatch(getReviews(productDetails._id)).then((res) => {
                         const reviews = res.payload?.data || [];
                         const reviewCount = Array.isArray(reviews) ? reviews.length : 0;
                         const sum = Array.isArray(reviews) && reviews.length > 0 ? reviews.reduce((acc, r) => acc + (Number(r.reviewValue) || 0), 0) : 0;
                         const average = reviewCount > 0 ? (sum / reviewCount) : 0;
-                        // update product in productList so ProductTile reflects new counts immediately
+                       
                         dispatch(updateProductInList({
                             productId: productDetails._id,
                             updates: {
@@ -473,11 +454,21 @@ export default function ProductDetailsPage() {
         );
     };
 
-    // For How-to tab: prefer productDetails.howTo (single paragraph).
     const howToParagraph = productDetails?.howTo ?? null;
 
     if (loading) {
-        return <div className="p-6 w-full">Loading product...</div>;
+        return (
+            <section
+                className="w-full flex items-center justify-center"
+                style={{ height: "50vh" }}
+                aria-live="polite"
+                aria-busy="true"
+            >
+                <div className="text-center">
+                    <div className="text-lg font-medium text-slate-700">Loading product...</div>
+                </div>
+            </section>
+        );
     }
 
     if (!productDetails) {
@@ -493,7 +484,6 @@ export default function ProductDetailsPage() {
         { key: 'reviews', label: 'Reviews' },
     ];
 
-    // Smooth open for related product: scroll current page up smoothly then navigate (keeps UX feeling smooth)
     function openProductSmooth(productId) {
         try {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -506,12 +496,12 @@ export default function ProductDetailsPage() {
     return (
         <div
             className="w-full mx-auto p-4 sm:p-6 mt-[40px] pb-12 container"
-            // scale base font for better small-screen fit (320px etc.)
+    
             style={{ fontSize: 'clamp(13px, 1.8vw, 16px)' }}
         >
-            {/* TOP: two-column layout (details left, gallery right on desktop; stacked on mobile) */}
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                {/* LEFT: Details & Actions (on desktop this will now be RIGHT due to swapped lg order) */}
+             
                 <div className="order-1 lg:order-2 w-full">
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
                         {productDetails?.title}
@@ -552,7 +542,6 @@ export default function ProductDetailsPage() {
 
                     <Separator className="my-4" />
 
-                    {/* Variants */}
                     {Array.isArray(productDetails?.variations) && productDetails.variations.length > 0 && (
                         <div className="mb-4">
                             <Label className="text-sm font-medium mb-2">Select weight</Label>
@@ -582,10 +571,9 @@ export default function ProductDetailsPage() {
                         </div>
                     )}
 
-                    {/* Actions (quantity + buttons) - UPDATED: stacked full-width buttons */}
                     <div className="mt-4 w-full">
                         <div className="flex flex-col gap-3">
-                            {/* Modern premium quantity control — hover bg on +/- only, width fits content */}
+                           
                             <div
                                 role="group"
                                 aria-label="Quantity selector"
@@ -643,7 +631,6 @@ export default function ProductDetailsPage() {
                         </div>
                     </div>
 
-                    {/* Variant-specific description items (optional) */}
                     {selectedVariant && Array.isArray(selectedVariant.descriptionItems) && selectedVariant.descriptionItems.length > 0 && (
                         <div className="mt-4 space-y-3">
                             {selectedVariant.descriptionItems.map((di, i) => (
@@ -656,7 +643,6 @@ export default function ProductDetailsPage() {
                     )}
                 </div>
 
-                {/* RIGHT: Gallery (on desktop this will now be LEFT due to swapped lg order) */}
                 <div className="order-2 lg:order-1 w-full">
                     <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-white to-slate-50 border w-full">
                         <img
@@ -667,7 +653,6 @@ export default function ProductDetailsPage() {
                         />
 
 
-                        {/* OUT OF STOCK: diagonal hashed overlay WITHOUT tinting the image colors. */}
                         {!inStock && (
                             <div
                                 aria-hidden="true"
@@ -679,7 +664,6 @@ export default function ProductDetailsPage() {
                             />
                         )}
 
-                        {/* OUT OF STOCK CENTER LABEL (larger, prominent) */}
                         {!inStock && (
                             <div
                                 aria-hidden="true"
@@ -691,25 +675,22 @@ export default function ProductDetailsPage() {
                             </div>
                         )}
 
-                        {/* Badges (inline row) - bring above overlay */}
                         <div className="absolute top-4 left-4 flex items-center gap-2 z-40">
                             {inStock && (
                                 <>
-                                    {/* Always show discount badge if applicable */}
+                              
                                     {discountPercent > 0 ? (
                                         <div className="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-semibold shadow">
                                             -{discountPercent}%
                                         </div>
                                     ) : null}
 
-                                    {/* Show only-if-low-stock badge (<=5) next to discount badge if both apply */}
                                     {lowStock ? (
                                         <div className="px-3 py-1 rounded-full bg-amber-600 text-black text-xs font-semibold shadow">
                                             Only {availableStockForActions} left
                                         </div>
                                     ) : null}
 
-                                    {/* If no discount and not lowStock, show category badge */}
                                     {discountPercent === 0 && !lowStock ? (
                                         <div className="px-3 py-1 rounded-full bg-white/80 text-slate-700 text-xs font-semibold shadow">
                                             {productDetails?.category || "Product"}
@@ -742,19 +723,18 @@ export default function ProductDetailsPage() {
                 </div>
             </div>
 
-            {/* CENTERED: Tabs & full description area (desktop: 70% width centered; mobile: full width) */}
             <div className="mt-8 flex justify-center">
                 <div className="w-full lg:w-[70%]">
-                    {/* REPLACED: PremiumTabs (no underline, fit-content, mobile scroll, contrast bg) */}
+                    
                     <PremiumTabs
                         tabs={tabList}
                         activeKey={activeSection}
                         onChangeKey={setActiveSection}
                     />
 
-                    {/* Tab panels */}
+                  
                     <div className="bg-white rounded-2xl shadow-sm p-5 mt-4">
-                        {/* DESCRIPTION */}
+                       
                         {activeSection === 'description' && (
                             <>
                                 {productDetails?.descriptionTitle ? <div className="text-sm font-semibold mb-2">{productDetails.descriptionTitle}</div> : null}
@@ -767,14 +747,13 @@ export default function ProductDetailsPage() {
                                             </div>
                                         ))
                                     ) : (
-                                        // fallback to single description
+                                      
                                         <div className="text-sm whitespace-pre-line">{productDetails?.description ?? "No description available."}</div>
                                     )}
                                 </div>
                             </>
                         )}
 
-                        {/* SPECIFICATIONS */}
                         {activeSection === 'specs' && Array.isArray(productDetails?.specList) && productDetails.specList.length > 0 && (
                             <div>
                                 <div className="text-sm font-semibold mb-2">Product Specifications</div>
@@ -786,7 +765,6 @@ export default function ProductDetailsPage() {
                             </div>
                         )}
 
-                        {/* INGREDIENTS */}
                         {activeSection === 'ingredients' && productDetails?.ingredients && (
                             <div>
                                 <div className="text-sm font-semibold mb-2">Ingredients Details</div>
@@ -794,7 +772,6 @@ export default function ProductDetailsPage() {
                             </div>
                         )}
 
-                        {/* HOWTO */}
                         {activeSection === 'howto' && howToParagraph && (
                             <div>
                                 <div className="text-sm font-semibold mb-2">How to use</div>
@@ -802,7 +779,6 @@ export default function ProductDetailsPage() {
                             </div>
                         )}
 
-                        {/* FAQ */}
                         {activeSection === 'faq' && Array.isArray(productDetails?.faqList) && productDetails.faqList.length > 0 && (
                             <div>
                                 <div className="text-sm font-semibold mb-2">FAQ</div>
@@ -820,10 +796,9 @@ export default function ProductDetailsPage() {
                             </div>
                         )}
 
-                        {/* REVIEWS */}
                         {activeSection === 'reviews' && (
                             <div id="product-reviews-section" className="space-y-6">
-                                {/* Add review */}
+                          
                                 <div>
                                     <Label className="mb-2">Write a review</Label>
                                     <div className="flex items-center gap-3 mb-3">
@@ -906,7 +881,6 @@ export default function ProductDetailsPage() {
                 </div>
             </div>
 
-            {/* RELATED PRODUCTS (uses SectionTitle component) */}
             {relatedProducts && relatedProducts.length > 0 && (
                 <div className="mt-8">
                     <SectionTitle text="Related products" />

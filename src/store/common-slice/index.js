@@ -1,4 +1,3 @@
-// client/src/store/common-slice/index.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -8,11 +7,10 @@ const initialState = {
   featureImageList: [],
 };
 
-// Thunks (unchanged endpoints)
 export const getFeatureImages = createAsyncThunk(
   "/common/getFeatureImages",
   async () => {
-    const response = await axios.get(`http://localhost:5000/api/common/feature/get`);
+    const response = await axios.get(`https://aachiamma-backend.fly.dev/api/common/feature/get`);
     return response.data;
   }
 );
@@ -20,7 +18,7 @@ export const getFeatureImages = createAsyncThunk(
 export const addFeatureImage = createAsyncThunk(
   "/common/addFeatureImage",
   async (image) => {
-    const response = await axios.post(`http://localhost:5000/api/common/feature/add`, { image });
+    const response = await axios.post(`https://aachiamma-backend.fly.dev/api/common/feature/add`, { image });
     return response.data;
   }
 );
@@ -29,7 +27,7 @@ const commonSlice = createSlice({
   name: "common",
   initialState,
   reducers: {
-    // global loader control
+  
     setLoading(state, action) {
       const payload = action.payload ?? {};
       state.isLoading = Boolean(payload.value);
@@ -38,14 +36,14 @@ const commonSlice = createSlice({
     setLoadingMessage(state, action) {
       state.loadingMessage = action.payload ?? null;
     },
-    // optional: clear feature list
+
     clearFeatureImages(state) {
       state.featureImageList = [];
     },
   },
   extraReducers: (builder) => {
     builder
-      // getFeatureImages
+    
       .addCase(getFeatureImages.pending, (state) => {
         state.isLoading = true;
         state.loadingMessage = "Loading feature images...";
@@ -53,7 +51,7 @@ const commonSlice = createSlice({
       .addCase(getFeatureImages.fulfilled, (state, action) => {
         state.isLoading = false;
         state.loadingMessage = null;
-        // backend returned { success: true, data: [...] } — keep original assignment
+
         state.featureImageList = action.payload?.data ?? [];
       })
       .addCase(getFeatureImages.rejected, (state) => {
@@ -62,7 +60,6 @@ const commonSlice = createSlice({
         state.featureImageList = [];
       })
 
-      // addFeatureImage
       .addCase(addFeatureImage.pending, (state) => {
         state.isLoading = true;
         state.loadingMessage = "Uploading image...";
@@ -70,12 +67,12 @@ const commonSlice = createSlice({
       .addCase(addFeatureImage.fulfilled, (state, action) => {
         state.isLoading = false;
         state.loadingMessage = null;
-        // if backend returns the new list or item, try to merge safely
+        
         const payloadData = action.payload?.data;
         if (Array.isArray(payloadData)) {
           state.featureImageList = payloadData;
         } else if (payloadData) {
-          // append single image object if provided
+          
           state.featureImageList = [...state.featureImageList, payloadData];
         }
       })

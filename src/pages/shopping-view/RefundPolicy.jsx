@@ -1,12 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-// RefundPolicy.jsx
-// Vite + React + Tailwind + Framer Motion
-// Premium, print-friendly Refund Policy inner page for Aachiamma Foods
-// Updated to match the Terms/Privacy layout: sticky TOC, roomy spacing, print-friendly "trim" feel.
-// Usage: import RefundPolicy from './RefundPolicy'; <RefundPolicy accent="#08665F" />
-
 export default function RefundPolicy({ accent = '#08665F' }) {
   const sections = [
     { id: 'intro', title: 'Overview' },
@@ -63,7 +57,6 @@ export default function RefundPolicy({ accent = '#08665F' }) {
             </div>
           </aside>
 
-          {/* Content */}
           <main className="md:col-span-3 space-y-8">
             <article className="rounded-2xl border p-10 bg-white shadow-lg prose prose-lg max-w-none">
               <section id="intro">

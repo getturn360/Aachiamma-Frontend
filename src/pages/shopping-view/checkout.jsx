@@ -1,6 +1,3 @@
-// client/src/pages/shopping-view/checkout.jsx
-// (full file — minimal edits limited to address selection logic / Address render + coupon percentage recalculation + immediate delete)
-
 import Address from "@/components/shopping-view/address";
 import img from "../../assets/account.jpg";
 import razorpayLogo from "@/assets/razorpay-icon.png";
@@ -81,7 +78,6 @@ function RazorpayLogo({ imgSrc }) {
 export default function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart || {});
   const { user } = useSelector((state) => state.auth || {});
-  // rename setter to avoid shadowing when passing wrapper
   const [currentSelectedAddress, setCurrentSelectedAddressState] = useState(null);
   const [addressForm, setAddressForm] = useState({});
   const [isPaymentStart, setIsPaymemntStart] = useState(false);
@@ -101,7 +97,7 @@ export default function ShoppingCheckout() {
       setChosenItems(buyNowItems.map((it) => ({ ...it, quantity: it.quantity || 1 })));
     } else {
       const arr = cartItems && Array.isArray(cartItems.items) ? cartItems.items : [];
-      // create shallow copies so React state changes reliably
+  
       setChosenItems(arr.map((it) => ({ ...(it || {}), quantity: it?.quantity || 1 })));
     }
   }, [isBuyNow, buyNowItems, cartItems]);
@@ -133,13 +129,12 @@ export default function ShoppingCheckout() {
     );
   };
 
-  // Immediate delete (no alert) for checkout UI — optimistic update
   const handleDeleteFromCart = (item) => {
     if (!item) return;
-    // Optimistic UI update: remove from chosenItems immediately
+
     setChosenItems((prev) =>
       prev.filter((i) => {
-        // compare by productId + selectedVariant JSON to avoid removing wrong variant
+       
         const sameId = String(i.productId) === String(item.productId);
         const aVar = JSON.stringify(i.selectedVariant || null);
         const bVar = JSON.stringify(item.selectedVariant || null);
@@ -152,12 +147,11 @@ export default function ShoppingCheckout() {
       return;
     }
 
-    // not buyNow: tell backend to remove; include selectedVariant if available
     const selVar = item.selectedVariant || null;
     try {
       dispatch(deleteCartItem({ userId: user?.id || user?._id || null, productId: item.productId, selectedVariant: selVar }))
         .then((res) => {
-          // backend may or may not return updated cart; force fetch for logged-in users to sync
+          
           if (user) {
             try {
               dispatch(fetchCartItems(user?.id || user?._id));
@@ -166,13 +160,13 @@ export default function ShoppingCheckout() {
           if (res?.payload?.success) {
             toast({ title: "Item removed from cart" });
           } else {
-            // if deletion failed on server, show warning but keep optimistic removal (you may re-sync)
+           
             toast({ title: res?.payload?.message || "Removed locally (server may differ)", variant: "destructive" });
           }
         })
         .catch((e) => {
           console.error("deleteCartItem error:", e);
-          // on network error, we already removed locally — best effort: inform user
+        
           toast({ title: "Removed locally (server request failed)", variant: "destructive" });
         });
     } catch (e) {
@@ -180,7 +174,7 @@ export default function ShoppingCheckout() {
     }
   };
 
-  // keep confirm dialog state (unused for immediate delete) in case you want to re-enable elsewhere
+ 
   const [deleteDialog, setDeleteDialog] = useState({ open: false, item: null });
   const openDeleteConfirm = (item) => setDeleteDialog({ open: true, item });
   const closeDeleteConfirm = () => setDeleteDialog({ open: false, item: null });
@@ -253,16 +247,16 @@ export default function ShoppingCheckout() {
       if (typeof window !== "undefined" && window.REACT_APP_API_BASE_URL) {
         return String(window.REACT_APP_API_BASE_URL).replace(/\/$/, "") + "/api";
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
     try {
       if (typeof window !== "undefined") {
         const loc = window.location || {};
         const hostname = loc.hostname || "";
         if (hostname === "localhost" || hostname === "127.0.0.1") {
-          return `${loc.protocol || "http:"}//${hostname}:5000/api`;
+          return "https://aachiamma-backend.fly.dev/api";
         }
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
     return "/api";
   })();
 
@@ -282,7 +276,7 @@ export default function ShoppingCheckout() {
   }
 
   useEffect(() => {
-    // if currentSelectedAddress is an object -> fill form
+   
     if (currentSelectedAddress && typeof currentSelectedAddress === "object" && Object.keys(currentSelectedAddress).length > 0) {
       setAddressForm(currentSelectedAddress);
       return;
@@ -303,7 +297,7 @@ export default function ShoppingCheckout() {
       }
       if (Array.isArray(list) && list.length > 0) {
         setAddressForm(list[0]);
-        // set default selected address if not already selected
+      
         if (!currentSelectedAddress) {
           try {
             setCurrentSelectedAddressState(list[0]);
@@ -316,7 +310,7 @@ export default function ShoppingCheckout() {
     } else {
       setAddressForm(guestAddress || {});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [user, guestAddress, currentSelectedAddress]);
 
   useEffect(() => {
@@ -332,11 +326,13 @@ export default function ShoppingCheckout() {
       setCouponDiscount(0);
       return;
     }
-    // Server might return { coupon, discount } OR a coupon object directly.
-    const couponObj = data.coupon || (data.coupon ? null : data);
+  
+    const couponObj = data && data.coupon ? data.coupon : data;
     setCouponApplied(couponObj || null);
-    setCouponDiscount(Number(data.discount || 0));
-    toast({ title: "Coupon applied", description: `Discount ₹${Number(data.discount || 0)}` });
+ 
+    const discountFromResponse = Number(data.discount || (couponObj && (couponObj.discount || couponObj.amount || couponObj.value)) || 0);
+    setCouponDiscount(discountFromResponse);
+    toast({ title: "Coupon applied", description: `Discount ₹${Number(discountFromResponse || 0)}` });
     setCouponError(null);
     setCouponErrorProducts([]);
   };
@@ -349,10 +345,9 @@ export default function ShoppingCheckout() {
       return;
     }
 
-    // ---------- NEW: require address saved / billing filled before allowing coupon ----------
     try {
       if (user) {
-        // for logged-in users require a saved address id/object (addressForm populated with saved address)
+ 
         const hasSavedAddress = addressForm && (addressForm._id || addressForm.id);
         if (!hasSavedAddress) {
           setCouponError("Please select/save a delivery address before applying coupon.");
@@ -361,7 +356,7 @@ export default function ShoppingCheckout() {
           return;
         }
       } else {
-        // for guests require billing fields filled
+
         const hasGuestBilling =
           addressForm &&
           (addressForm.firstName || addressForm.name) &&
@@ -378,10 +373,9 @@ export default function ShoppingCheckout() {
       }
     } catch (e) {
       console.error("address-check-before-coupon error", e);
-      // fallback: continue to try applying coupon (but prefer being strict)
+  
     }
-    // ---------------------------------------------------------------------------------------
-
+ 
     setApplyingInlineCoupon(true);
     try {
       const mobile = addressForm?.phone || "";
@@ -445,7 +439,6 @@ export default function ShoppingCheckout() {
     }
   };
 
-  // Recompute adjusted totals using couponDiscount (which may be recalculated below)
   const adjustedTotal = useMemo(() => {
     const sub = Number(totalCartAmount || 0);
     const disc = Number(couponDiscount || 0);
@@ -453,7 +446,6 @@ export default function ShoppingCheckout() {
     return { subtotal: sub, discount: disc, total };
   }, [chosenItems, totalCartAmount, couponDiscount]);
 
-  // --- NEW: recalculate couponDiscount when couponApplied is percentage-based and subtotal changes ---
   useEffect(() => {
     if (!couponApplied) return;
 
@@ -501,7 +493,7 @@ export default function ShoppingCheckout() {
     } catch (e) {
       console.error("coupon recalc error", e);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [couponApplied, adjustedTotal.subtotal]);
 
   const [shippingDoc, setShippingDoc] = useState(null);
@@ -510,39 +502,39 @@ export default function ShoppingCheckout() {
 
   useEffect(() => {
     fetchShippingDoc();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   async function fetchShippingDoc() {
     try {
       setShippingLoading(true);
       setShippingError(null);
-      // <-- changed: public common shipping endpoint for storefront
+   
       const url = buildApiPath("/common/shipping");
-      // try to include token (if available) and cookies for auth-sensitive endpoints
+  
       const token = (typeof window !== "undefined" && (localStorage.getItem("token") || (user && user.token))) || null;
 
       const res = await axios.get(url, {
-        withCredentials: true, // include cookies (useful if backend uses session cookie)
+        withCredentials: true, 
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           "X-Requested-With": "XMLHttpRequest",
         },
-        validateStatus: (status) => status < 500, // let 4xx pass so we can inspect body
+        validateStatus: (status) => status < 500, 
       });
 
       if (res.status === 200 && res.data && res.data.success && res.data.data) {
         setShippingDoc(res.data.data);
         setShippingError(null);
       } else {
-        // non-200 (like 403) — surface useful message
+    
         const serverMsg = res.data && (res.data.message || JSON.stringify(res.data)) || res.statusText || `HTTP ${res.status}`;
         setShippingError(serverMsg);
         setShippingDoc(null);
         console.error("fetchShippingDoc non-200 response:", { status: res.status, data: res.data, headers: res.headers });
       }
     } catch (err) {
-      // improved error logging: show server response body if available
+
       console.error("fetchShippingDoc error:", err);
       const serverMsg = err?.response?.data?.message || err?.response?.statusText || err?.message || String(err);
       setShippingError(serverMsg);
@@ -626,7 +618,7 @@ export default function ShoppingCheckout() {
         image: singleCartItem?.image,
         price: singleCartItem?.salePrice > 0 ? singleCartItem?.salePrice : singleCartItem?.price,
         quantity: singleCartItem?.quantity || 1,
-        // **added sku & hsn** so invoice generator gets HSN
+        
         sku: singleCartItem?.sku || (singleCartItem?.selectedVariant && singleCartItem.selectedVariant.sku) || "",
         hsn: singleCartItem?.hsn || (singleCartItem?.product && singleCartItem.product.hsn) || "",
       })),
@@ -650,9 +642,9 @@ export default function ShoppingCheckout() {
       orderStatus: "pending",
       paymentMethod: "razorpay",
       paymentStatus: "pending",
-      subtotal: Number(adjustedTotal.subtotal || 0),      // included subtotal
-      shippingAmount: Number(shippingFee || 0),          // included shipping amount
-      discountAmount: Number(couponDiscount || 0),       // included discount amount
+      subtotal: Number(adjustedTotal.subtotal || 0),   
+      shippingAmount: Number(shippingFee || 0),        
+      discountAmount: Number(couponDiscount || 0),      
       totalAmount: Number(payableTotal || 0),
       orderDate: new Date(),
       orderUpdateDate: new Date(),
@@ -660,7 +652,7 @@ export default function ShoppingCheckout() {
       payerId: "",
       meta: {
         fromBuyNow: isBuyNow,
-        // keep existing coupon object for backend logic, but also expose couponCode and couponDiscount
+      
         coupon: couponApplied ? { id: couponApplied.id || couponApplied._id, code: couponApplied.code, discount: couponDiscount } : null,
         couponCode: couponApplied ? (couponApplied.code || couponApplied.id || couponApplied._id) : null,
         couponDiscount: Number(couponDiscount || 0),
@@ -810,7 +802,7 @@ export default function ShoppingCheckout() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-5">
         <div>
-          <div className="p-4 border rounded billing-form bg-white">
+          <div className="rounded billing-form bg-white">
             <h3 className="font-semibold mb-2">{user ? "Delivery address" : "Billing details"}</h3>
 
             {user ? (
@@ -860,7 +852,7 @@ export default function ShoppingCheckout() {
 
         <div
           ref={rightRef}
-          className="flex flex-col gap-4 md:sticky md:top-20 md:self-start"
+          className="flex flex-col gap-4 md:sticky md:top-20 md:self-start pt-[30px]"
           style={{ willChange: "transform" }}
         >
           {chosenItems && chosenItems.length > 0 ? (
@@ -869,17 +861,16 @@ export default function ShoppingCheckout() {
                 ? {
                   onInc: () => handleQtyChange(item.productId, "inc"),
                   onDec: () => handleQtyChange(item.productId, "dec"),
-                  onDelete: () => handleDeleteFromCart(item), // immediate delete, no alert
+                  onDelete: () => handleDeleteFromCart(item),
                   disableQuantity: false,
                 }
                 : {
                   onInc: undefined,
                   onDec: undefined,
-                  onDelete: () => handleDeleteFromCart(item), // immediate delete, no alert
+                  onDelete: () => handleDeleteFromCart(item),
                   disableQuantity: false,
                 };
 
-              // key includes selectedVariant to avoid collisions
               const variantKey = item?.selectedVariant ? JSON.stringify(item.selectedVariant) : "no-variant";
               const key = `${item.productId || item._id || idx}-${variantKey}`;
 

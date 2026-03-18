@@ -1,14 +1,7 @@
-// aachiamma/client/src/components/common/CategoriesSticky.jsx
 import React, { useEffect, useState } from "react";
 import api from "@/api/axios";
 import { Link } from "react-router-dom";
 
-/**
- * CategoriesSticky - horizontal sticky category bar for Home page
- * - Removed max-width so the scroll area spans full viewport width (fixes clipping on mobile)
- * - Inner row is non-wrapping and provides left/right padding so chips are not clipped
- * - Touch scrolling + optional scroll-snap for better UX
- */
 
 export default function CategoriesSticky({ max = 10 }) {
   const [categories, setCategories] = useState([]);
@@ -49,14 +42,12 @@ export default function CategoriesSticky({ max = 10 }) {
       className="w-full border-b bg-white"
       aria-label="Categories"
     >
-      {/* Full-width scroll wrapper (no max-width container) */}
       <div
         className="overflow-x-auto"
         style={{
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {/* Inner row has left/right padding so chips aren't cut off */}
         <div
           className="flex gap-3 items-center px-4 py-2"
           style={{

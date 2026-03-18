@@ -6,7 +6,7 @@ import ShoppingOrders from "@/components/shopping-view/orders";
 function ShoppingAccount() {
   return (
     <div className="flex flex-col pt-2 sm:pt-[10px]">
-      {/* Hero image: smaller on narrow screens */}
+   
       <div className="relative h-[140px] sm:h-[200px] md:h-[300px] w-full overflow-hidden">
         <img
           src={accImg}
@@ -15,11 +15,11 @@ function ShoppingAccount() {
         />
       </div>
 
-      {/* Content container: reduced vertical spacing, padded on small screens */}
+      
       <div className="container mx-auto max-w-5xl grid grid-cols-1 gap-4 py-6 px-4 sm:px-0">
         <div className="flex flex-col rounded-lg border bg-background p-4 sm:p-6 shadow-sm">
           <Tabs defaultValue="orders">
-            {/* Tabs list: tighter gaps and smaller triggers for compact layout */}
+     
             <TabsList className="gap-1">
               <TabsTrigger value="orders" className="px-3 py-1 text-sm">
                 Orders

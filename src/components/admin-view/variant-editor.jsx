@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-/**
- * Clear, table-like variant editor so "Stock (units)" is always visible.
- *
- * Props:
- * - variations: array
- * - setVariations: function(updatedArray)
- */
+
 export default function VariantEditor({ variations = [], setVariations = () => {} }) {
   const [bulkStock, setBulkStock] = useState("");
 
-  // Normalize incoming variations on mount / when prop changes
+
   useEffect(() => {
     const normalized = (variations || []).map((v) => normalize(v));
     if (normalized.length > 0 && !normalized.some((x) => x.isDefault)) {
@@ -26,12 +20,12 @@ export default function VariantEditor({ variations = [], setVariations = () => {
       const needsFix = (variations || []).some((v) => v == null || v.totalStock == null || v.price == null);
       if (needsFix) setVariations(normalized);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [JSON.stringify(variations || [])]);
 
   function normalize(v) {
     return {
-      // Keep both id/_id as provided (parent may send _id)
+  
       id: v?.id ?? v?._id ?? null,
       label: String(v?.label ?? "").trim(),
       sku: v?.sku ?? "",
@@ -50,7 +44,6 @@ export default function VariantEditor({ variations = [], setVariations = () => {
     if (key === "price" || key === "salePrice") {
       copy[idx][key] = Number(value || 0);
     } else if (key === "totalStock") {
-      // ensure integer >= 0
       const nv = Number(value || 0);
       copy[idx][key] = Math.max(0, isNaN(nv) ? 0 : Math.floor(nv));
     } else if (key === "isDefault") {
@@ -148,7 +141,6 @@ export default function VariantEditor({ variations = [], setVariations = () => {
         </div>
       </div>
 
-      {/* Table header */}
       <div className="hidden md:grid grid-cols-12 gap-2 text-xs font-semibold text-slate-600 px-3 py-2 border-b">
         <div className="col-span-3">Label</div>
         <div className="col-span-2">SKU</div>
@@ -164,7 +156,7 @@ export default function VariantEditor({ variations = [], setVariations = () => {
 
       {(variations || []).map((v, i) => (
         <div key={v.id ?? v._id ?? i} className="grid grid-cols-12 gap-2 items-start p-3 border rounded bg-white">
-          {/* Label */}
+
           <div className="col-span-12 md:col-span-3">
             <label className="text-xs block text-slate-600">Label</label>
             <input
@@ -176,7 +168,7 @@ export default function VariantEditor({ variations = [], setVariations = () => {
             />
           </div>
 
-          {/* SKU */}
+    
           <div className="col-span-6 md:col-span-2">
             <label className="text-xs block text-slate-600">SKU</label>
             <input
@@ -187,7 +179,6 @@ export default function VariantEditor({ variations = [], setVariations = () => {
             />
           </div>
 
-          {/* Price */}
           <div className="col-span-6 md:col-span-2">
             <label className="text-xs block text-slate-600">Price (₹)</label>
             <input
@@ -200,7 +191,7 @@ export default function VariantEditor({ variations = [], setVariations = () => {
             />
           </div>
 
-          {/* Sale Price */}
+
           <div className="col-span-6 md:col-span-2">
             <label className="text-xs block text-slate-600">Sale Price (optional)</label>
             <input
@@ -213,7 +204,7 @@ export default function VariantEditor({ variations = [], setVariations = () => {
             />
           </div>
 
-          {/* Stock (prominent) with stepper */}
+  
           <div className="col-span-6 md:col-span-2">
             <label className="text-xs block text-slate-600">Stock (units)</label>
             <div className="flex items-center gap-2">
@@ -236,7 +227,7 @@ export default function VariantEditor({ variations = [], setVariations = () => {
             <div className="text-xs text-slate-400 mt-1">Enter available units for this variant.</div>
           </div>
 
-          {/* Default + actions */}
+
           <div className="col-span-12 md:col-span-1 flex flex-col items-end gap-2">
             <label className="text-xs inline-flex items-center gap-2">
               <input
@@ -256,7 +247,6 @@ export default function VariantEditor({ variations = [], setVariations = () => {
             </div>
           </div>
 
-          {/* Description items area */}
           <div className="col-span-12 mt-3 border-t pt-3">
             <div className="flex items-center justify-between mb-2">
               <div className="text-sm font-medium">Description items (optional)</div>

@@ -6,19 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/lib/toast";
 
-/**
- * AdminContactMessages (updated)
- *
- * Changes:
- * - Unread / "red" styling changed to yellow theme.
- * - Messages created today or unread messages use the yellow theme.
- * - Clicking "Mark as read" will mark the message read on the server and show ONLY that message in the list.
- * - No other structural changes beyond the above.
- *
- * Note: Assumes endpoint: PUT api/admin/contact-messages/mark-read/:id with body { read: true/false }.
- * Adjust URL if backend differs.
- */
-
 export default function AdminContactMessages() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,7 +13,6 @@ export default function AdminContactMessages() {
   const [settings, setSettings] = useState({ address: "", phone: "", email: "" });
   const [editing, setEditing] = useState(false);
 
-  // Delete confirm dialog state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -55,7 +41,6 @@ export default function AdminContactMessages() {
         setSettings(res.data.data || { address: "", phone: "", email: "" });
       }
     } catch (err) {
-      // ignore silently
     }
   };
 
@@ -78,14 +63,12 @@ export default function AdminContactMessages() {
     }
   };
 
-  // Request delete -> open dialog
   function requestDelete(id) {
     const found = messages.find((m) => m._id === id);
     setMessageToDelete({ id, name: found?.name, snippet: (found?.message || "").slice(0, 120) });
     setConfirmOpen(true);
   }
 
-  // Confirmed delete handler
   async function handleConfirmedDelete() {
     if (!messageToDelete?.id) return;
     try {
@@ -106,7 +89,6 @@ export default function AdminContactMessages() {
     }
   }
 
-  // helper: check if date is today (local)
   const isToday = (dateStr) => {
     try {
       const d = new Date(dateStr);
@@ -117,7 +99,6 @@ export default function AdminContactMessages() {
     }
   };
 
-  // Toggle read/unread. If marking as read, show ONLY that message in the list (per request).
   async function toggleRead(id) {
     const idx = messages.findIndex((m) => m._id === id);
     if (idx === -1) return;
@@ -125,19 +106,18 @@ export default function AdminContactMessages() {
     const newRead = !currentlyRead;
     const updatedMessage = { ...messages[idx], read: newRead };
 
-    // optimistic update:
     if (newRead) {
-      // show only the updated message
+      
       setMessages([updatedMessage]);
     } else {
-      // update in place
+
       setMessages((prev) => prev.map((m) => (m._id === id ? updatedMessage : m)));
     }
 
     try {
       await api.put(`api/admin/contact-messages/mark-read/${id}`, { read: newRead });
     } catch (err) {
-      // revert by refetching to be safe
+
       toast.error("Failed to update read status");
       fetchAll();
     }
@@ -167,7 +147,6 @@ export default function AdminContactMessages() {
         </div>
       </div>
 
-      {/* CONTACT INFO - full width card at top */}
       <div className="mb-6">
         <div className="rounded border p-4 bg-white w-full">
           <div className="text-sm text-gray-500 mb-2">Contact info (site)</div>
@@ -213,7 +192,6 @@ export default function AdminContactMessages() {
         </div>
       </div>
 
-      {/* MESSAGES LIST */}
       <div className="rounded border p-4 bg-white">
         <div className="flex items-center justify-between mb-4">
           <div className="text-sm text-gray-500">All messages</div>
@@ -229,7 +207,7 @@ export default function AdminContactMessages() {
             {messages.map((m) => {
               const unread = !m.read;
               const today = isToday(m.createdAt);
-              // Highlight if unread OR created today -> yellow theme (replaces previous red)
+      
               const highlight = unread || today;
               return (
                 <div
@@ -275,7 +253,6 @@ export default function AdminContactMessages() {
         )}
       </div>
 
-      {/* ConfirmDialog for message deletion (page-level modal like products) */}
       <ConfirmDialog
         open={confirmOpen}
         title="Delete message"
@@ -297,9 +274,6 @@ export default function AdminContactMessages() {
   );
 }
 
-/**
- * ConfirmDialog component (same as before)
- */
 function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading = false }) {
   const cancelRef = useRef(null);
   const dialogRef = useRef(null);
@@ -311,17 +285,17 @@ function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading 
     const prevHtmlOverflowX = html.style.overflowX;
     const prevBodyOverflowX = document.body.style.overflowX;
 
-    // hide horizontal scroll only
+
     html.style.overflowX = "hidden";
     document.body.style.overflowX = "hidden";
 
-    // focus the cancel button
+    
     setTimeout(() => {
       cancelRef.current?.focus();
     }, 0);
 
     return () => {
-      // restore previous values
+      
       html.style.overflowX = prevHtmlOverflowX;
       document.body.style.overflowX = prevBodyOverflowX;
     };

@@ -9,7 +9,7 @@ const ACCENT = "#08665F";
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
 
-  // normalize cart items: accept either array or { items: [...] }
+  
   const items = Array.isArray(cartItems) ? cartItems : cartItems?.items || [];
 
   const totalCartAmount =
@@ -34,14 +34,14 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       className="sm:max-w-md w-full max-w-full px-4 sm:px-6 md:px-8 flex flex-col h-full"
       style={{ zIndex: 99999 }}
     >
-      {/* Header */}
+  
       <SheetHeader className="relative flex items-center justify-center">
         <SheetTitle className="font-semibold tracking-tight text-lg sm:text-xl md:text-2xl">
           Your Cart
         </SheetTitle>
       </SheetHeader>
 
-      {/* Cart Items */}
+      
       <div className="mt-6 sm:mt-8 flex-1 overflow-y-auto space-y-4 pr-2">
         {items && items.length > 0 ? (
           items.map((item) => (
@@ -54,7 +54,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         )}
       </div>
 
-      {/* Total & Checkout (sticky at bottom) */}
+    
       <div className="mt-4 sm:mt-6 border-t pt-4 flex flex-col gap-4">
         <div className="flex justify-between text-base sm:text-lg">
           <span className="font-semibold">Total</span>
@@ -65,7 +65,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
 
         <Button
           onClick={() => {
-            if (isCartEmpty) return; // safety guard — won't navigate if cart is empty
+            if (isCartEmpty) return; 
             navigate("/shop/checkout");
             setOpenCartSheet(false);
           }}

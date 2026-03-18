@@ -16,7 +16,6 @@ export default function ContactPage({ accent = "#08665F" }) {
     email: "info@aachiammafoods.com",
   });
 
-  // success alert state
   const [showSuccess, setShowSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
 
@@ -29,11 +28,11 @@ export default function ContactPage({ accent = "#08665F" }) {
           setSettings((prev) => ({ ...prev, ...(res.data.data || {}) }));
         }
       } catch (err) {
-        // ignore, keep defaults
+        
       }
     })();
     return () => (mounted = false);
-    // eslint-disable-next-line
+
   }, []);
 
   useEffect(() => {
@@ -52,7 +51,7 @@ export default function ContactPage({ accent = "#08665F" }) {
       setSending(true);
       const res = await api.post("api/shop/contact/add", { name, email, phone, message });
       if (res && res.data && res.data.success) {
-        // set and show the premium success alert
+ 
         setSuccessText((res && res.data && res.data.message) || "Your message has been received — we'll get back to you soon.");
         setShowSuccess(true);
 
@@ -101,7 +100,7 @@ export default function ContactPage({ accent = "#08665F" }) {
         </motion.header>
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-          {/* Contact form */}
+      
           <motion.form
             onSubmit={handleSubmit}
             initial={{ opacity: 0, x: -8 }}
@@ -173,7 +172,6 @@ export default function ContactPage({ accent = "#08665F" }) {
             </div>
           </motion.form>
 
-          {/* Contact details card */}
           <motion.aside
             initial={{ opacity: 0, x: 8 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -260,11 +258,10 @@ export default function ContactPage({ accent = "#08665F" }) {
         </div>
       </div>
 
-      {/* Premium success alert (centered, dark backdrop) */}
       <AnimatePresence>
         {showSuccess && (
           <>
-            {/* dark backdrop */}
+         
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -275,7 +272,6 @@ export default function ContactPage({ accent = "#08665F" }) {
               aria-hidden
             />
 
-            {/* centered card */}
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

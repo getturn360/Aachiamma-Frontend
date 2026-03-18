@@ -1,9 +1,3 @@
-// client/src/lib/toast.js
-// Minimal, dependency-free toast helper.
-// Supports both:
-//   - callable: toast({ title, description, variant, timeout })
-//   - methods: toast.success(title, description, timeout), toast.error(...), etc.
-
 function createContainer() {
   let container = document.getElementById("__app_toast_container");
   if (!container) {
@@ -34,7 +28,7 @@ function makeToastNode({ title, description, variant }) {
     "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial";
   wrap.style.color = "#0f172a";
   wrap.style.background = "#fff";
-  wrap.style.position = "relative"; // for close button
+  wrap.style.position = "relative"; 
 
   if (variant === "success") {
     wrap.style.borderLeft = "4px solid #16a34a";
@@ -60,7 +54,6 @@ function makeToastNode({ title, description, variant }) {
   wrap.appendChild(t);
   if (description) wrap.appendChild(d);
 
-  // close button
   const close = document.createElement("button");
   close.setAttribute("aria-label", "close toast");
   close.textContent = "✕";
@@ -84,14 +77,12 @@ function makeToastNode({ title, description, variant }) {
   return wrap;
 }
 
-// core implementation used by all APIs
 export function showToast({ title = "", description = "", variant = "default", timeout = 3500 } = {}) {
   try {
     const container = createContainer();
     const node = makeToastNode({ title, description, variant });
     container.appendChild(node);
 
-    // remove after timeout unless timeout is 0 or negative (means sticky)
     if (typeof timeout === "number" && timeout > 0) {
       const timer = setTimeout(() => {
         try {
@@ -99,7 +90,6 @@ export function showToast({ title = "", description = "", variant = "default", t
         } catch (e) {}
       }, timeout);
 
-      // pause on hover (nice UX): clear timer on hover, restart on leave
       node.addEventListener("mouseenter", () => {
         clearTimeout(timer);
       });
@@ -107,7 +97,7 @@ export function showToast({ title = "", description = "", variant = "default", t
 
     return { success: true };
   } catch (e) {
-    // fallback (non-throwing)
+    
     try {
       console.log("TOAST:", title, description);
     } catch (er) {}
@@ -118,14 +108,11 @@ export function showToast({ title = "", description = "", variant = "default", t
   }
 }
 
-// Create a callable toast function but attach helper methods for backward compatibility.
-// Many parts of the app may call: toast({ ... }) OR toast.success(...), toast.error(...)
 
 function _callableToast(options = {}) {
   return showToast(options);
 }
 
-// Attach helper methods
 _callableToast.success = (title = "", description = "", timeout = 3500) =>
   showToast({ title, description, variant: "success", timeout });
 
@@ -138,10 +125,7 @@ _callableToast.info = (title = "", description = "", timeout = 3500) =>
 _callableToast.warn = (title = "", description = "", timeout = 3500) =>
   showToast({ title, description, variant: "warning", timeout });
 
-// raw alias
 _callableToast.raw = showToast;
 
-// Export both named and default so imports like `import { toast } from "@/lib/toast"`
-// and `import toast from "@/lib/toast"` both work.
 export const toast = _callableToast;
 export default toast;

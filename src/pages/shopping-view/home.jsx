@@ -1,4 +1,3 @@
-// client/src/pages/shopping-view/home.jsx
 import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -12,19 +11,19 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { getFeatureImages } from "@/store/common-slice";
-import api from "@/api/axios"; // axios instance for API calls
+import api from "@/api/axios"; 
 
-// NEW: popup modal + action
+
 import PopupModal from "@/components/common/PopupModal";
 import { fetchPopups } from "@/store/popup-slice";
 
-// hero / placeholder images
+
 import bannerImg from "@/assets/feature-hero.jpg";
 import hi1 from "@/assets/h-i1.png";
 import hi2 from "@/assets/h-i2.png";
 import hi3 from "@/assets/h-i3.png";
 
-// category images (fallbacks)
+
 import pickleImg from "@/assets/categories/demo-p.jpg";
 import snackImg from "@/assets/categories/demo-p.jpg";
 import powderImg from "@/assets/categories/demo-p.jpg";
@@ -33,7 +32,6 @@ import kondattamImg from "@/assets/categories/demo-p.jpg";
 import comboImg from "@/assets/categories/demo-p.jpg";
 import otherImg from "@/assets/categories/demo-p.jpg";
 
-// testimonial avatars (6 unique)
 import t1 from "@/assets/t1.jpg";
 import t2 from "@/assets/t2.jpg";
 import t3 from "@/assets/t3.jpg";
@@ -50,21 +48,16 @@ const ACCENT = "#08665F";
 const PROMO_BG = "#5b1f18";
 const PROMO_TAN = "#C28A4D";
 
-/**
- * PaginatedProducts
- * - shows `pageSize` products at a time in a responsive grid
- * - Mobile: 2 columns, Small: 2 columns, Medium: 3, Large: 4
- */
 function PaginatedProducts({
   products = [],
   pageSize = 4,
-  renderProduct, // (product) => ReactNode
+  renderProduct, 
   sectionId = "paginated",
 }) {
   const [page, setPage] = useState(0);
 
   useEffect(() => {
-    // If product list changes, reset to first page
+    
     setPage(0);
   }, [products]);
 
@@ -80,7 +73,7 @@ function PaginatedProducts({
 
   return (
     <div id={sectionId}>
-      {/* MOBILE/SM: 2 columns, MD:3, LG:4. Reduced gap on mobile */}
+     
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
         {visible.map((product) => (
           <div key={product._id || product.id} className="transform hover:-translate-y-2 transition">
@@ -89,7 +82,6 @@ function PaginatedProducts({
         ))}
       </div>
 
-      {/* pagination controls (tighter on mobile) */}
       {totalPages > 1 && (
         <div className="w-full mt-4 sm:mt-6 flex items-center justify-center gap-3 sm:gap-4">
           <Button
@@ -135,12 +127,10 @@ export default function ShoppingHome() {
   const { featureImageList } = useSelector((state) => state.commonFeature);
   const { user } = useSelector((state) => state.auth);
 
-  // NEW: popup redux state
   const { list: popups = [] } = useSelector((s) => s.popup || {});
   const [showPopup, setShowPopup] = useState(false);
   const [activePopup, setActivePopup] = useState(null);
 
-  // --- NEW: dismissed tracking to avoid immediate reopen of same popup in current session ---
   const dismissedPopupRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -155,10 +145,8 @@ export default function ShoppingHome() {
   const pointerActive = useRef(false);
   const [cartPulse, setCartPulse] = useState(false);
 
-  // dynamic categories state (fetched from server). Each item expected { name, slug, image? }
   const [categories, setCategories] = useState([]);
 
-  // local fallback mapping (if category from server has no image)
   const fallbackImageMap = {
     pickles: pickleImg,
     snacks: snackImg,
@@ -182,15 +170,12 @@ export default function ShoppingHome() {
     dispatch(getFeatureImages());
   }, [dispatch]);
 
-  // NEW: fetch popups for storefront
   useEffect(() => {
     dispatch(fetchPopups());
   }, [dispatch]);
 
-  // ---- popup sequence storage key ----
   const STORAGE_SEQ = "popup_seq_idx";
 
-  // when popup list arrives, show popup according to stored sequence
   useEffect(() => {
     if (!popups || popups.length === 0) {
       setShowPopup(false);
@@ -198,7 +183,6 @@ export default function ShoppingHome() {
       return;
     }
 
-    // read seq index
     let seqIdx = 0;
     try {
       const raw = localStorage.getItem(STORAGE_SEQ);
@@ -208,15 +192,13 @@ export default function ShoppingHome() {
       seqIdx = 0;
     }
 
-    // normalize
     seqIdx = seqIdx % popups.length;
 
-    // If user dismissed this popup in current session, advance to next (but persist sequence so reload shows next)
     const candidate = popups[seqIdx];
     const candidateId = candidate ? (candidate._id || candidate.id) : null;
     if (candidateId && dismissedPopupRef.current && candidateId === dismissedPopupRef.current) {
       if (popups.length === 1) {
-        // only one popup available and it was dismissed this session -> do not open
+
         setShowPopup(false);
         setActivePopup(null);
         return;
@@ -226,7 +208,7 @@ export default function ShoppingHome() {
       }
     }
 
-    // set active and show
+  
     const toShow = popups[seqIdx];
     if (toShow) {
       setActivePopup(toShow);
@@ -243,7 +225,6 @@ export default function ShoppingHome() {
       return;
     }
 
-    // compute current index (prefer from activePopup)
     let idx = 0;
     try {
       const raw = localStorage.getItem(STORAGE_SEQ);
@@ -259,24 +240,22 @@ export default function ShoppingHome() {
       if (found !== -1) idx = found;
     }
 
-    // compute and persist next index
+
     const next = (idx + 1) % Math.max(1, (popups && popups.length) || 1);
     try {
       localStorage.setItem(STORAGE_SEQ, String(next));
     } catch (e) {
-      // ignore
+   
     }
 
-    // mark dismissed id for this session (prevents immediate reopen of same popup)
+
     const dismissedId = activePopup ? (activePopup._id || activePopup.id) : null;
     if (dismissedId) dismissedPopupRef.current = dismissedId;
 
-    // close UI
     setShowPopup(false);
     setActivePopup(null);
   };
 
-  // fetch categories for sticky bar
   useEffect(() => {
     let mounted = true;
     async function loadCategories() {
@@ -284,7 +263,7 @@ export default function ShoppingHome() {
         const res = await api.get("/api/common/categories/get?sticky=true");
         if (!mounted) return;
         if (res && res.data && res.data.success) {
-          // normalize: ensure each category has { name, slug, image(optional), _id }
+       
           const list = (res.data.categories || []).map((c) => ({
             _id: c._id,
             name: c.name,
@@ -304,7 +283,6 @@ export default function ShoppingHome() {
     return () => { mounted = false; };
   }, []);
 
-  // keyboard hero nav
   useEffect(() => {
     function onKey(e) {
       if (!featureImageList || featureImageList.length === 0) return;
@@ -318,12 +296,11 @@ export default function ShoppingHome() {
     return () => window.removeEventListener("keydown", onKey);
   }, [featureImageList]);
 
-  // NEW: scroll to anchor when location.hash changes (supports header links like /shop/home#trending)
   useEffect(() => {
     if (!location || !location.hash) return;
     const id = location.hash.replace(/^#/, "");
     if (!id) return;
-    // small timeout to allow route/component mount
+
     setTimeout(() => {
       try {
         const el = document.getElementById(id);
@@ -331,19 +308,18 @@ export default function ShoppingHome() {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       } catch (e) {
-        // noop
+     
       }
     }, 80);
   }, [location.hash]);
 
   function handleNavigateToListingPage(getCurrentItem, section) {
-    // Accept either object with slug/name or a simple id string from older usage
+
     sessionStorage.removeItem("filters");
 
     let value = null;
     if (!getCurrentItem) return;
 
-    // If passed an object with slug use it, else if id use id
     if (typeof getCurrentItem === "string") {
       value = getCurrentItem;
     } else if (getCurrentItem.slug) {
@@ -353,7 +329,7 @@ export default function ShoppingHome() {
     } else if (getCurrentItem._id) {
       value = getCurrentItem._id;
     } else if (getCurrentItem.label) {
-      // fallback to label lowercased and slugified-ish
+
       value = String(getCurrentItem.label).toLowerCase().replace(/\s+/g, "-");
     }
 
@@ -362,9 +338,8 @@ export default function ShoppingHome() {
     const currentFilter = { [section]: [value] };
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
 
-    // navigate then ensure viewport is at top
     navigate(`/shop/listing?category=${encodeURIComponent(value)}`);
-    // try to scroll to top immediately (keeps behavior simple and works in most cases)
+    
     try {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -396,7 +371,6 @@ export default function ShoppingHome() {
     });
   }
 
-  // --- hero pointer/touch (for hero slides) ---
   const onHeroPointerDown = (e) => {
     pointerActive.current = true;
     pointerStartX.current = e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX) ?? null;
@@ -446,7 +420,6 @@ export default function ShoppingHome() {
     touchStartX.current = null;
   };
 
-  // --- Section title component ---
   const SectionTitle = ({ text }) => (
     <div className="flex items-center justify-center mb-8 px-2">
       <div
@@ -468,7 +441,6 @@ export default function ShoppingHome() {
     </div>
   );
 
-  // ------------------ VALUES section (NEW) ------------------
   const ValuesSection = () => {
     const values = [
       {
@@ -521,7 +493,6 @@ export default function ShoppingHome() {
     );
   };
 
-  // ------------------ FullWidthPromo: stacked BELOW 1440, two-col AT >=1440 ------------------
   const FullWidthPromo = () => (
     <section aria-label="Featured hero promo" className="w-full">
       <div className="w-full grid grid-cols-1 min-[1512px]:grid-cols-2">
@@ -557,7 +528,6 @@ export default function ShoppingHome() {
     </section>
   );
 
-  // ------------------ Testimonial slider: entire content follows swipe & mouse press; improved animation ------------------
   const TestimonialSlider = () => {
     const testimonials = [
       {
@@ -624,7 +594,7 @@ export default function ShoppingHome() {
         return;
       }
       const dx = endX - testiPointerStart.current;
-      const threshold = 80; // increased threshold as requested
+      const threshold = 80; 
       if (Math.abs(dx) >= threshold) {
         animatingRef.current = true;
         if (dx > 0) {
@@ -632,13 +602,13 @@ export default function ShoppingHome() {
         } else {
           setIndex((prev) => (prev + 1) % testimonials.length);
         }
-        // keep animation slightly longer for smoother feel
+    
         setTimeout(() => {
           setDragDx(0);
           animatingRef.current = false;
         }, 360);
       } else {
-        // snap back
+      
         setDragDx(0);
       }
       testiPointerActive.current = false;
@@ -679,11 +649,10 @@ export default function ShoppingHome() {
       setTestiGrab(false);
     };
 
-    // compute a more expressive transform: translateX, rotate (subtle), and scale
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-    const rotateDeg = clamp(dragDx / 25, -8, 8); // subtle tilt
+    const rotateDeg = clamp(dragDx / 25, -8, 8); 
     const scaleVal = isDragging ? 0.985 : 1;
-    const opacityVal = clamp(1 - Math.abs(dragDx) / 600, 0.18, 1); // opacity reduces with more drag (down to ~0.18)
+    const opacityVal = clamp(1 - Math.abs(dragDx) / 600, 0.18, 1); 
 
     const wrapperStyle = {
       transform: `translateX(${dragDx}px) rotate(${rotateDeg}deg) scale(${scaleVal})`,
@@ -714,7 +683,7 @@ export default function ShoppingHome() {
             aria-label="Customer testimonials"
           >
             <div className="w-full min-h-[300px] sm:min-h-[340px] md:min-h-[380px] lg:min-h-[440px] relative bg-transparent flex flex-col items-center justify-center px-4">
-              {/* entire visible content wrapped so stars/avatar/title/quote/name move together */}
+              
               <div className="flex flex-col items-center justify-center px-3 sm:px-6" style={wrapperStyle}>
                 <div className="flex items-center justify-center -mt-8">
                   <div className="w-20 sm:w-24 md:w-28 rounded-full overflow-hidden shadow-md bg-transparent transform transition-transform">
@@ -722,7 +691,6 @@ export default function ShoppingHome() {
                   </div>
                 </div>
 
-                {/* STARS moved inside wrapper so they swipe together */}
                 <div className="mt-3 flex justify-center gap-1" aria-hidden>
                   {Array.from({ length: testimonials[index].rating }).map((_, i) => (
                     <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill={ACCENT} xmlns="http://www.w3.org/2000/svg">
@@ -798,7 +766,7 @@ export default function ShoppingHome() {
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ paddingBottom: 0 }}>
-      {/* hero/banner */}
+   
       <header id="hero-banner" className="relative w-full mt-[25px]">
         <div
           ref={carouselRef}
@@ -846,7 +814,6 @@ export default function ShoppingHome() {
             </div>
           )}
 
-          {/* hero arrows */}
           <button
             aria-label="Previous slide"
             onClick={() => setCurrentSlide((prev) => (prev - 1 + (featureImageList?.length || 1)) % (featureImageList?.length || 1))}
@@ -865,7 +832,6 @@ export default function ShoppingHome() {
             <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: "#ffffff" }} />
           </button>
 
-          {/* hero dots (responsive smaller on mobile) */}
           {featureImageList && featureImageList.length > 1 && (
             <div
               className="absolute left-1/2 -translate-x-1/2 bottom-3 sm:bottom-6 flex gap-1 sm:gap-2 z-50"
@@ -896,16 +862,15 @@ export default function ShoppingHome() {
           )}
         </div>
 
-        {/* Categories bar - now dynamic (uses server categories). Fallback to local mapping when server image missing. */}
         <div id="categories-bar" className="sticky top-6 z-10 mt-[15px]">
-          {/* Full-width horizontal scroll wrapper (no centered container) */}
+         
           <div
             className="w-full overflow-x-auto no-scrollbar"
             style={{ WebkitOverflowScrolling: "touch" }}
             aria-label="Categories"
             role="navigation"
           >
-            {/* inner row: non-wrapping, left padding so first chip is not cut */}
+         
             <div
               className="flex items-center justify-center gap-2 px-2 py-2"
               style={{ minWidth: "max-content", flexWrap: "nowrap", scrollSnapType: "x mandatory" }}
@@ -947,9 +912,8 @@ export default function ShoppingHome() {
         </div>
       </header>
 
-      {/* main content */}
       <main className="container mx-auto px-2 sm:px-4 -mt-12 space-y-8 sm:space-y-12">
-        {/* BEST SELLING */}
+ 
         {productList && productList.length > 0 && (() => {
           const bestSelling = productList.filter((p) => Array.isArray(p.special) && p.special.includes("best-selling"));
           if (!bestSelling.length) return null;
@@ -968,7 +932,6 @@ export default function ShoppingHome() {
           );
         })()}
 
-        {/* TRENDING */}
         {productList && productList.length > 0 && (() => {
           const trending = productList.filter((p) => Array.isArray(p.special) && p.special.includes("trending"));
           if (!trending.length) return null;
@@ -987,7 +950,6 @@ export default function ShoppingHome() {
           );
         })()}
 
-        {/* NEW ARRIVAL */}
         {productList && productList.length > 0 && (() => {
           const newArrival = productList.filter((p) => Array.isArray(p.special) && p.special.includes("new-arrival"));
           if (!newArrival.length) return null;
@@ -1007,21 +969,16 @@ export default function ShoppingHome() {
         })()}
       </main>
 
-      {/* full width image */}
       <div className="w-full overflow-hidden">
         <img src={hi1} alt="feature-full-width" className="w-full object-cover block" draggable={false} />
       </div>
 
-      {/* promo */}
       <FullWidthPromo />
 
-      {/* testimonials */}
       <TestimonialSlider />
 
-      {/* VALUES SECTION inserted right after hero/banner */}
       <ValuesSection />
 
-      {/* FEATURE PRODUCTS */}
       <section id="feature-products" className="container mx-auto px-2 sm:px-4 rounded-2xl p-4 sm:p-8">
         <SectionTitle text="FEATURE PRODUCTS" />
         <PaginatedProducts
@@ -1038,7 +995,6 @@ export default function ShoppingHome() {
         <img src={hi3} alt="testimonial decorative" className="w-full object-cover block" draggable={false} />
       </div>
 
-      {/* POPUP MODAL (storefront) */}
       <PopupModal open={showPopup} onClose={handleClosePopup} popup={activePopup} />
     </div>
   );

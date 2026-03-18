@@ -49,34 +49,28 @@ export default function AdminShipping() {
 
   const [loading, setLoading] = useState(false);
   const [zones, setZones] = useState(DEFAULT_ZONES);
-  const [assignments, setAssignments] = useState({}); // { stateName: zoneName }
+  const [assignments, setAssignments] = useState({}); 
   const [allStates, setAllStates] = useState([]);
   const [fetchError, setFetchError] = useState(null);
 
-  // FREE SHIPPING threshold
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const [thresholdInput, setThresholdInput] = useState("0");
   const [savingThreshold, setSavingThreshold] = useState(false);
   const [unsavedThresholdChanged, setUnsavedThresholdChanged] = useState(false);
 
-  // UI controls
   const [search, setSearch] = useState("");
   const [selectedStates, setSelectedStates] = useState(new Set());
   const [bulkZone, setBulkZone] = useState("");
 
-  // zone name add/edit
   const [newZoneName, setNewZoneName] = useState("");
 
-  // editing row control
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingName, setEditingName] = useState("");
   const [editingOriginalName, setEditingOriginalName] = useState("");
 
-  // delete confirmation
   const [deleteIndex, setDeleteIndex] = useState(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
-  // confirm dialog for clearing all assignments
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
 
   useEffect(() => {
@@ -92,7 +86,7 @@ export default function AdminShipping() {
     }
 
     fetchShipping();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   function fallbackStates() {
@@ -159,7 +153,6 @@ export default function AdminShipping() {
           setAssignments({});
         }
 
-        // read threshold
         if (typeof doc.freeShippingThreshold !== "undefined" && doc.freeShippingThreshold !== null) {
           setFreeShippingThreshold(Number(doc.freeShippingThreshold || 0));
           setThresholdInput(String(doc.freeShippingThreshold || 0));
@@ -190,7 +183,6 @@ export default function AdminShipping() {
     setZones(copy);
   }
 
-  // set per-state zone; if zoneName falsy -> remove assignment
   function setStateZone(stateName, zoneName) {
     setAssignments((prev) => {
       const next = { ...prev };
@@ -203,14 +195,13 @@ export default function AdminShipping() {
     });
   }
 
-  // Rename zone + update assignments mapping oldName->newName
   function updateZoneName(index, newNameRaw) {
     const name = String(newNameRaw || "").trim();
     if (!name) {
       toast({ title: "Zone name cannot be empty", variant: "destructive" });
       return;
     }
-    // uniqueness (case-insensitive)
+
     const exists = zones.some((z, i) => i !== index && z.name.toLowerCase() === name.toLowerCase());
     if (exists) {
       toast({ title: "Zone name must be unique", variant: "destructive" });
@@ -221,7 +212,6 @@ export default function AdminShipping() {
     copy[index].name = name;
     setZones(copy);
 
-    // update assignments where oldName used -> new name
     setAssignments((prev) => {
       const next = { ...prev };
       Object.keys(next).forEach((st) => {
@@ -232,7 +222,6 @@ export default function AdminShipping() {
     toast({ title: `Renamed zone "${oldName}" → "${name}" (remember to Save Zones & Save Assignments)` });
   }
 
-  // Add new zone
   function addZone() {
     const name = String(newZoneName || "").trim();
     if (!name) {
@@ -248,7 +237,6 @@ export default function AdminShipping() {
     toast({ title: `Zone "${name}" added (remember to Save Zones)` });
   }
 
-  // Delete zone (open confirm)
   function requestDeleteZone(index) {
     setDeleteIndex(index);
     setConfirmDeleteOpen(true);
@@ -268,7 +256,6 @@ export default function AdminShipping() {
     copy.splice(idx, 1);
     setZones(copy);
 
-    // remove assignments that referenced deleted zone
     setAssignments((prev) => {
       const next = { ...prev };
       Object.keys(next).forEach((st) => {
@@ -331,7 +318,6 @@ export default function AdminShipping() {
     }
   }
 
-  // notify admin (optional) — posts a simple message to server (backend handler optional)
   async function notifyAdmin(amount) {
     try {
       const payload = { subject: "Free shipping threshold changed", message: `Threshold changed to ₹${Number(amount || 0).toFixed(2)}` };
@@ -343,7 +329,6 @@ export default function AdminShipping() {
     }
   }
 
-  // UI helpers: filtering
   const filteredStates = useMemo(() => {
     if (!search) return allStates;
     return allStates.filter((s) => s.toLowerCase().includes(search.trim().toLowerCase()));
@@ -358,7 +343,6 @@ export default function AdminShipping() {
     });
   }
 
-  // select/deselect all visible (filtered) states
   function selectAllVisible() {
     setSelectedStates(new Set(filteredStates));
   }
@@ -399,7 +383,6 @@ export default function AdminShipping() {
     toast({ title: "All assignments cleared" });
   }
 
-  // threshold input change — show one-time toast reminding to save
   function onThresholdInputChange(val) {
     setThresholdInput(val);
     if (!unsavedThresholdChanged) {
@@ -422,9 +405,8 @@ export default function AdminShipping() {
           </div>
         ) : null}
 
-        {/* Main grouped container containing 3 sections */}
         <div className="p-4 border rounded-md space-y-4">
-          {/* Free shipping threshold control */}
+ 
           <div className="pb-4 border-b">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
               <div>
@@ -456,7 +438,6 @@ export default function AdminShipping() {
             </div>
           </div>
 
-          {/* Zones editor (names + charges) */}
           <div className="py-4 border-b">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-medium">Zones (edit charges & names)</h3>
@@ -490,7 +471,7 @@ export default function AdminShipping() {
                       onChange={(e) => {
                         if (editingIndex === idx) setEditingName(e.target.value);
                         else {
-                          // prevent editing unless in edit mode
+                 
                         }
                       }}
                       disabled={editingIndex !== idx}
@@ -519,7 +500,7 @@ export default function AdminShipping() {
                         }}>Save</Button>
                         <Button
                           onClick={() => {
-                            // cancel: restore original name
+               
                             setZones((prev) => {
                               const copy = JSON.parse(JSON.stringify(prev));
                               copy[idx].name = editingOriginalName || copy[idx].name;
@@ -553,11 +534,10 @@ export default function AdminShipping() {
             </div>
           </div>
 
-          {/* Assignments section */}
           <div className="pt-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
               <div className="flex items-center gap-2">
-                {/* Desktop search styled like Coupons page */}
+           
                 <div className="hidden md:flex items-center bg-white border rounded-md px-3 py-1 shadow-sm">
                   <SearchIcon aria-hidden="true" className="w-4 h-4 text-slate-400 mr-2" />
                   <input
@@ -575,7 +555,6 @@ export default function AdminShipping() {
                   </button>
                 </div>
 
-                {/* Mobile search input */}
                 <div className="md:hidden w-full relative">
                   <SearchIcon aria-hidden="true" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
@@ -586,7 +565,6 @@ export default function AdminShipping() {
                   />
                 </div>
 
-                {/* select/deselect all visible checkbox */}
                 <div className="flex items-center ml-2">
                   <Checkbox
                     checked={isAllSelectedVisible()}
@@ -598,7 +576,7 @@ export default function AdminShipping() {
               </div>
 
               <div className="flex items-center gap-2">
-                {/* Bulk assign uses project's DropdownMenu for consistent UI */}
+         
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="px-3 py-2 border rounded-md focus:outline-none inline-flex items-center gap-2" aria-label="Assign selected">
@@ -647,7 +625,7 @@ export default function AdminShipping() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {/* per-state assign dropdown to match project design */}
+                  
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button className="px-3 py-2 border rounded-md focus:outline-none inline-flex items-center gap-2" aria-label={`Zone for ${st}`}>
@@ -686,7 +664,6 @@ export default function AdminShipping() {
           </div>
         </div>
 
-        {/* Confirm dialog used for clearing all assignments */}
         <ConfirmDialog
           open={confirmClearOpen}
           title="Clear all state assignments"
@@ -695,7 +672,6 @@ export default function AdminShipping() {
           onCancel={() => setConfirmClearOpen(false)}
         />
 
-        {/* Confirm dialog used for deleting a zone (same design) */}
         <ConfirmDialog
           open={confirmDeleteOpen}
           title={deleteIndex !== null ? `Delete zone "${zones[deleteIndex]?.name || ''}"` : "Delete zone"}
@@ -708,7 +684,6 @@ export default function AdminShipping() {
   );
 }
 
-// Reusable ConfirmDialog component (same design as in AdminProducts)
 function ConfirmDialog({ open, title, description, onConfirm, onCancel, loading = false }) {
   const cancelRef = useRef(null);
 

@@ -22,7 +22,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import noProductsImg from "@/assets/amma-1.png";
 
-// Helper function to generate query params
 function createSearchParamsHelper(filterParams) {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(filterParams || {})) {
@@ -35,31 +34,27 @@ function createSearchParamsHelper(filterParams) {
   return params;
 }
 
-/**
- * Ensure filter values are always arrays where expected.
- * Accepts object where values can be string, comma-string, array, number.
- */
 function normalizeFilters(raw = {}) {
   const out = {};
   for (const [k, v] of Object.entries(raw || {})) {
     if (Array.isArray(v)) {
       out[k] = v.map((x) => String(x).trim()).filter(Boolean);
     } else if (typeof v === "string") {
-      // split by comma if present
+     
       if (v.includes(",")) {
         out[k] = v
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean);
       } else if (v.trim() === "") {
-        // skip empty
+       
       } else {
         out[k] = [v.trim()];
       }
     } else if (v == null) {
-      // skip
+ 
     } else {
-      // number or other -> convert to string array
+   
       out[k] = [String(v)];
     }
   }
@@ -82,21 +77,14 @@ export default function ShoppingListing() {
   const [query, setQuery] = useState("");
   const { toast } = useToast();
 
-  // responsive: toggle mobile filter drawer
   const [showFilters, setShowFilters] = useState(false);
 
-  // prevent first-run searchParams overwrite when initializing from URL/session
   const initialized = useRef(false);
 
-  // When header navigates to listing with ?category=... we want to apply filters from URL,
-  // and avoid immediately writing those filters back to the URL (which can cause flicker/jerk).
-  // skipUrlSyncRef is set to true when filters are set from incoming searchParams; the
-  // effect that writes filters->URL will skip one cycle if this flag is true.
   const skipUrlSyncRef = useRef(false);
 
-  // Initialize filters from URL if present, else from sessionStorage
   useEffect(() => {
-    // 1) parse URL search params (prefer URL over sessionStorage so links/bookmarks work)
+
     const sp = Object.fromEntries([...searchParams.entries()]);
     const hasUrlParams = Object.keys(sp).length > 0;
 
@@ -104,7 +92,7 @@ export default function ShoppingListing() {
     if (hasUrlParams) {
       initial = normalizeFilters(sp);
     } else {
-      // fallback to sessionStorage
+      
       try {
         const saved = JSON.parse(sessionStorage.getItem("filters")) || {};
         initial = normalizeFilters(saved);
@@ -113,58 +101,49 @@ export default function ShoppingListing() {
       }
     }
 
-    // if a category param exists but not normalized, ensure it's array (handled by normalizeFilters)
     setFilters(initial);
 
-    // set default sort only on first mount
     if (sort == null) setSort("price-lowtohigh");
 
-    // mark initialized so the effect that syncs filters->URL won't clear the URL immediately
     initialized.current = true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run only once on mount
+ 
+  }, []); 
 
-  // IMPORTANT: react to changes in searchParams (header/menu updates when already on listing)
   useEffect(() => {
-    // don't run until initial mount completed
+    
     if (!initialized.current) return;
 
-    // Remove internal/timestamp params like "_" used to force navigation
     const entries = Object.fromEntries([...searchParams.entries()]);
-    const { _, __, ...relevant } = entries; // ignore '_' and '__' if present
+    const { _, __, ...relevant } = entries;
 
-    // If no relevant params, clear filters (only if filters currently set)
     const newFilters = normalizeFilters(relevant || {});
     const cur = JSON.stringify(filters || {});
     const next = JSON.stringify(newFilters || {});
     if (cur !== next) {
-      // mark that this update originates from URL so filters->URL sync is skipped once
+    
       skipUrlSyncRef.current = true;
       setFilters(newFilters);
       try {
         sessionStorage.setItem("filters", JSON.stringify(newFilters));
       } catch (e) {
-        // ignore storage errors
+    
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [searchParams]);
 
-  // persist filters to sessionStorage whenever they change
   useEffect(() => {
     try {
       sessionStorage.setItem("filters", JSON.stringify(filters || {}));
     } catch (err) {
-      // ignore
+ 
     }
   }, [filters]);
 
-  // push filters to URL as query params whenever filters change
   useEffect(() => {
-    // avoid overriding URL during initial hydration (we read from URL on mount)
+   
     if (!initialized.current) return;
 
-    // If this change was caused by applying incoming searchParams, skip pushing back to URL once.
     if (skipUrlSyncRef.current) {
       skipUrlSyncRef.current = false;
       return;
@@ -174,16 +153,15 @@ export default function ShoppingListing() {
       const params = createSearchParamsHelper(filters);
       setSearchParams(params);
     } else {
-      // clear search params
+      
       setSearchParams(new URLSearchParams());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+ 
   }, [filters]);
 
-  // fetch products whenever filters or sort change
   useEffect(() => {
     if (filters && sort) {
-      // send filters as-is (arrays preserved). Your thunk should handle arrays or comma-strings.
+    
       dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }));
     }
   }, [filters, sort, dispatch]);
@@ -195,12 +173,12 @@ export default function ShoppingListing() {
   const handleSort = (value) => setSort(value);
 
   const handleFilter = (sectionId, option) => {
-    // robust toggle behaviour that tolerates non-array existing values
+
     setFilters((prev) => {
       const copy = { ...(prev || {}) };
       const existing = copy[sectionId];
 
-      // normalize existing to array
+      
       let arr = [];
       if (Array.isArray(existing)) arr = [...existing];
       else if (typeof existing === "string") arr = existing.split(",").map((s) => s.trim()).filter(Boolean);
@@ -219,16 +197,14 @@ export default function ShoppingListing() {
       return copy;
     });
 
-    // sessionStorage update will be handled by the effect on filters
   };
 
-  // NAVIGATE to product page instead of opening dialog via store
-  const handleGetProductDetails = (productId) => {
-    navigate(`/shop/product/${productId}`);
+  const handleGetProductDetails = (productOrId) => {
+    const id = productOrId && productOrId._id ? productOrId._id : productOrId;
+    const state = productOrId && productOrId._id ? { product: productOrId } : undefined;
+    navigate(`/shop/product/${id}`, { state });
   };
 
-  // UPDATED: removed stock-limit check so frontend allows unlimited adds.
-  // Note: server should still validate stock/limits on order creation.
   const handleAddtoCart = (productId, stock, productObj = null) => {
     dispatch(addToCart({ userId: user?.id, productId, quantity: 1, productObj })).then((data) => {
       if (data?.payload?.success) {
@@ -253,13 +229,12 @@ export default function ShoppingListing() {
     );
   }, [productList, query]);
 
-  // Derived selected category chips for display above grid
   const selectedCategoryChips = (filters && Array.isArray(filters.category)) ? filters.category : [];
 
   return (
     <div className="p-4 md:p-6 mt-[30px] mb-[25px] bg-gray-50 min-h-[60vh]">
       <div className="mx-auto grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
-        {/* Sidebar Filter (desktop) */}
+
         <aside className="hidden md:block bg-white rounded-2xl sticky top-28 border-gray-100 w-full overflow-y-auto max-h-[calc(100vh-120px)]">
           <div className="p-5">
             <div className="flex items-center justify-between mb-4">
@@ -276,7 +251,6 @@ export default function ShoppingListing() {
               </Button>
             </div>
 
-            {/* ProductFilter should read `filters` prop and call `handleFilter(sectionId, option)` when toggled. */}
             <ProductFilter filters={filters} handleFilter={handleFilter} />
 
             <div className="mt-4">
@@ -302,9 +276,8 @@ export default function ShoppingListing() {
           </div>
         </aside>
 
-        {/* Product Section */}
         <section className="flex flex-col gap-4">
-          {/* Header */}
+         
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-white rounded-2xl">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
               <div className="mr-2">
@@ -323,7 +296,6 @@ export default function ShoppingListing() {
                   <Search className="h-4 w-4 text-gray-400" />
                 </div>
 
-                {/* Mobile: show filters button */}
                 <div className="flex items-center gap-2 ml-auto sm:hidden w-full">
                   <Button variant="outline" className="flex-1 flex items-center gap-2" onClick={() => setShowFilters(true)}>
                     <SlidersHorizontal className="h-4 w-4" /> Filters
@@ -356,7 +328,6 @@ export default function ShoppingListing() {
             </div>
           </div>
 
-          {/* Selected category chips (shown above the product grid) */}
           <div className="bg-white rounded-2xl p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold">Selected</div>
@@ -392,7 +363,6 @@ export default function ShoppingListing() {
             </div>
           </div>
 
-          {/* Product Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {productsLoading && (!productList || productList.length === 0) ? (
               Array.from({ length: 8 }).map((_, i) => (
@@ -441,18 +411,16 @@ export default function ShoppingListing() {
         </section>
       </div>
 
-      {/* Mobile Filter Drawer */}
       <div
         className={`fixed inset-0 z-50 md:hidden transition-opacity ${showFilters ? "" : "pointer-events-none"}`}
         aria-hidden={!showFilters}
       >
-        {/* overlay */}
+       
         <div
           className={`absolute inset-0 bg-black/40 transition-opacity ${showFilters ? "opacity-100" : "opacity-0"}`}
           onClick={() => setShowFilters(false)}
         />
 
-        {/* panel */}
         <aside
           className={`fixed right-0 top-0 h-full w-full bg-white shadow-2xl transform transition-transform ${
             showFilters ? "translate-x-0" : "translate-x-full"

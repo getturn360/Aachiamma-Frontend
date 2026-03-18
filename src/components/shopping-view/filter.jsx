@@ -1,4 +1,3 @@
-// client/src/components/shopping-view/filter.jsx
 import React, { Fragment } from "react";
 import api from "@/api/axios";
 import { Label } from "../ui/label";
@@ -17,7 +16,7 @@ function ProductFilter({ filters, handleFilter }) {
         const cats = (res?.data?.categories || []).map((c) => ({ id: c.slug || c._id, label: c.name }));
         setFilterOptions({ category: cats });
       } catch (e) {
-        // ignore, will show nothing
+       
       }
     }
     load();

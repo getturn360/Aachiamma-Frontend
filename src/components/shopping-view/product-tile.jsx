@@ -35,7 +35,6 @@ export default function ShoppingProductTile({
   const defaultVariant = useMemo(() => chooseDefaultVariant(product?.variations || []), [product]);
   const [selectedVariant, setSelectedVariant] = useState(defaultVariant);
 
-  // keep selectedVariant in sync when product prop changes (fixes stale/default state)
   useEffect(() => {
     const def = chooseDefaultVariant(product?.variations || []);
     setSelectedVariant(def);
@@ -44,7 +43,6 @@ export default function ShoppingProductTile({
   const price = Number(product?.price ?? 0);
   const salePrice = Number(product?.salePrice ?? 0);
 
-  // compute effective prices based on selectedVariant (if exists) else top-level
   const effective = useMemo(() => {
     if (selectedVariant) {
       return {
@@ -59,13 +57,13 @@ export default function ShoppingProductTile({
   }, [selectedVariant, price, salePrice]);
 
   const displayPrice = effective.salePrice > 0 ? effective.salePrice : effective.price;
-  // show strike only if salePrice is present AND it's actually lower than price
+
   const showOriginalStrike = effective.salePrice > 0 && effective.price > effective.salePrice;
 
   const formatINR = (value) =>
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(Number(value || 0));
 
-  // STOCK: Prefer per-variant stock. If product has NO variations (legacy), fallback to product.totalStock.
+
   const productHasVariations = Array.isArray(product?.variations) && product.variations.length > 0;
   const availableStockForActions = selectedVariant
     ? Number(selectedVariant.totalStock || 0)
@@ -73,11 +71,9 @@ export default function ShoppingProductTile({
     ? 0
     : Number(product?.totalStock || 0);
 
-  // Updated low stock threshold: <= 5
   const inStock = availableStockForActions > 0;
   const lowStock = inStock && availableStockForActions <= 5;
 
-  // REVIEW: keep logic consistent with ProductDetailsPage
   const reviewCount =
     product?.reviewCount ?? (Array.isArray(product?.reviews) ? product.reviews.length : 0);
 
@@ -89,7 +85,6 @@ export default function ShoppingProductTile({
     return Number(product?.averageRating ?? product?.rating ?? 0);
   }, [product]);
 
-  // compute discount percent for sale badge (rounded)
   const discountPercent = (() => {
     const p = Number(effective.price || 0);
     const s = Number(effective.salePrice || 0);
@@ -120,9 +115,7 @@ export default function ShoppingProductTile({
       animate={{ opacity: 1, y: 0 }}
       className="w-full"
     >
-      {/* NOTE: smaller border-radius on mobile (rounded-lg), larger from md upwards (md:rounded-2xl) */}
       <Card className="relative overflow-hidden rounded-lg md:rounded-2xl border bg-gradient-to-b from-white/60 to-white/30 backdrop-blur-md">
-        {/* Image + overlay */}
         <div
           role="button"
           tabIndex={0}
@@ -130,7 +123,7 @@ export default function ShoppingProductTile({
           onKeyDown={(e) => e.key === "Enter" && handleGetProductDetails(product?._id)}
           className="relative cursor-pointer"
         >
-          {/* ALWAYS 1:1 square aspect */}
+
           <div className="w-full overflow-hidden rounded-t-md md:rounded-t-2xl relative">
             <div className="aspect-square w-full overflow-hidden">
               <img
@@ -139,14 +132,13 @@ export default function ShoppingProductTile({
                 className="w-full h-full object-cover transition-all duration-300 ease-in-out hover:scale-105"
                 loading="lazy"
                 style={{
-                  // make image fully colorless when out-of-stock
+                 
                   filter: !inStock ? "grayscale(100%) brightness(0.85) contrast(0.95)" : undefined,
                   transition: "all 300ms ease",
                 }}
               />
             </div>
 
-            {/* OUT OF STOCK: diagonal hashed overlay WITHOUT tinting the image colors. */}
             {!inStock && (
               <div
                 aria-hidden="true"
@@ -158,7 +150,6 @@ export default function ShoppingProductTile({
               />
             )}
 
-            {/* OUT OF STOCK CENTER LABEL (larger, prominent) */}
             {!inStock && (
               <div
                 aria-hidden="true"
@@ -171,31 +162,27 @@ export default function ShoppingProductTile({
             )}
           </div>
 
-          {/* Badges (inline row) - bring above overlay */}
-          {/* MOBILE: top-2 left-2 and smaller gap; SM+: top-3 left-3 and regular gap */}
           <div className="absolute top-2 left-2 flex items-center gap-1 sm:gap-2 sm:top-3 sm:left-3 z-40">
             {inStock && (
               <>
-                {/* Responsive discount badge:
-                    - text size and padding scale across breakpoints
-                    - gap & internal font sizes adjust as well */}
+      
                 {discountPercent > 0 ? (
                   <Badge
                     className={
                       "flex items-center gap-1 rounded-full " +
-                      // padding: smaller on mobile, larger on md+
+                  
                       "px-2 py-[2px] text-[10px] sm:px-2 sm:py-0.5 sm:text-[11px] md:px-3 md:py-1 md:text-xs " +
-                      // background + text color
+                     
                       "bg-red-600 text-white"
                     }
                   >
-                    {/* small star left */}
+               
                     <span className="select-none text-[10px] sm:text-[11px] md:text-xs">★</span>
                     <span className="font-semibold text-[10px] sm:text-[11px] md:text-xs">-{discountPercent}%</span>
                   </Badge>
                 ) : null}
 
-                {/* low-stock badge responsive sizing */}
+      
                 {lowStock ? (
                   <Badge
                     className={
@@ -211,7 +198,6 @@ export default function ShoppingProductTile({
             )}
           </div>
 
-          {/* Quick action icons (hidden on mobile, visible from 'sm' upward) */}
           <div className="absolute right-3 top-3 flex flex-col gap-2 z-40">
             <button
               aria-label="Quick view"
@@ -232,7 +218,6 @@ export default function ShoppingProductTile({
 
           <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground line-clamp-2">{product?.shortDescription || product?.subtitle}</p>
 
-          {/* Quick variant mini-selector (if variations exist) */}
           {product?.variations?.length > 0 && (
             <div className="mt-2 flex gap-2">
               {product.variations.slice(0, 3).map((v, idx) => {
@@ -254,12 +239,8 @@ export default function ShoppingProductTile({
             </div>
           )}
 
-          {/* PRICE ROW
-              - Mobile: price left-aligned
-              - Desktop (md+): price right-aligned (preserve original feel)
-              - Rate font size increases at md and lg breakpoints */}
           <div className="mt-3 flex items-center justify-start md:justify-between">
-            <div /> {/* left intentionally empty (category removed) */}
+            <div /> 
             <div className="flex items-baseline gap-2">
               {showOriginalStrike ? (
                 <>
@@ -283,7 +264,7 @@ export default function ShoppingProductTile({
                 disabled={false}
                 onClick={(e) => {
                   e.stopPropagation();
-                  // pass product object + selectedVariant and explicit effective price values
+        
                   handleAddtoCart(product?._id, 1, {
                     ...product,
                     selectedVariant: selectedVariant || null,
@@ -294,12 +275,12 @@ export default function ShoppingProductTile({
                 className="w-full text-sm"
               />
             ) : (
-              // Faded disabled fallback so button stays visible but not clickable
+        
               <button
                 type="button"
                 className="w-full px-3 py-2 rounded-lg text-sm font-medium transition-opacity duration-300 opacity-60 cursor-not-allowed bg-gray-200 text-gray-600"
                 aria-disabled="true"
-                onClick={(e) => e.stopPropagation()} // prevent parent click but do nothing
+                onClick={(e) => e.stopPropagation()} 
                 title="Out of stock"
                 disabled
               >

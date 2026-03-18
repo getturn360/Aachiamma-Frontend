@@ -5,13 +5,6 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 
-/**
- * Fully responsive ShoppingOrderDetailsView
- * - Stacks into a single column on small screens
- * - Header elements wrap nicely on mobile
- * - Items area becomes scrollable when long
- * - Uses Button component for consistent styling
- */
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth || {});
@@ -46,21 +39,41 @@ function ShoppingOrderDetailsView({ orderDetails }) {
       const resp = await fetch(`/api/invoices/download/${orderDetails._id}`, {
         method: "GET",
         headers: { Accept: "application/pdf" },
+
       });
+
       if (!resp.ok) {
-        const err = await resp.json().catch(() => null);
-        console.error("Invoice download failed", err);
+  
+        const text = await resp.text().catch(() => null);
+        console.error("Invoice download failed (status):", resp.status, text);
         return;
       }
-      const blob = await resp.blob();
-      const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+
+      const ct = resp.headers.get("content-type") || "";
+      if (!ct.includes("application/pdf")) {
+        const text = await resp.text().catch(() => "[could not read non-pdf body]");
+        console.error("Server did not return PDF. Body:", text);
+        return;
+      }
+
+      const arrayBuffer = await resp.arrayBuffer();
+
+      const headerBytes = new Uint8Array(arrayBuffer.slice(0, 4));
+      const headerStr = String.fromCharCode(...headerBytes);
+      if (!headerStr.startsWith("%PDF")) {
+        console.error("Downloaded file does not look like a valid PDF (magic bytes):", headerStr);
+        return;
+      }
+
+      const blob = new Blob([arrayBuffer], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `invoice_${orderDetails._id}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      window.URL.revokeObjectURL(url);
+      setTimeout(() => window.URL.revokeObjectURL(url), 2000);
     } catch (e) {
       console.error("Download invoice error", e);
     } finally {
@@ -70,7 +83,6 @@ function ShoppingOrderDetailsView({ orderDetails }) {
 
   return (
     <DialogContent className="sm:max-w-[980px] bg-white rounded-2xl shadow-xl p-4 sm:p-6 max-h-[80vh] sm:max-h-none overflow-auto sm:overflow-visible">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
         <div className="min-w-0">
           <h2 className="text-base sm:text-lg font-semibold text-slate-900 truncate">Order #{orderDetails?._id || "-"}</h2>
@@ -106,9 +118,8 @@ function ShoppingOrderDetailsView({ orderDetails }) {
 
       <Separator />
 
-      {/* Main: responsive stack -> left/meta on top for mobile */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-        {/* Left: Order meta (mobile: shown first) */}
+    
         <aside className="md:col-span-1 order-1">
           <div className="bg-gray-50 p-3 rounded-lg">
             <div className="text-xs text-slate-500">Order Info</div>
@@ -137,7 +148,6 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           </div>
         </aside>
 
-        {/* Middle: Items list (stays center on md+) */}
         <section className="md:col-span-1 order-2">
           <h3 className="text-sm font-semibold text-slate-900 mb-3">Items</h3>
 
@@ -173,7 +183,6 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           </div>
         </section>
 
-        {/* Right: Shipping & totals */}
         <aside className="md:col-span-1 order-3">
           <div className="p-3 rounded-lg bg-gray-50">
             <div className="text-xs text-slate-500">Shipping To</div>
@@ -190,7 +199,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
 
             <Separator className="my-3" />
 
-            {/* Totals */}
+           
             <div className="text-sm text-slate-500">Subtotal</div>
             <div className="text-lg font-semibold text-slate-900 mt-1">{fmtPrice(orderDetails?.subtotal ?? orderDetails?.totalAmount)}</div>
 

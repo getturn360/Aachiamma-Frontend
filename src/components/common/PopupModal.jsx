@@ -2,21 +2,9 @@ import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * PopupModal — full component (modern creative animation + right-side radius/clipping)
- *
- * Features:
- * - 3D tilt entrance, clip-path wipe reveal, subtle floating loop, shine sweep
- * - Close on ESC + overlay click
- * - Parent + inner content use overflow-hidden + rounded corners so growth keeps rounded edges
- * - Image/HTML container has explicit right-side rounding so right expansion preserves radius
- *
- * Usage: <PopupModal open={open} onClose={...} popup={popupObj} showNextButton onNext={...} />
- */
 export default function PopupModal({ open, onClose, popup, onNext, showNextButton = false }) {
   const [btnFocused, setBtnFocused] = useState(false);
 
-  // handle ESC to close (only when open)
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
@@ -64,7 +52,6 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
     },
   };
 
-  // Always render AnimatePresence so exit animations run.
   return (
     <AnimatePresence initial={false} mode="wait">
       {open && popup && (
@@ -78,7 +65,7 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
           role="dialog"
           aria-modal="true"
         >
-          {/* overlay */}
+
           <motion.div
             key="overlay"
             className="absolute inset-0 bg-black/55 backdrop-blur-sm"
@@ -89,7 +76,7 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
             exit="exit"
           />
 
-          {/* PANEL WRAPPER: perspective + rounded + overflow-hidden so corners are clipped */}
+
           <motion.div
             key="panel"
             className="relative w-full max-w-2xl rounded-2xl shadow-2xl bg-transparent overflow-hidden"
@@ -102,7 +89,7 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
             aria-label={popup.title || "Promotion"}
             style={{ perspective: 1200 }}
           >
-            {/* INNER: wipe reveal + overflow-hidden so animated content stays rounded */}
+
             <motion.div
               className="relative overflow-hidden rounded-2xl bg-black/0"
               variants={contentReveal}
@@ -110,13 +97,13 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
               animate="visible"
               exit="exit"
             >
-              {/* Floating container (subtle loop while open) */}
+       
               <motion.div
                 animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.9 }}
                 style={{ willChange: "transform" }}
               >
-                {/* Close button */}
+        
                 <motion.button
                   aria-label="Close popup"
                   onClick={onClose}
@@ -137,7 +124,7 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
                   <X size={18} />
                 </motion.button>
 
-                {/* Optional Next button */}
+       
                 {showNextButton && onNext && (
                   <motion.button
                     aria-label="Next popup"
@@ -158,13 +145,12 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
                   </motion.button>
                 )}
 
-                {/* CONTENT: image OR html; explicit right-side rounding on content */}
                 {popup.url ? (
                   <motion.img
                     key={popup.url}
                     src={popup.url}
                     alt={popup.title || "Promo"}
-                    // parent clips corners; image has explicit right-side rounding to preserve radius when resized to right
+       
                     className="w-full h-auto max-h-[78vh] object-contain block rounded-r-2xl"
                     initial={{ opacity: 0.92, scale: 0.997 }}
                     animate={{ opacity: 1, scale: 1, transition: { duration: 0.36 } }}
@@ -173,7 +159,7 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
                   />
                 ) : popup.html ? (
                   <motion.div
-                    // html container also gets explicit right rounding; parent will enforce overall rounded corners
+     
                     className="w-full max-h-[78vh] overflow-auto rounded-r-2xl"
                     initial={{ opacity: 0.92, scale: 0.997 }}
                     animate={{ opacity: 1, scale: 1, transition: { duration: 0.36 } }}
@@ -192,7 +178,7 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
                 )}
               </motion.div>
 
-              {/* SHINE sweep (one-time polish overlay) */}
+
               <motion.div
                 aria-hidden
                 initial={{ x: "-120%", opacity: 0 }}
