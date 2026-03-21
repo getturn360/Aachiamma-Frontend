@@ -177,8 +177,8 @@ export default function AdminProducts() {
     if (sortBy === "newest") {
 
       list.sort((a, b) => {
-        const ta = new Date(a?.createdAt || (a?._id?.slice(0, 8) ? parseInt(a._id.slice(0, 8), 16) * 1000 : 0));
-        const tb = new Date(b?.createdAt || (b?._1d?.slice(0, 8) ? parseInt(b._id.slice(0, 8), 16) * 1000 : 0));
+        const ta = new Date(a?.createdAt || (a?._id?.slice(0, 8) ? parseInt(String(a._id).slice(0, 8), 16) * 1000 : 0));
+        const tb = new Date(b?.createdAt || (b?._id?.slice(0, 8) ? parseInt(String(b._id).slice(0, 8), 16) * 1000 : 0));
         return tb - ta;
       });
     } else if (sortBy === "alpha") {
@@ -614,16 +614,13 @@ export default function AdminProducts() {
       >
         <SheetContent
           side="right"
-          className="overflow-hidden w-full max-w-full md:max-w-[760px] lg:max-w-[860px] p-0"
+          className="overflow-hidden w-full max-w-full md:max-w-[760px] lg:max-w-[860px] p-0 z-[100]"
         >
-
           <div className="h-full flex flex-col">
             <SheetHeader className="flex items-center justify-between border-b py-4 px-6 flex-shrink-0">
-              <div>
-                <SheetTitle className="text-lg font-semibold">
-                  {currentEditedId !== null ? "Edit Product" : "Add New Product"}
-                </SheetTitle>
-              </div>
+              <SheetTitle className="text-lg font-semibold">
+                {currentEditedId !== null ? "Edit Product" : "Add New Product"}
+              </SheetTitle>
             </SheetHeader>
 
             <div className="p-6 space-y-6 overflow-auto flex-1 min-h-0">
@@ -647,7 +644,9 @@ export default function AdminProducts() {
               </div>
 
               <div className="flex justify-end gap-3">
-                <Button onClick={() => resetFormAndClose()} variant="outline">Close</Button>
+                <Button onClick={() => resetFormAndClose()} variant="outline">
+                  Close
+                </Button>
               </div>
             </div>
           </div>

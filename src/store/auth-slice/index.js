@@ -46,7 +46,6 @@ export const loginUser = createAsyncThunk(
           localStorage.setItem("auth_token", token);
         } catch (e) {}
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-     h
         dispatch(checkAuth());
       }
 

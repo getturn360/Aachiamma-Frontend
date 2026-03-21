@@ -215,11 +215,14 @@ function ProductFormTabs({ initialData = {}, onSaved = () => {} }) {
 
           <div>
             <Label>Category</Label>
-            <Select onValueChange={(v) => setField("category", v)} value={form.category}>
+            <Select
+              onValueChange={(v) => setField("category", v === "__none__" ? "" : v)}
+              value={form.category === "" || form.category == null ? undefined : String(form.category)}
+            >
               <SelectTrigger className="w-full"><SelectValue placeholder="Select category" /></SelectTrigger>
               <SelectContent>
                 {!catsLoaded && <SelectItem value="__loading">Loading...</SelectItem>}
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 {categoryOptions.map((o) => (
                   <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>
                 ))}

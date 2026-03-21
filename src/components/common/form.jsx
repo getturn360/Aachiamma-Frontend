@@ -145,20 +145,37 @@ function CommonForm({
           : [];
         const optionsToRender = (controlOptions.length ? controlOptions : (getControlItem.name === 'category' ? categoriesList : []));
 
+        // Radix Select: value must not be "" — use undefined for “no selection”.
+        // SelectItem value must not be "" (throws at runtime and can blank the whole app).
+        const selectValue =
+          value === "" || value === null || value === undefined ? undefined : String(value);
+
+        const NONE = "__none__";
+
         element = (
-          <Select onValueChange={(val) => setField(getControlItem.name, val)} value={value}>
+          <Select
+            onValueChange={(val) => setField(getControlItem.name, val === NONE ? "" : val)}
+            value={selectValue}
+          >
             <SelectTrigger className="w-full rounded-xl p-2">
               <SelectValue placeholder={getControlItem.placeholder || getControlItem.label} />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={NONE}>None</SelectItem>
               {optionsToRender.length ? (
-                optionsToRender.map((optionItem) => (
-                  <SelectItem key={optionItem.id ?? optionItem.value ?? optionItem.label} value={optionItem.id ?? optionItem.value ?? optionItem.label}>
-                    {optionItem.label ?? optionItem.name ?? optionItem}
-                  </SelectItem>
-                ))
+                optionsToRender.map((optionItem) => {
+                  const raw = optionItem.id ?? optionItem.value ?? optionItem.label;
+                  const optVal = raw === "" || raw === null || raw === undefined ? NONE : String(raw);
+                  return (
+                    <SelectItem key={optVal} value={optVal}>
+                      {optionItem.label ?? optionItem.name ?? optionItem}
+                    </SelectItem>
+                  );
+                })
               ) : (
-                <div className="px-3 py-2 text-sm text-slate-500">No options available</div>
+                <SelectItem value="__empty_list__" disabled>
+                  No categories loaded yet
+                </SelectItem>
               )}
             </SelectContent>
           </Select>

@@ -77,7 +77,7 @@ export default function SupportingImages({ images = [], setImages }) {
     setPendingDeleteIndex(null);
     setPendingDeleteUrl(null);
   }
-e
+
   function handleDeleteConfirmed() {
     const url = pendingDeleteUrl;
     const idx = pendingDeleteIndex;
