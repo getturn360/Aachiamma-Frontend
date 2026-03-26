@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { CheckCircle } from "lucide-react";
@@ -7,6 +8,9 @@ import { CheckCircle } from "lucide-react";
 function PaymentSuccessPage() {
   const navigate = useNavigate();
   const isAuthenticated = useSelector((s) => s.auth && s.auth.isAuthenticated);
+
+  useEffect(() => {
+  }, [isAuthenticated]);
 
   return (
     <div className="max-w-3xl mx-auto mt-12 mt-[90px]">

@@ -20,7 +20,6 @@ export const createNewOrder = createAsyncThunk("order/createNewOrder", async (or
 });
 
 export const capturePayment = createAsyncThunk("order/capturePayment", async (payload) => {
-
   const response = await axios.post(`${API_BASE}/capture`, payload);
   return response.data;
 });

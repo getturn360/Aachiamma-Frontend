@@ -36,7 +36,6 @@ const resolvedBase = normalizeBase(buildBase || runtimeBase || "");
 const baseURL = resolvedBase || "/api";
 
 if (typeof window !== "undefined") {
-  // helpful debug info in browser console
   try {
     console.info("[api] baseURL =", baseURL);
   } catch (e) {}
@@ -53,7 +52,6 @@ let pendingRequests = 0;
 function startLoading(message = null) {
   pendingRequests += 1;
   try {
-    // keep existing payload shape ({ value: boolean, message })
     store.dispatch(setLoading({ value: true, message }));
   } catch (e) {
     // fail-safe
@@ -71,10 +69,6 @@ function stopLoading() {
   }
 }
 
-// Request interceptor: start loader automatically.
-// Callers can pass:
-//   api.get(url, { _loadingMessage: 'Loading...' })
-// or set header 'x-loading-message' in the request options.
 api.interceptors.request.use(
   (config) => {
     const msg =
@@ -90,7 +84,6 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor: stop loader on success or error.
 api.interceptors.response.use(
   (response) => {
     stopLoading();
@@ -98,7 +91,6 @@ api.interceptors.response.use(
   },
   (error) => {
     stopLoading();
-    // small hint if backend route not found
     try {
       if (error?.response?.status === 404 && error?.response?.data?.message) {
         console.warn("[api] response 404:", error.response.data.message);

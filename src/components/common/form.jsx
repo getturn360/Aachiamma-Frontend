@@ -157,7 +157,9 @@ function CommonForm({
             onValueChange={(val) => setField(getControlItem.name, val === NONE ? "" : val)}
             value={selectValue}
           >
-            <SelectTrigger className="w-full rounded-xl p-2">
+            <SelectTrigger
+              className="w-full rounded-xl p-2"
+            >
               <SelectValue placeholder={getControlItem.placeholder || getControlItem.label} />
             </SelectTrigger>
             <SelectContent>

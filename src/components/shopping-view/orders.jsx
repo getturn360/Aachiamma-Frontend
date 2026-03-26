@@ -27,7 +27,9 @@ export default function ShoppingOrdersResponsive() {
   const { orderList, orderDetails } = useSelector((state) => state.shopOrder);
 
   useEffect(() => {
-    if (user?.id) dispatch(getAllOrdersByUserId(user.id));
+    if (user?.id) {
+      dispatch(getAllOrdersByUserId(user.id));
+    }
   }, [dispatch, user?.id]);
 
   useEffect(() => {
