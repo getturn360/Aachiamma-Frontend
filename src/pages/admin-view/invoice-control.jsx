@@ -61,7 +61,7 @@ function InvoiceControlPage() {
 
   async function fetchSettings() {
     try {
-      const res = await api.get("/api/admin/invoice-settings/settings");
+      const res = await api.get("/api/admin/invoice-settings/settings", { skipGlobalLoader: true });
       const j = res?.data;
 
       if (j && j.success) {
@@ -71,13 +71,11 @@ function InvoiceControlPage() {
       } else {
      
         failCountRef.current += 1;
-        console.warn("fetchSettings returned success:false", j);
         if (mountedRef.current) {
           toast({ title: "Failed to load invoice settings", variant: "destructive" });
         }
         if (failCountRef.current >= MAX_CONSECUTIVE_FAILURES) {
           stopPolling();
-          console.warn("Stopping polling after repeated failures (non-auth)");
         }
         return false;
       }
@@ -102,7 +100,6 @@ function InvoiceControlPage() {
 
       if (failCountRef.current >= MAX_CONSECUTIVE_FAILURES) {
         stopPolling();
-        console.warn("Stopping polling after repeated network errors");
       }
 
       return false;
@@ -139,21 +136,18 @@ function InvoiceControlPage() {
         lastInvoiceNumber: Number.isFinite(Number(settings.lastInvoiceNumber)) ? Number(settings.lastInvoiceNumber) : 0,
       };
 
-      console.debug("Saving invoice settings payload:", payload);
-
       const res = await api.post("/api/admin/invoice-settings/settings", payload, {
         headers: { "Content-Type": "application/json" },
+        skipGlobalLoader: true,
       });
 
       const j = res?.data;
-      console.log("Save response:", res.status, j);
 
       if (res.status >= 200 && res.status < 300 && j && j.success) {
         toast({ title: "Saved" });
         setSettings(j.data || { ...settings, ...payload });
       } else {
         const serverMsg = j?.message || j?.error || `HTTP ${res.status}`;
-        console.warn("Save failed:", serverMsg);
         toast({ title: "Error saving invoice settings", description: serverMsg, variant: "destructive" });
       }
     } catch (err) {
@@ -190,12 +184,12 @@ function InvoiceControlPage() {
 
       const res = await api.post("/api/admin/site-media/upload", fd, {
         headers: { "Content-Type": "multipart/form-data" },
+        skipGlobalLoader: true,
       });
 
       const data = res?.data || {};
 
       if (!(res.status >= 200 && res.status < 300) || !data) {
-        console.warn("upload failed (axios)", res.status, data);
         toast({ title: "Upload failed", description: data?.message || `Server responded ${res.status}`, variant: "destructive" });
         return;
       }
@@ -208,7 +202,6 @@ function InvoiceControlPage() {
       else if (data?.data?.url) url = data.data.url;
 
       if (!url) {
-        console.warn("Unexpected upload response (axios):", data);
         toast({ title: "Upload failed", description: "No URL returned", variant: "destructive" });
         return;
       }

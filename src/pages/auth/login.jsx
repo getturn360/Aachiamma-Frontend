@@ -53,8 +53,7 @@ function AuthLogin() {
           dispatch(clearGuestCart());
         } catch (e) {}
       } catch (e) {
-     
-        console.warn("Cart merge failed:", e);
+        /* cart merge optional */
       }
 
       navigate(from, { replace: true });

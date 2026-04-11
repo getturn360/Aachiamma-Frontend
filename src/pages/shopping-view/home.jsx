@@ -275,7 +275,6 @@ export default function ShoppingHome() {
           setCategories([]);
         }
       } catch (e) {
-        console.warn("Failed to load categories:", e);
         setCategories([]);
       }
     }

@@ -24,7 +24,6 @@ export function ConnectedLoader() {
 
     const portalRoot = document.getElementById("portal-root");
     if (!portalRoot) {
-        console.warn("Portal root not found for ConnectedLoader");
         return <PremiumLoader message={loadingMessage} />;
     }
 

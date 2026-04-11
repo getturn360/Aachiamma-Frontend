@@ -81,7 +81,6 @@ export default function AdminShipping() {
       if (statesArr && statesArr.length > 0) setAllStates(statesArr);
       else fallbackStates();
     } catch (err) {
-      console.warn("Could not read config.addressFormControls — using fallback states", err);
       fallbackStates();
     }
 
@@ -163,7 +162,6 @@ export default function AdminShipping() {
           setUnsavedThresholdChanged(false);
         }
       } else {
-        console.warn("No shipping data returned; using defaults", res.data);
         setZones(DEFAULT_ZONES);
         setAssignments({});
       }

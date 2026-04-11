@@ -43,8 +43,6 @@ export default function AdminFeatures() {
 
   function setFlag(key, val) {
     setFeatureFlags((s) => ({ ...s, [key]: val }));
-
-    console.log("FLAG UPDATE:", key, val);
   }
 
   async function handleExport(type = "csv") {
@@ -52,10 +50,8 @@ export default function AdminFeatures() {
     try {
    
       await new Promise((res) => setTimeout(res, 900));
-      console.log("Exported", type);
-
     } catch (e) {
-      console.error(e);
+      /* export stub */
     } finally {
       setExporting(false);
     }
@@ -122,8 +118,8 @@ export default function AdminFeatures() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end gap-3">
-            <Button onClick={() => console.log("Rotate keys")} variant={undefined}>Rotate Keys</Button>
-            <Button onClick={() => console.log("Open vault")} className="bg-slate-800 text-white">Open Vault</Button>
+            <Button type="button" variant={undefined}>Rotate Keys</Button>
+            <Button type="button" className="bg-slate-800 text-white">Open Vault</Button>
           </CardFooter>
         </Card>
 
@@ -169,7 +165,7 @@ export default function AdminFeatures() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
-            <Button onClick={() => console.log("Save flags")}>Save Flags</Button>
+            <Button type="button">Save Flags</Button>
           </CardFooter>
         </Card>
       </div>
@@ -184,7 +180,7 @@ export default function AdminFeatures() {
         <CardContent>
           <div className="flex items-center gap-3 mb-3">
             <Input placeholder="Filter by user / action / id" value={auditFilter} onChange={(e) => setAuditFilter(e.target.value)} />
-            <Button onClick={() => console.log("Apply filter:", auditFilter)}>Apply</Button>
+            <Button type="button">Apply</Button>
             <Badge className="ml-auto">Showing 25 of 1,230</Badge>
           </div>
 
@@ -234,8 +230,8 @@ export default function AdminFeatures() {
       </Card>
 
       <div className="flex gap-3">
-        <Button onClick={() => console.log("Open role manager")}>Role & Permission Manager</Button>
-        <Button onClick={() => console.log("Open sessions")}>Active Sessions</Button>
+        <Button type="button">Role & Permission Manager</Button>
+        <Button type="button">Active Sessions</Button>
       </div>
     </div>
   );

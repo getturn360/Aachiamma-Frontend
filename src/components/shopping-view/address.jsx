@@ -85,8 +85,7 @@ function Address({ setCurrentSelectedAddress, selectedId, value, onChange }) {
           localStorage.setItem("guest_address_v1", JSON.stringify(formData));
         } catch (e) { }
       } catch (e) {
-
-        console.warn("Address onChange errored", e);
+        /* guest address persistence optional */
       }
     }
 

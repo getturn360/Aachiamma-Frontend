@@ -97,10 +97,6 @@ export function showToast({ title = "", description = "", variant = "default", t
 
     return { success: true };
   } catch (e) {
-    
-    try {
-      console.log("TOAST:", title, description);
-    } catch (er) {}
     try {
       alert((title ? title + "\n" : "") + (description || ""));
     } catch (er) {}

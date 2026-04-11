@@ -34,12 +34,6 @@ const API_ADMIN = (() => {
   return "/api/admin/coupons";
 })();
 
-try {
-  if (typeof window !== "undefined") {
-    console.info("[API_ADMIN] resolved to", API_ADMIN);
-  }
-} catch (e) {}
-
 const PRIMARY_COLOR = "#08665F";
 const PRIMARY_HOVER = "#064e4a";
 

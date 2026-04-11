@@ -35,12 +35,6 @@ try {
 const resolvedBase = normalizeBase(buildBase || runtimeBase || "");
 const baseURL = resolvedBase || "/api";
 
-if (typeof window !== "undefined") {
-  try {
-    console.info("[api] baseURL =", baseURL);
-  } catch (e) {}
-}
-
 const api = axios.create({
   baseURL,
   withCredentials: true,
@@ -75,27 +69,25 @@ api.interceptors.request.use(
       config._loadingMessage ||
       (config.headers && config.headers["x-loading-message"]) ||
       null;
-    startLoading(msg);
+    const skipLoader = !!config.skipGlobalLoader;
+    if (!skipLoader) startLoading(msg);
     return config;
   },
   (error) => {
-    stopLoading();
+    if (!error?.config || !error.config.skipGlobalLoader) stopLoading();
     return Promise.reject(error);
   }
 );
 
 api.interceptors.response.use(
   (response) => {
-    stopLoading();
+    const cfg = response && response.config;
+    const skipLoader = !!(cfg && cfg.skipGlobalLoader);
+    if (!skipLoader) stopLoading();
     return response;
   },
   (error) => {
-    stopLoading();
-    try {
-      if (error?.response?.status === 404 && error?.response?.data?.message) {
-        console.warn("[api] response 404:", error.response.data.message);
-      }
-    } catch (e) {}
+    if (!error?.config || !error.config.skipGlobalLoader) stopLoading();
     return Promise.reject(error);
   }
 );

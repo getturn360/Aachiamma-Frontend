@@ -18,7 +18,7 @@ export default function CategoriesSticky({ max = 10 }) {
           setCategories((res.data.categories || []).slice(0, max));
         }
       } catch (e) {
-        console.warn("categories sticky load", e);
+        /* categories optional */
       } finally {
         if (mounted) setLoading(false);
       }

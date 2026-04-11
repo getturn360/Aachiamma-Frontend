@@ -10,8 +10,6 @@ const initialState = {
 export const fetchAllFilteredProducts = createAsyncThunk(
   "/products/fetchAllProducts",
   async ({ filterParams, sortParams }) => {
-    console.log(fetchAllFilteredProducts, "fetchAllFilteredProducts");
-
     const query = new URLSearchParams({
       ...filterParams,
       sortBy: sortParams,
@@ -20,8 +18,6 @@ export const fetchAllFilteredProducts = createAsyncThunk(
     const result = await axios.get(
       `https://aachiamma-backend.fly.dev/api/shop/products/get?${query}`
     );
-
-    console.log(result);
 
     return result?.data;
   }

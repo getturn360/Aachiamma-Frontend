@@ -20,7 +20,7 @@ export default function CategoriesBar({ max = 12 }) {
           setCategories((res.data.categories || []).slice(0, max));
         }
       } catch (e) {
-        console.warn("CategoriesBar load error", e);
+        /* categories optional */
       } finally {
         if (mounted) setLoading(false);
       }

@@ -100,8 +100,7 @@ export default function AdminProducts() {
           return;
         }
       } catch (err) {
-    
-        console.warn("fetch categories err", err && err.message);
+        /* categories optional for products page */
       }
   
     })();

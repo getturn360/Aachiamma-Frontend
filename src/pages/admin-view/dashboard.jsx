@@ -62,7 +62,6 @@ export default function AdminDashboard() {
         setLogos([]);
       }
     } catch (err) {
-      console.warn("fetch logos err", err && err.message);
       setLogos([]);
     }
   }
@@ -152,9 +151,7 @@ export default function AdminDashboard() {
     }
   }
 
-  function toastAlert(message = "", type = "info") {
-    console.log("TOAST::", type, message);
-  }
+  function toastAlert() {}
 
   return (
     <div className="p-4 sm:p-6 space-y-6">

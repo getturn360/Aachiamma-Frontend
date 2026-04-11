@@ -6,21 +6,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Trash2, Edit, PlusCircle, GripVertical } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
-try {
-
-  console.log("ADMIN-CATEGORIES: instrumented file loaded", {
-    time: new Date().toISOString(),
-    axiosBase: api?.defaults?.baseURL ?? "(no baseURL)",
-    axiosWithCredentials: api?.defaults?.withCredentials,
-    axiosAuthHeader: api?.defaults?.headers?.common?.Authorization ?? "(none)",
-  });
-} catch (e) {}
-
-
-function safeLog(label, ...args) {
-  try { console.log(`[ADMIN-CATS] ${label}`, ...args); } catch (e) {}
-}
-
 function reorder(list, startIndex, endIndex) {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -55,27 +40,21 @@ export default function AdminCategories() {
   }, []);
 
   async function loadCategories() {
-    safeLog("loadCategories: start");
     try {
       setLoading(true);
       const url = "/api/admin/categories/get";
-      safeLog("GET ->", url);
       const res = await api.get(url);
-      safeLog("GET response", { url, status: res?.status, data: res?.data });
       if (res?.data?.success) {
         const data = Array.isArray(res.data.categories) ? res.data.categories : [];
         data.sort((a, b) => (a.order || 0) - (b.order || 0));
         setCategories(data);
       } else {
-        safeLog("loadCategories: success flag false", res?.data);
         setCategories([]);
       }
     } catch (e) {
-      safeLog("loadCategories: error", e?.response?.status, e?.response?.data ?? e?.message ?? e);
       setCategories([]);
     } finally {
       setLoading(false);
-      safeLog("loadCategories: finished");
     }
   }
 
@@ -130,17 +109,11 @@ export default function AdminCategories() {
       let res;
       if (editingId) {
         const url = `/api/admin/categories/update/${editingId}`;
-        safeLog("PUT ->", url, { name: nameVal, hasImage: !!selectedFile });
-    
         res = await api.put(url, fd);
       } else {
         const url = "/api/admin/categories/create";
-        safeLog("POST ->", url, { name: nameVal, hasImage: !!selectedFile });
-    
         res = await api.post(url, fd);
       }
-
-      safeLog("createOrUpdate response", { status: res?.status, data: res?.data });
 
       if (res?.data?.success) {
         resetForm();
@@ -149,7 +122,6 @@ export default function AdminCategories() {
         setFormError(res?.data?.message || "Operation failed");
       }
     } catch (err) {
-      safeLog("createOrUpdate error", err?.response?.status, err?.response?.data ?? err?.message ?? err);
       setFormError(err?.response?.data?.message || err.message || "Server error");
     } finally {
       setLoading(false);
@@ -176,9 +148,7 @@ export default function AdminCategories() {
     try {
       setConfirmLoading(true);
       const url = `/api/admin/categories/delete/${deleteId}`;
-      safeLog("DELETE ->", url);
       const res = await api.delete(url);
-      safeLog("DELETE response", { url, status: res?.status, data: res?.data });
       if (res?.data?.success) {
         setConfirmDeleteOpen(false);
         setDeleteId(null);
@@ -187,7 +157,6 @@ export default function AdminCategories() {
         alert(res?.data?.message || "Delete failed");
       }
     } catch (err) {
-      safeLog("delete category error", err?.response?.status, err?.response?.data ?? err?.message ?? err);
       alert("Delete failed");
     } finally {
       setConfirmLoading(false);
@@ -205,21 +174,10 @@ export default function AdminCategories() {
 
     try {
       setLoading(true);
-      safeLog("Persisting order updates", withOrder.map((i) => ({ id: i._id, order: i.order })));
       await Promise.all(
-        withOrder.map((it) =>
-          api.put(`/api/admin/categories/update/${it._id}`, { order: it.order }).then((res) => {
-            safeLog("order update ok", it._id, res?.status, res?.data);
-            return res;
-          }).catch((err) => {
-            safeLog("order update failed", it._id, err?.response?.status, err?.response?.data ?? err?.message ?? err);
-            throw err;
-          })
-        )
+        withOrder.map((it) => api.put(`/api/admin/categories/update/${it._id}`, { order: it.order }))
       );
-      safeLog("All order updates persisted");
     } catch (err) {
-      safeLog("persisting order failed, reloading", err);
       setFormError("Failed to save new order. Re-loading categories.");
       await loadCategories();
     } finally {

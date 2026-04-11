@@ -145,17 +145,14 @@ function App() {
       const token = raw ? (raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw) : null;
       if (token) {
         dispatch(checkAuth());
-      } else {
-        console.log("No auth token in localStorage on mount — skipping checkAuth");
       }
     } catch (e) {
-      console.log("Error reading localStorage token:", e);
+      /* ignore localStorage errors */
     }
   }, [dispatch]);
 
   useEffect(() => {
     if (isAuthenticated && !user) {
-      console.log("isAuthenticated true but no user — running checkAuth()");
       dispatch(checkAuth());
     }
   }, [isAuthenticated, user, dispatch]);

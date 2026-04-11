@@ -80,7 +80,7 @@ export default function PopupsManager() {
       const list2 = (res2.data && (res2.data.list || res2.data.data)) || [];
       setLocalList(Array.isArray(list2) ? list2 : []);
     } catch (err2) {
-      console.debug("loadPopups fallback failed", err2 && err2.message);
+      /* fallback popups load */
     }
   }
 

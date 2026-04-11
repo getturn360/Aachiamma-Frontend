@@ -905,7 +905,7 @@ function ShoppingHeader() {
           if (back) setBackUrl(back.url);
         }
       } catch (e) {
-        console.warn("fetch logos err", e && e.message);
+        /* logos optional */
       }
     }
     loadLogos();
