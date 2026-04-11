@@ -7,6 +7,8 @@ import {
     ShoppingCart,
     Minus,
     Plus,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -278,6 +280,27 @@ export default function ProductDetailsPage() {
         });
         return dist;
     }, [reviews]);
+
+    const galleryImages = useMemo(() => {
+        const imgs = productDetails?.images;
+        if (Array.isArray(imgs) && imgs.length > 0) return imgs.filter(Boolean);
+        if (productDetails?.image) return [productDetails.image];
+        return [];
+    }, [productDetails?.images, productDetails?.image]);
+
+    const goPrevGalleryImage = () => {
+        if (galleryImages.length < 2) return;
+        const i = galleryImages.indexOf(selectedImage);
+        const idx = i >= 0 ? i : 0;
+        setSelectedImage(galleryImages[(idx - 1 + galleryImages.length) % galleryImages.length]);
+    };
+
+    const goNextGalleryImage = () => {
+        if (galleryImages.length < 2) return;
+        const i = galleryImages.indexOf(selectedImage);
+        const idx = i >= 0 ? i : 0;
+        setSelectedImage(galleryImages[(idx + 1) % galleryImages.length]);
+    };
 
     const increment = () => {
         const max = availableStockForActions || 99;
@@ -652,6 +675,34 @@ export default function ProductDetailsPage() {
                             style={{ objectPosition: "center", transition: "all 300ms ease" }}
                         />
 
+                        {galleryImages.length > 1 && (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        goPrevGalleryImage();
+                                    }}
+                                    className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-30 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-slate-800 shadow-md backdrop-blur-sm transition hover:bg-white hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1"
+                                    aria-label="Previous image"
+                                    title="Previous image"
+                                >
+                                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.25} />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        goNextGalleryImage();
+                                    }}
+                                    className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-30 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-slate-800 shadow-md backdrop-blur-sm transition hover:bg-white hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1"
+                                    aria-label="Next image"
+                                    title="Next image"
+                                >
+                                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.25} />
+                                </button>
+                            </>
+                        )}
 
                         {!inStock && (
                             <div
@@ -715,7 +766,7 @@ export default function ProductDetailsPage() {
 
                     <div className="mt-4 w-full">
                         <ThumbnailSlider
-                            images={productDetails?.images ?? (productDetails?.image ? [productDetails.image] : [])}
+                            images={galleryImages}
                             selectedImage={selectedImage}
                             setSelectedImage={setSelectedImage}
                         />
