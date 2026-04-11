@@ -53,6 +53,46 @@ const SectionTitle = ({ text }) => (
     </div>
 );
 
+function ProductDescriptionBlock({ productDetails }) {
+    if (!productDetails) return null;
+    const hasSections = Array.isArray(productDetails.descriptionSections) && productDetails.descriptionSections.length > 0;
+    const plain = (productDetails.description && String(productDetails.description).trim()) || "";
+    if (!hasSections && !plain && !productDetails.descriptionTitle) return null;
+
+    return (
+        <div
+            id="product-description-inline"
+            className="mt-4 pt-4 border-t border-slate-100 text-left text-slate-700"
+        >
+            {productDetails.descriptionTitle ? (
+                <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-slate-900">
+                    {productDetails.descriptionTitle}
+                </div>
+            ) : null}
+            <div className="space-y-4 text-base font-normal text-slate-700 leading-relaxed">
+                {hasSections ? (
+                    productDetails.descriptionSections.map((sec, i) => (
+                        <div key={i}>
+                            {sec.title ? (
+                                <div className="text-base font-semibold text-slate-900 mb-1">{sec.title}</div>
+                            ) : null}
+                            {sec.content ? (
+                                <div className="text-base mt-1 whitespace-pre-line leading-relaxed text-slate-700">
+                                    {sec.content}
+                                </div>
+                            ) : null}
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-base whitespace-pre-line leading-relaxed text-slate-700">
+                        {plain || "No description available."}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function ThumbnailSlider({ images = [], selectedImage, setSelectedImage }) {
     const [index, setIndex] = React.useState(0);
     const [visible, setVisible] = React.useState(3);
@@ -112,7 +152,7 @@ function PremiumTabs({ tabs = [], activeKey, onChangeKey }) {
     return (
         <div className="flex justify-center">
             <div
-                className="relative z-10 flex gap-3 items-center justify-start sm:justify-center overflow-x-auto no-scrollbar px-3 py-2 sm:py-1 rounded-lg max-w-full"
+                className="relative z-10 flex gap-3 sm:gap-4 items-center justify-start sm:justify-center overflow-x-auto no-scrollbar px-2 py-2 sm:py-2 rounded-lg max-w-full"
                 role="tablist"
                 aria-label="Product tabs"
             >
@@ -124,7 +164,7 @@ function PremiumTabs({ tabs = [], activeKey, onChangeKey }) {
                             role="tab"
                             aria-selected={isActive}
                             onClick={() => onChangeKey(t.key)}
-                            className={`flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 ${isActive ? 'bg-amber-500 text-white shadow-md' : 'bg-white/60 text-slate-700 hover:bg-slate-50 border border-slate-100'}`}
+                            className={`flex-shrink-0 whitespace-nowrap px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-base sm:text-lg font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 ${isActive ? 'bg-amber-500 text-white shadow-md' : 'bg-white/60 text-slate-700 hover:bg-slate-50 border border-slate-100'}`}
                         >
                             {t.label}
                         </button>
@@ -158,7 +198,7 @@ export default function ProductDetailsPage() {
 
     const [relatedProducts, setRelatedProducts] = useState([]);
 
-    const [activeSection, setActiveSection] = useState('description'); 
+    const [activeSection, setActiveSection] = useState("specs");
 
     useEffect(() => {
         let mounted = true;
@@ -499,7 +539,6 @@ export default function ProductDetailsPage() {
     }
 
     const tabList = [
-        { key: 'description', label: 'Description' },
         { key: 'specs', label: 'Specifications' },
         { key: 'ingredients', label: 'Ingredients' },
         { key: 'howto', label: 'How to use' },
@@ -652,6 +691,8 @@ export default function ProductDetailsPage() {
                                 </div>
                             )}
                         </div>
+
+                        <ProductDescriptionBlock productDetails={productDetails} />
                     </div>
 
                     {selectedVariant && Array.isArray(selectedVariant.descriptionItems) && selectedVariant.descriptionItems.length > 0 && (
@@ -784,33 +825,14 @@ export default function ProductDetailsPage() {
                     />
 
                   
-                    <div className="bg-white rounded-2xl shadow-sm p-5 mt-4">
+                    <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-8 mt-4 text-base sm:text-lg">
                        
-                        {activeSection === 'description' && (
-                            <>
-                                {productDetails?.descriptionTitle ? <div className="text-sm font-semibold mb-2">{productDetails.descriptionTitle}</div> : null}
-                                <div className="space-y-4 text-slate-700">
-                                    {Array.isArray(productDetails?.descriptionSections) && productDetails.descriptionSections.length > 0 ? (
-                                        productDetails.descriptionSections.map((sec, i) => (
-                                            <div key={i}>
-                                                {sec.title ? <div className="font-semibold">{sec.title}</div> : null}
-                                                {sec.content ? <div className="text-sm mt-1 whitespace-pre-line">{sec.content}</div> : null}
-                                            </div>
-                                        ))
-                                    ) : (
-                                      
-                                        <div className="text-sm whitespace-pre-line">{productDetails?.description ?? "No description available."}</div>
-                                    )}
-                                </div>
-                            </>
-                        )}
-
                         {activeSection === 'specs' && Array.isArray(productDetails?.specList) && productDetails.specList.length > 0 && (
                             <div>
-                                <div className="text-sm font-semibold mb-2">Product Specifications</div>
-                                <ul className="list-disc pl-5 text-sm text-slate-700">
+                                <div className="text-xl sm:text-2xl font-bold mb-4 text-slate-900">Product Specifications</div>
+                                <ul className="list-disc pl-6 sm:pl-7 text-base sm:text-lg text-slate-700 space-y-2">
                                     {productDetails.specList.map((s, i) => (
-                                        <li key={i}><span className="font-semibold">{s.label}</span>{s.content ? `: ${s.content}` : ""}</li>
+                                        <li key={i}><span className="font-semibold text-slate-900">{s.label}</span>{s.content ? `: ${s.content}` : ""}</li>
                                     ))}
                                 </ul>
                             </div>
@@ -818,28 +840,28 @@ export default function ProductDetailsPage() {
 
                         {activeSection === 'ingredients' && productDetails?.ingredients && (
                             <div>
-                                <div className="text-sm font-semibold mb-2">Ingredients Details</div>
-                                <div className="text-sm text-slate-700 whitespace-pre-line">{productDetails.ingredients}</div>
+                                <div className="text-xl sm:text-2xl font-bold mb-4 text-slate-900">Ingredients Details</div>
+                                <div className="text-base sm:text-lg text-slate-700 whitespace-pre-line leading-relaxed">{productDetails.ingredients}</div>
                             </div>
                         )}
 
                         {activeSection === 'howto' && howToParagraph && (
                             <div>
-                                <div className="text-sm font-semibold mb-2">How to use</div>
-                                <div className="text-sm text-slate-700 whitespace-pre-line">{howToParagraph}</div>
+                                <div className="text-xl sm:text-2xl font-bold mb-4 text-slate-900">How to use</div>
+                                <div className="text-base sm:text-lg text-slate-700 whitespace-pre-line leading-relaxed">{howToParagraph}</div>
                             </div>
                         )}
 
                         {activeSection === 'faq' && Array.isArray(productDetails?.faqList) && productDetails.faqList.length > 0 && (
                             <div>
-                                <div className="text-sm font-semibold mb-2">FAQ</div>
-                                <div className="space-y-2 text-sm text-slate-700">
+                                <div className="text-xl sm:text-2xl font-bold mb-4 text-slate-900">FAQ</div>
+                                <div className="space-y-4 text-base sm:text-lg text-slate-700">
                                     {productDetails.faqList.map((q, i) => (
-                                        <div key={i} className="flex gap-2">
-                                            <div className="w-4 flex-shrink-0 text-slate-700">•</div>
+                                        <div key={i} className="flex gap-3">
+                                            <div className="w-5 flex-shrink-0 text-slate-700 text-lg leading-relaxed">•</div>
                                             <div>
-                                                <div className="font-medium">{q.question}</div>
-                                                <div className="text-slate-600">{q.answer}</div>
+                                                <div className="font-semibold text-slate-900 text-lg sm:text-xl">{q.question}</div>
+                                                <div className="text-slate-600 mt-1 leading-relaxed">{q.answer}</div>
                                             </div>
                                         </div>
                                     ))}
@@ -848,19 +870,20 @@ export default function ProductDetailsPage() {
                         )}
 
                         {activeSection === 'reviews' && (
-                            <div id="product-reviews-section" className="space-y-6">
+                            <div id="product-reviews-section" className="space-y-8">
                           
                                 <div>
-                                    <Label className="mb-2">Write a review</Label>
-                                    <div className="flex items-center gap-3 mb-3">
+                                    <Label className="mb-3 text-lg sm:text-xl font-semibold text-slate-900">Write a review</Label>
+                                    <div className="flex items-center gap-3 mb-4">
                                         <StarRatingComponent rating={rating} handleRatingChange={(val) => setRating(val)} />
-                                        <span className="text-sm text-slate-500">{rating ? `${rating}/5` : "Choose rating"}</span>
+                                        <span className="text-base sm:text-lg text-slate-500">{rating ? `${rating}/5` : "Choose rating"}</span>
                                     </div>
 
                                     <Input
                                         value={reviewMsg}
                                         onChange={(e) => setReviewMsg(e.target.value)}
                                         placeholder="Share your experience..."
+                                        className="text-base sm:text-lg min-h-[48px]"
                                     />
                                     <div className="mt-3 flex gap-3">
                                         <Button
@@ -882,46 +905,46 @@ export default function ProductDetailsPage() {
                                         </Button>
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <h2 className="text-lg font-semibold text-slate-900">Reviews</h2>
+                                <div className="flex items-center justify-between gap-4 flex-wrap">
+                                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Reviews</h2>
                                     <div className="flex items-center gap-3">
-                                        <StarDisplay rating={averageReview} size={16} />
-                                        <div className="text-sm text-slate-500">{averageReview ? averageReview.toFixed(1) : "—"} ({reviewCount})</div>
+                                        <StarDisplay rating={averageReview} size={18} />
+                                        <div className="text-base sm:text-lg text-slate-500">{averageReview ? averageReview.toFixed(1) : "—"} ({reviewCount})</div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-4">
+                                <div className="space-y-5">
                                     {reviews && reviews.length > 0 ? (
                                         reviews.map((reviewItem, idx) => (
-                                            <div key={reviewItem._id || idx} className="flex gap-4 p-3 rounded-lg border border-slate-100 bg-white">
-                                                <Avatar className="w-10 h-10 border">
-                                                    <AvatarFallback>{(reviewItem?.userName?.[0] || "U").toUpperCase()}</AvatarFallback>
+                                            <div key={reviewItem._id || idx} className="flex gap-4 p-4 sm:p-5 rounded-lg border border-slate-100 bg-white">
+                                                <Avatar className="w-12 h-12 border shrink-0">
+                                                    <AvatarFallback className="text-base">{(reviewItem?.userName?.[0] || "U").toUpperCase()}</AvatarFallback>
                                                 </Avatar>
 
-                                                <div className="flex-1">
+                                                <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between gap-3">
                                                         <div>
-                                                            <h3 className="font-medium text-slate-900">{reviewItem?.userName}</h3>
-                                                            <div className="text-xs text-slate-500">{new Date(reviewItem?.createdAt || reviewItem?.date || Date.now()).toLocaleDateString()}</div>
+                                                            <h3 className="font-semibold text-lg sm:text-xl text-slate-900">{reviewItem?.userName}</h3>
+                                                            <div className="text-sm sm:text-base text-slate-500 mt-0.5">{new Date(reviewItem?.createdAt || reviewItem?.date || Date.now()).toLocaleDateString()}</div>
                                                         </div>
-                                                        <div className="flex items-center gap-1">
-                                                            <StarDisplay rating={reviewItem?.reviewValue} size={12} />
+                                                        <div className="flex items-center gap-1 shrink-0">
+                                                            <StarDisplay rating={reviewItem?.reviewValue} size={14} />
                                                         </div>
                                                     </div>
-                                                    <p className="mt-2 text-sm text-slate-600">{reviewItem?.reviewMessage || reviewItem?.reviewText}</p>
+                                                    <p className="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed">{reviewItem?.reviewMessage || reviewItem?.reviewText}</p>
 
                                                     {reviewItem?.adminReply?.text ? (
-                                                        <div className="mt-3 ml-12 p-3 rounded bg-slate-50 border-l-2 border-slate-200">
-                                                            <div className="text-sm font-medium text-slate-800">Admin reply</div>
-                                                            <div className="text-sm text-slate-700 mt-1">{reviewItem.adminReply.text}</div>
-                                                            <div className="text-xs text-slate-500 mt-2">Replied on: {reviewItem.adminReply?.repliedAt ? new Date(reviewItem.adminReply.repliedAt).toLocaleDateString() : ''}</div>
+                                                        <div className="mt-4 ml-0 sm:ml-10 p-4 rounded bg-slate-50 border-l-2 border-slate-200">
+                                                            <div className="text-base font-semibold text-slate-800">Admin reply</div>
+                                                            <div className="text-base sm:text-lg text-slate-700 mt-2 leading-relaxed">{reviewItem.adminReply.text}</div>
+                                                            <div className="text-sm text-slate-500 mt-2">Replied on: {reviewItem.adminReply?.repliedAt ? new Date(reviewItem.adminReply.repliedAt).toLocaleDateString() : ''}</div>
                                                         </div>
                                                     ) : null}
                                                 </div>
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-sm text-slate-500">No reviews yet.</p>
+                                        <p className="text-base sm:text-lg text-slate-500">No reviews yet.</p>
                                     )}
 
                                 </div>
