@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import heroImageDefault from "@/assets/feature-hero.jpg";
+import SEO from "@/components/SEO";
 
 
 export default function AboutInner({ heroImage = heroImageDefault, onContact }) {
@@ -13,7 +14,34 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
     ];
 
     return (
-        <section className="w-full bg-white text-gray-900 py-24 px-8 md:px-16 lg:px-28" aria-label="About Aachi Amma Foods">
+        <>
+            <SEO
+                title="Authentic Kerala Agraharam Recipes | About aachiammafoods"
+                description="Discover aachiammafoods and our authentic Kerala Agraharam recipes, traditional pickles, homemade snacks and preservative-free South Indian flavors."
+                keywords={[
+                    "Kerala Agraharam recipes",
+                    "homemade Kerala snacks",
+                    "traditional Kerala pickles",
+                    "South Indian snacks",
+                    "Kerala homemade foods",
+                    "aachiammafoods",
+                ]}
+                canonical="https://aachiammafoods.com/about"
+                ogTitle="Authentic Kerala Agraharam Recipes | About aachiammafoods"
+                ogDescription="Discover aachiammafoods and our authentic Kerala Agraharam recipes, traditional pickles, homemade snacks and preservative-free South Indian flavors."
+                ogUrl="https://aachiammafoods.com/about"
+                ogSiteName="aachiammafoods"
+                ogImage="https://aachiammafoods.com/wp-content/uploads/2025/07/LOGO-FINAL.png"
+                ogLocale="en_IN"
+                ogType="website"
+                twitterCard="summary_large_image"
+                twitterTitle="Authentic Kerala Agraharam Recipes | About aachiammafoods"
+                twitterDescription="Discover aachiammafoods and our authentic Kerala Agraharam recipes, traditional pickles, homemade snacks and preservative-free South Indian flavors."
+                twitterImage="https://aachiammafoods.com/wp-content/uploads/2025/07/LOGO-FINAL.png"
+                twitterCreator="@aachiammafoods"
+            />
+
+            <section className="w-full bg-white text-gray-900 py-24 px-8 md:px-16 lg:px-28" aria-label="About Aachi Amma Foods">
             <div className="max-w-5xl mx-auto">
             
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
@@ -123,5 +151,6 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                 <div className="mt-20 text-center text-sm text-gray-500">Made with care in our Agraharam kitchen • No preservatives • Consume fresh for best taste</div>
             </div>
         </section>
+        </>
     );
 }

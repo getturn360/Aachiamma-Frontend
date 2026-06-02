@@ -542,7 +542,6 @@ export default function ProductDetailsPage() {
         { key: 'specs', label: 'Specifications' },
         { key: 'ingredients', label: 'Ingredients' },
         { key: 'howto', label: 'How to use' },
-        { key: 'faq', label: 'FAQ' },
         { key: 'reviews', label: 'Reviews' },
     ];
 
@@ -849,23 +848,6 @@ export default function ProductDetailsPage() {
                             <div>
                                 <div className="text-xl sm:text-2xl font-bold mb-4 text-slate-900">How to use</div>
                                 <div className="text-base sm:text-lg text-slate-700 whitespace-pre-line leading-relaxed">{howToParagraph}</div>
-                            </div>
-                        )}
-
-                        {activeSection === 'faq' && Array.isArray(productDetails?.faqList) && productDetails.faqList.length > 0 && (
-                            <div>
-                                <div className="text-xl sm:text-2xl font-bold mb-4 text-slate-900">FAQ</div>
-                                <div className="space-y-4 text-base sm:text-lg text-slate-700">
-                                    {productDetails.faqList.map((q, i) => (
-                                        <div key={i} className="flex gap-3">
-                                            <div className="w-5 flex-shrink-0 text-slate-700 text-lg leading-relaxed">•</div>
-                                            <div>
-                                                <div className="font-semibold text-slate-900 text-lg sm:text-xl">{q.question}</div>
-                                                <div className="text-slate-600 mt-1 leading-relaxed">{q.answer}</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
                             </div>
                         )}
 

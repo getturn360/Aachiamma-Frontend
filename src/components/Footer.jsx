@@ -205,14 +205,14 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                 </a>
                 <a
                   className="p-2 rounded-lg bg-white/5 hover:-translate-y-1 transition-transform"
-                  href="tel:+91"
+                  href="tel:+917356428330"
                   aria-label="Phone"
                 >
                   <Phone size={16} />
                 </a>
                 <a
                   className="p-2 rounded-lg bg-white/5 hover:-translate-y-1 transition-transform"
-                  href="https://wa.me/919876543210"
+                  href="https://wa.me/917356428330"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp"
@@ -252,22 +252,11 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   <button
                     className="block hover:text-white transition text-left w-full"
                     onClick={() => {
-                      setCategoryFilterForListing("powders");
-                      navigateTo("/shop/listing?category=powders");
+                      setCategoryFilterForListing("spices-and-powders");
+                      navigateTo("/shop/listing?category=spices-and-powders");
                     }}
                   >
-                    Powders
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => {
-                      setCategoryFilterForListing("spices");
-                      navigateTo("/shop/listing?category=spices");
-                    }}
-                  >
-                    Spices
+                    Spices & Powders
                   </button>
                 </li>
                 <li>

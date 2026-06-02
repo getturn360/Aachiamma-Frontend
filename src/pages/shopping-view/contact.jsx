@@ -2,6 +2,13 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/api/axios";
 import { toast } from "@/lib/toast";
+import SEO from "@/components/SEO";
+
+const CONTACT_DETAILS = {
+  address: "Mankavu, Palakkad, Kerala – 678001",
+  phone: "+91 7356 428 330",
+  email: "info@aachiammafoods.com",
+};
 
 export default function ContactPage({ accent = "#08665F" }) {
   const [name, setName] = useState("");
@@ -10,30 +17,8 @@ export default function ContactPage({ accent = "#08665F" }) {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
-  const [settings, setSettings] = useState({
-    address: "Mankavu, Palakkad, Kerala – 678001",
-    phone: "+91 7356 428 330",
-    email: "info@aachiammafoods.com",
-  });
-
   const [showSuccess, setShowSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await api.get("api/common/site-settings/get");
-        if (mounted && res && res.data && res.data.success) {
-          setSettings((prev) => ({ ...prev, ...(res.data.data || {}) }));
-        }
-      } catch (err) {
-        
-      }
-    })();
-    return () => (mounted = false);
-
-  }, []);
 
   useEffect(() => {
     if (!showSuccess) return;
@@ -70,7 +55,35 @@ export default function ContactPage({ accent = "#08665F" }) {
   };
 
   return (
-    <section className="w-full bg-white text-gray-900 py-20 px-6 md:px-12 lg:px-24">
+    <>
+      <SEO
+        title="South Indian Pickles & Snacks | Contact aachiammafoods"
+        description="Discover authentic homemade flavours from trusted South Indian pickles and snacks suppliers. Explore tasty traditional varieties at aachiammafoods."
+        keywords={[
+          "South Indian pickles",
+          "South Indian snacks",
+          "Kerala snacks online",
+          "Agraharam snacks",
+          "traditional pickles",
+          "homemade snacks",
+          "aachiammafoods",
+        ]}
+        canonical="https://aachiammafoods.com/contact"
+        ogTitle="South Indian Pickles & Snacks | Contact aachiammafoods"
+        ogDescription="Discover authentic homemade flavours from trusted South Indian pickles and snacks suppliers. Explore tasty traditional varieties at aachiammafoods."
+        ogUrl="https://aachiammafoods.com/contact"
+        ogSiteName="aachiammafoods"
+        ogImage="https://aachiammafoods.com/wp-content/uploads/2025/07/LOGO-FINAL.png"
+        ogLocale="en_IN"
+        ogType="website"
+        twitterCard="summary_large_image"
+        twitterTitle="South Indian Pickles & Snacks | Contact aachiammafoods"
+        twitterDescription="Discover authentic homemade flavours from trusted South Indian pickles and snacks suppliers. Explore tasty traditional varieties at aachiammafoods."
+        twitterImage="https://aachiammafoods.com/wp-content/uploads/2025/07/LOGO-FINAL.png"
+        twitterCreator="@aachiammafoods"
+      />
+
+      <section className="w-full bg-white text-gray-900 py-20 px-6 md:px-12 lg:px-24">
       <div className="max-w-4xl mx-auto">
         <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <div className="text-center">
@@ -197,7 +210,7 @@ export default function ContactPage({ accent = "#08665F" }) {
                   </svg>
                   <div>
                     <div className="text-xs text-gray-400">Address</div>
-                    <div className="font-medium whitespace-pre-line">{settings.address}</div>
+                    <div className="font-medium whitespace-pre-line">{CONTACT_DETAILS.address}</div>
                   </div>
                 </div>
 
@@ -215,7 +228,9 @@ export default function ContactPage({ accent = "#08665F" }) {
                   <div>
                     <div className="text-xs text-gray-400">Phone</div>
                     <div className="font-medium">
-                      <a href={`tel:${settings.phone}`}>{settings.phone}</a>
+                      <a href={`tel:${CONTACT_DETAILS.phone.replace(/\s/g, "")}`}>
+                        {CONTACT_DETAILS.phone}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -234,8 +249,8 @@ export default function ContactPage({ accent = "#08665F" }) {
                   <div>
                     <div className="text-xs text-gray-400">Email</div>
                     <div className="font-medium">
-                      <a className="underline" href={`mailto:${settings.email}`}>
-                        {settings.email}
+                      <a className="underline" href={`mailto:${CONTACT_DETAILS.email}`}>
+                        {CONTACT_DETAILS.email}
                       </a>
                     </div>
                   </div>
@@ -334,6 +349,7 @@ export default function ContactPage({ accent = "#08665F" }) {
           </>
         )}
       </AnimatePresence>
-    </section>
+      </section>
+    </>
   );
 }

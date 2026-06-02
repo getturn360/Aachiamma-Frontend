@@ -16,6 +16,7 @@ import api from "@/api/axios";
 
 import PopupModal from "@/components/common/PopupModal";
 import { fetchPopups } from "@/store/popup-slice";
+import SEO from "@/components/SEO";
 
 
 import bannerImg from "@/assets/feature-hero.jpg";
@@ -765,6 +766,7 @@ export default function ShoppingHome() {
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ paddingBottom: 0 }}>
+      <SEO />
    
       <header id="hero-banner" className="relative w-full mt-[25px]">
         <div
