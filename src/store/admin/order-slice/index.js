@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/api/axios";
 
 const initialState = {
   orderList: [],
   orderDetails: null,
-  invoiceSettings: {}, 
+  invoiceSettings: {},
   isLoading: false,
   error: null,
 };
@@ -12,8 +12,7 @@ const initialState = {
 export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
   async () => {
-    const response = await axios.get(`https://aachiamma-backend.fly.dev/api/admin/orders/get`);
-
+    const response = await api.get("/api/admin/orders/get");
     return response.data;
   }
 );
@@ -21,8 +20,7 @@ export const getAllOrdersForAdmin = createAsyncThunk(
 export const getOrderDetailsForAdmin = createAsyncThunk(
   "/order/getOrderDetailsForAdmin",
   async (id) => {
-    const response = await axios.get(`https://aachiamma-backend.fly.dev/api/admin/orders/details/${id}`);
- 
+    const response = await api.get(`/api/admin/orders/details/${id}`);
     return response.data;
   }
 );
@@ -30,7 +28,7 @@ export const getOrderDetailsForAdmin = createAsyncThunk(
 export const updateOrderStatus = createAsyncThunk(
   "/order/updateOrderStatus",
   async ({ id, orderStatus }) => {
-    const response = await axios.put(`https://aachiamma-backend.fly.dev/api/admin/orders/update/${id}`, {
+    const response = await api.put(`/api/admin/orders/update/${id}`, {
       orderStatus,
     });
     return response.data;
@@ -40,7 +38,7 @@ export const updateOrderStatus = createAsyncThunk(
 export const deleteOrderForAdmin = createAsyncThunk(
   "/order/deleteOrderForAdmin",
   async (id) => {
-    const response = await axios.delete(`https://aachiamma-backend.fly.dev/api/admin/orders/delete/${id}`);
+    const response = await api.delete(`/api/admin/orders/delete/${id}`);
     return { id, data: response.data };
   }
 );
@@ -71,7 +69,6 @@ const adminOrderSlice = createSlice({
         } else if (Array.isArray(action.payload)) {
           state.orderList = action.payload;
         } else {
-       
           state.orderList = payloadData || [];
         }
       })
@@ -93,7 +90,6 @@ const adminOrderSlice = createSlice({
             state.invoiceSettings = payloadData.invoiceSettings;
           }
         } else {
-
           state.orderDetails = payloadData || action.payload?.data || null;
         }
       })
@@ -102,8 +98,6 @@ const adminOrderSlice = createSlice({
         state.orderDetails = null;
         state.error = action.error?.message || "Failed to load order details";
       })
-
-   
       .addCase(deleteOrderForAdmin.pending, (state) => {
         state.isLoading = true;
         state.error = null;

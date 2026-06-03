@@ -15,7 +15,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
-import axios from "axios";
+import api from "@/api/axios";
 
 const PRIMARY_COLOR = "#08665F";
 const PRIMARY_HOVER = "#064e4a";
@@ -242,39 +242,6 @@ export default function ShoppingCheckout() {
   const [couponErrorProducts, setCouponErrorProducts] = useState([]);
   const couponInputRef = useRef(null);
 
-  const API_BASE = (() => {
-    try {
-      if (typeof window !== "undefined" && window.REACT_APP_API_BASE_URL) {
-        return String(window.REACT_APP_API_BASE_URL).replace(/\/$/, "") + "/api";
-      }
-    } catch (e) {}
-    try {
-      if (typeof window !== "undefined") {
-        const loc = window.location || {};
-        const hostname = loc.hostname || "";
-        if (hostname === "localhost" || hostname === "127.0.0.1") {
-          return "https://aachiamma-backend.fly.dev/api";
-        }
-      }
-    } catch (e) {}
-    return "/api";
-  })();
-
-  function buildApiPath(pathWithoutApiPrefix) {
-    const cleanPath = pathWithoutApiPrefix.startsWith("/") ? pathWithoutApiPrefix : "/" + pathWithoutApiPrefix;
-    const base = axios.defaults.baseURL || "";
-    try {
-      if (base) {
-        const b = base.endsWith("/") ? base.slice(0, -1) : base;
-        if (b.includes("/api")) return `${b}${cleanPath}`;
-        return `${b}/api${cleanPath}`;
-      }
-      return `/api${cleanPath}`;
-    } catch (e) {
-      return `/api${cleanPath}`;
-    }
-  }
-
   useEffect(() => {
    
     if (currentSelectedAddress && typeof currentSelectedAddress === "object" && Object.keys(currentSelectedAddress).length > 0) {
@@ -387,7 +354,7 @@ export default function ShoppingCheckout() {
         }))
         : [];
 
-      const res = await axios.post(`${API_BASE}/shop/coupons/apply`, {
+      const res = await api.post("/api/shop/coupons/apply", {
         code,
         mobile,
         cartTotal: totalCartAmount,
@@ -510,17 +477,12 @@ export default function ShoppingCheckout() {
       setShippingLoading(true);
       setShippingError(null);
    
-      const url = buildApiPath("/common/shipping");
-  
-      const token = (typeof window !== "undefined" && (localStorage.getItem("token") || (user && user.token))) || null;
-
-      const res = await axios.get(url, {
-        withCredentials: true, 
+      const res = await api.get("/api/common/shipping", {
+        skipGlobalLoader: true,
         headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           "X-Requested-With": "XMLHttpRequest",
         },
-        validateStatus: (status) => status < 500, 
+        validateStatus: (status) => status < 500,
       });
 
       if (res.status === 200 && res.data && res.data.success && res.data.data) {

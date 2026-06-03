@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/api/axios";
 
 const initialState = {
   isLoading: false,
@@ -9,10 +9,7 @@ const initialState = {
 export const getSearchResults = createAsyncThunk(
   "/order/getSearchResults",
   async (keyword) => {
-    const response = await axios.get(
-      `https://aachiamma-backend.fly.dev/api/shop/search/${keyword}`
-    );
-
+    const response = await api.get(`/api/shop/search/${keyword}`);
     return response.data;
   }
 );

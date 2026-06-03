@@ -1,17 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { Trash2, UploadCloud } from "lucide-react";
 import { fetchAdminPopups } from "@/store/popup-slice";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-
-const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
-
-function buildUrl(path) {
-  if (!path.startsWith("/")) path = `/${path}`;
-  return API_BASE ? `${API_BASE}${path}` : path;
-}
 
 function filenameFromUrl(url = "") {
   try {
@@ -64,7 +57,7 @@ export default function PopupsManager() {
 
   async function loadPopups() {
     try {
-      const res = await axios.get(buildUrl("/api/admin/popups/get"));
+      const res = await api.get("/api/admin/popups/get");
       const list = (res.data && (res.data.list || res.data.data || res.data.items)) || [];
       setLocalList(Array.isArray(list) ? list : []);
       return;
@@ -76,7 +69,7 @@ export default function PopupsManager() {
     }
 
     try {
-      const res2 = await axios.get(buildUrl("/api/common/popups/get"));
+      const res2 = await api.get("/api/common/popups/get");
       const list2 = (res2.data && (res2.data.list || res2.data.data)) || [];
       setLocalList(Array.isArray(list2) ? list2 : []);
     } catch (err2) {
@@ -96,7 +89,7 @@ export default function PopupsManager() {
       const fd = new FormData();
       fd.append("my_file", file);
       fd.append("title", file.name);
-      const res = await axios.post(buildUrl("/api/admin/popups/upload"), fd, {
+      const res = await api.post("/api/admin/popups/upload", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -146,7 +139,7 @@ export default function PopupsManager() {
     setLocalList((cur) => cur.filter((p) => p._id !== deleteId));
     try {
       setDeleteLoading(true);
-      const res = await axios.delete(buildUrl(`/api/admin/popups/delete/${deleteId}`));
+      const res = await api.delete(`/api/admin/popups/delete/${deleteId}`);
       if (res.data && res.data.success) {
         setMsg("Popup deleted");
         setMsgType("success");

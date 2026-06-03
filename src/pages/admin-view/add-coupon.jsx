@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -11,22 +11,6 @@ import {
     SelectContent,
     SelectItem,
 } from "@/components/ui/select";
-
-const API_BASE_ROOT = (() => {
-    try {
-        const raw = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
-        return raw || "";
-    } catch (e) {
-        return "";
-    }
-})();
-
-const joinPath = (root, path) => {
-    if (!root) return path;
-    return root.replace(/\/$/, "") + (path.startsWith("/") ? path : "/" + path);
-};
-
-const API_ADMIN = joinPath(API_BASE_ROOT, "/api/admin/coupons");
 
 const PRODUCTS_ENDPOINT_CANDIDATES = [
     "/api/admin/products/get",
@@ -98,7 +82,7 @@ export default function AddCoupon() {
         const load = async () => {
             setErrorMessage(null);
             try {
-                const res = await axios.get(`${API_ADMIN}/${routeId}`);
+                const res = await api.get(`/api/admin/coupons/${routeId}`);
                 const ok = res?.data?.success || res?.status === 200;
                 const data = res?.data?.data || res?.data;
                 if (!ok || !data) {
@@ -142,9 +126,8 @@ export default function AddCoupon() {
             let products = [];
             let lastErr = null;
             for (const ep of PRODUCTS_ENDPOINT_CANDIDATES) {
-                const url = joinPath(API_BASE_ROOT, ep);
                 try {
-                    const res = await axios.get(url);
+                    const res = await api.get(ep);
                
                     products = (res.data && (res.data.data || res.data)) || [];
                     if (!Array.isArray(products) && typeof products === "object") {
@@ -167,7 +150,7 @@ export default function AddCoupon() {
             if (lastErr && (!Array.isArray(products) || products.length === 0)) {
           
                 try {
-                    const res2 = await axios.get("/api/admin/products/get");
+                    const res2 = await api.get("/api/admin/products/get");
                     const products2 = (res2.data && (res2.data.data || res2.data)) || [];
                     const normalized2 = Array.isArray(products2) ? products2.map((p) => ({ ...p, _id: String(p._id || p.id || p.productId) })) : [];
                     setAllProducts(normalized2);
@@ -259,10 +242,9 @@ export default function AddCoupon() {
             let res;
             if (isEditing) {
        
-                res = await axios.put(`${API_ADMIN}/${routeId}`, payload);
+                res = await api.put(`/api/admin/coupons/${routeId}`, payload);
             } else {
-           
-                res = await axios.post(`${API_ADMIN}/create`, payload);
+                res = await api.post("/api/admin/coupons/create", payload);
             }
 
             const ok = res?.data?.success || res?.status === 200;

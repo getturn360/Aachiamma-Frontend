@@ -1,9 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_BASE = "https://aachiamma-backend.fly.dev/api";
-
-axios.defaults.baseURL = API_BASE;
+import api, { setAuthToken, clearAuthToken } from "@/api/axios";
 
 let savedToken = null;
 try {
@@ -11,19 +7,15 @@ try {
   if (raw) {
     savedToken = raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
   }
-} catch (e) {
+} catch {
   savedToken = null;
-}
-
-if (savedToken) {
-  axios.defaults.headers.common["Authorization"] = `Bearer ${savedToken}`;
 }
 
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (formData, { rejectWithValue }) => {
     try {
-      const resp = await axios.post(`/auth/register`, formData);
+      const resp = await api.post("/api/auth/register", formData);
       return resp.data;
     } catch (err) {
       const payload =
@@ -37,15 +29,17 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, { rejectWithValue, dispatch }) => {
     try {
-      const resp = await axios.post(`/auth/login`, credentials);
+      const resp = await api.post("/api/auth/login", credentials);
       const data = resp.data || {};
       const token = data.token || data?.data?.token || data?.accessToken || null;
 
       if (token) {
         try {
           localStorage.setItem("auth_token", token);
-        } catch (e) {}
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        } catch {
+          // ignore
+        }
+        setAuthToken(token);
         dispatch(checkAuth());
       }
 
@@ -62,19 +56,7 @@ export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
-
-      let token = null;
-      try {
-        const raw = localStorage.getItem("auth_token");
-        if (raw) token = raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
-      } catch (e) {
-        token = null;
-      }
-
-      const headers = {};
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-
-      const resp = await axios.get(`/auth/check-auth`, { headers });
+      const resp = await api.get("/api/auth/check-auth");
       return resp.data;
     } catch (err) {
       const payload =
@@ -83,7 +65,6 @@ export const checkAuth = createAsyncThunk(
     }
   }
 );
-
 
 const authSlice = createSlice({
   name: "auth",
@@ -102,8 +83,10 @@ const authSlice = createSlice({
       state.error = null;
       try {
         localStorage.removeItem("auth_token");
-      } catch (e) {}
-      delete axios.defaults.headers.common["Authorization"];
+      } catch {
+        // ignore
+      }
+      clearAuthToken();
     },
     setUser(state, action) {
       state.user = action.payload || null;
@@ -111,7 +94,6 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -130,9 +112,8 @@ const authSlice = createSlice({
           state.user = user;
           state.isAuthenticated = true;
           localStorage.setItem("auth_token", token);
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          setAuthToken(token);
         } else {
-       
           state.user = user;
           state.isAuthenticated = false;
         }
@@ -162,9 +143,8 @@ const authSlice = createSlice({
         state.error = null;
 
         if (token) {
-        
           localStorage.setItem("auth_token", token);
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          setAuthToken(token);
         }
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -192,8 +172,10 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         try {
           localStorage.removeItem("auth_token");
-        } catch (e) {}
-        delete axios.defaults.headers.common["Authorization"];
+        } catch {
+          // ignore
+        }
+        clearAuthToken();
         state.token = null;
         state.user = null;
         state.error =

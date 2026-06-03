@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/api/axios";
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -205,11 +205,7 @@ export default function ProductDetailsPage() {
         async function load() {
             try {
                 setLoading(true);
-                const base = (axios.defaults?.baseURL || "").replace(/\/+$/, "");
-                const baseEndsWithApi = base.toLowerCase().endsWith("/api");
-                const path = baseEndsWithApi ? `/shop/products/get/${id}` : `/api/shop/products/get/${id}`;
-
-                const res = await axios.get(path);
+                const res = await api.get(`/api/shop/products/get/${id}`);
                 const pd = res?.data?.data ?? res?.data ?? null;
                 if (mounted && pd) {
                     setProductDetailsState(pd);
@@ -231,8 +227,7 @@ export default function ProductDetailsPage() {
                     try {
                         if (pd?.category) {
                             const category = encodeURIComponent(pd.category);
-                            const relPath = baseEndsWithApi ? `/shop/products/get?category=${category}` : `/api/shop/products/get?category=${category}`;
-                            const resp = await axios.get(relPath);
+                            const resp = await api.get(`/api/shop/products/get?category=${category}`);
                             let items = resp?.data?.data ?? resp?.data ?? [];
                             if (!Array.isArray(items)) items = [];
                             items = items.filter((p) => p?._id !== pd?._id);

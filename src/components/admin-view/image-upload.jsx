@@ -4,7 +4,7 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "@/api/axios";
 
 function ProductImageUpload({
   imageFile,
@@ -17,9 +17,6 @@ function ProductImageUpload({
   isCustomStyling = false,
 }) {
   const inputRef = useRef(null);
-
-  const API_BASE =
-    (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
 
   function handleImageFileChange(event) {
     const selectedFile = event.target.files?.[0];
@@ -49,12 +46,8 @@ function ProductImageUpload({
     const data = new FormData();
     data.append("my_file", imageFile);
 
-    const endpoint = API_BASE
-      ? `${API_BASE}/api/admin/products/upload-image`
-      : "/api/admin/products/upload-image";
-
     try {
-      const response = await axios.post(endpoint, data, {
+      const response = await api.post("/api/admin/products/upload-image", data, {
         headers: {
         },
       });

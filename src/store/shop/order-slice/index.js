@@ -1,7 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_BASE = "https://aachiamma-backend.fly.dev/api/shop/order";
+import api from "@/api/axios";
 
 const initialState = {
   razorpayOrder: null,
@@ -15,22 +13,22 @@ const initialState = {
 };
 
 export const createNewOrder = createAsyncThunk("order/createNewOrder", async (orderData) => {
-  const response = await axios.post(`${API_BASE}/create`, orderData);
+  const response = await api.post("/api/shop/order/create", orderData);
   return response.data;
 });
 
 export const capturePayment = createAsyncThunk("order/capturePayment", async (payload) => {
-  const response = await axios.post(`${API_BASE}/capture`, payload);
+  const response = await api.post("/api/shop/order/capture", payload);
   return response.data;
 });
 
 export const getAllOrdersByUserId = createAsyncThunk("order/getAllOrdersByUserId", async (userId) => {
-  const response = await axios.get(`${API_BASE}/list/${userId}`);
+  const response = await api.get(`/api/shop/order/list/${userId}`);
   return response.data;
 });
 
 export const getOrderDetails = createAsyncThunk("order/getOrderDetails", async (id) => {
-  const response = await axios.get(`${API_BASE}/details/${id}`);
+  const response = await api.get(`/api/shop/order/details/${id}`);
   return response.data;
 });
 
@@ -39,8 +37,6 @@ const shoppingOrderSlice = createSlice({
   initialState,
   reducers: {
     resetOrderDetails: (state) => {
-
-      
       state.orderDetails = null;
     },
     clearApprovalURL: (state) => {
@@ -67,7 +63,6 @@ const shoppingOrderSlice = createSlice({
         state.isLoading = false;
         state.lastError = action.error?.message || "Create order failed";
       })
-
       .addCase(capturePayment.pending, (state) => {
         state.isLoading = true;
         state.lastError = null;
@@ -84,7 +79,6 @@ const shoppingOrderSlice = createSlice({
         state.isLoading = false;
         state.lastError = action.error?.message || "Payment capture failed";
       })
-
       .addCase(getAllOrdersByUserId.pending, (state) => {
         state.isLoading = true;
       })

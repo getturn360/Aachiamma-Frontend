@@ -34,7 +34,7 @@ export default function ContactPage({ accent = "#08665F" }) {
     }
     try {
       setSending(true);
-      const res = await api.post("api/shop/contact/add", { name, email, phone, message });
+      const res = await api.post("/api/shop/contact/add", { name, email, phone, message });
       if (res && res.data && res.data.success) {
  
         setSuccessText((res && res.data && res.data.message) || "Your message has been received — we'll get back to you soon.");

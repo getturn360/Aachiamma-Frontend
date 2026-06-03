@@ -1,21 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
-
-
-const API_BASE_RAW = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
-function buildUrl(path = "/apply") {
-
-  if (!path.startsWith("/")) path = `/${path}`;
-  if (API_BASE_RAW) {
-
-    if (API_BASE_RAW.includes("/api")) {
-      return `${API_BASE_RAW}${path}`;
-    }
-    return `${API_BASE_RAW}/api/shop/coupons${path}`;
-  }
-
-  return `/api/shop/coupons${path}`;
-}
+import api from "@/api/axios";
 
 export default function ApplyCoupon({ cartTotal, onApplied }) {
   const [code, setCode] = useState("");
@@ -28,9 +12,8 @@ export default function ApplyCoupon({ cartTotal, onApplied }) {
     }
     setLoading(true);
     try {
-      const mobile = (typeof window !== "undefined" && window.checkoutPhone) ? window.checkoutPhone : "";
-      const endpoint = buildUrl("/apply");
-      const res = await axios.post(endpoint, { code, mobile, cartTotal });
+      const mobile = typeof window !== "undefined" && window.checkoutPhone ? window.checkoutPhone : "";
+      const res = await api.post("/api/shop/coupons/apply", { code, mobile, cartTotal });
       if (res.data && res.data.success) {
         onApplied && onApplied(res.data.data);
       } else {

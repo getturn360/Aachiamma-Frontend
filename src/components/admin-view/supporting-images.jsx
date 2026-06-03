@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { Trash2, ImagePlus, Star, GripVertical } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -20,11 +20,7 @@ export default function SupportingImages({ images = [], setImages }) {
         const fd = new FormData();
         fd.append("my_file", file);
 
-        const base = (axios.defaults?.baseURL || "").replace(/\/+$/g, "");
-        const baseEndsWithApi = base.toLowerCase().endsWith("/api");
-        const uploadPath = baseEndsWithApi ? "/admin/products/upload-image" : "/api/admin/products/upload-image";
-
-        const res = await axios.post(uploadPath, fd);
+        const res = await api.post("/api/admin/products/upload-image", fd);
         if (res?.data?.success) {
           setImages((prev) => [...prev, res.data.result.url]);
         }

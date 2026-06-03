@@ -64,7 +64,7 @@ export default function AdminReviewsView() {
       const params = {};
       if (opts.today) params.today = true;
       if (opts.date) params.date = opts.date;
-      const resp = await api.get("api/admin/reviews/get", { params });
+      const resp = await api.get("/api/admin/reviews/get", { params });
       if (resp?.data?.success) {
         setReviews(resp.data.data || []);
       } else {
@@ -102,7 +102,7 @@ export default function AdminReviewsView() {
     }
     try {
       setReplySaving(true);
-      const resp = await api.post(`api/admin/reviews/${viewTarget._id}/reply`, { replyText: replyText.trim() });
+      const resp = await api.post(`/api/admin/reviews/${viewTarget._id}/reply`, { replyText: replyText.trim() });
       if (!resp?.data?.success) {
         console.error("create reply failed", resp?.data);
         alert("Failed to create reply");
@@ -123,7 +123,7 @@ export default function AdminReviewsView() {
   async function deleteReply() {
     if (!viewTarget || !viewTarget._id) return;
     try {
-      const resp = await api.delete(`api/admin/reviews/${viewTarget._id}/reply`);
+      const resp = await api.delete(`/api/admin/reviews/${viewTarget._id}/reply`);
       if (!resp?.data?.success) {
         console.error("delete failed", resp?.data);
         alert("Failed to delete reply");

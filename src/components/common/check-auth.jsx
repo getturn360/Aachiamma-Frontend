@@ -6,11 +6,10 @@ function CheckAuth({ isAuthenticated, user, children, loading = false }) {
 
   if (pathname === "/") {
     if (!isAuthenticated) {
-
       if (loading) {
-        return null;
+        return <Navigate to="/shop/home" replace />;
       }
-      return <Navigate to="/shop/home" />;
+      return <Navigate to="/shop/home" replace />;
     } else {
 
       if (user?.role === "admin" || user?.role === "superadmin") {

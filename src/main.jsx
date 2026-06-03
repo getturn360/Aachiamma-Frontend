@@ -4,17 +4,23 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store/store.js";
+import { setLoading } from "./store/common-slice";
 import { Toaster } from "./components/ui/toaster.jsx";
 
-import axios from "axios";
+import api, { setAuthToken, setupApiInterceptors } from "./api/axios";
+
+setupApiInterceptors(store, setLoading);
 try {
   const savedToken = localStorage.getItem("auth_token");
   if (savedToken) {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${savedToken}`;
-
+    const token =
+      savedToken.startsWith('"') && savedToken.endsWith('"')
+        ? savedToken.slice(1, -1)
+        : savedToken;
+    setAuthToken(token);
   }
-} catch (e) {
-
+} catch {
+  // ignore
 }
 
 

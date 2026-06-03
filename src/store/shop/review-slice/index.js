@@ -11,7 +11,7 @@ export const addReview = createAsyncThunk(
   "shop/reviews/addReview",
   async (formdata, { rejectWithValue }) => {
     try {
-      const response = await api.post(`api/shop/review/add`, formdata);
+      const response = await api.post(`/api/shop/review/add`, formdata);
     
       return response.data;
     } catch (err) {
@@ -25,7 +25,7 @@ export const getReviews = createAsyncThunk(
   "api/shop/reviews/getReviews",
   async (productId, { rejectWithValue }) => {
     try {
-      const response = await api.get(`api/shop/review/${productId}`);
+      const response = await api.get(`/api/shop/review/${productId}`);
       return response.data;
     } catch (err) {
       const payload = err.response?.data || { message: err.message || "Network error" };

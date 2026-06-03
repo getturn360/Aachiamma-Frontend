@@ -1,38 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { SearchIcon } from "lucide-react";
-
-const API_ADMIN = (() => {
-  try {
-
-    if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE) {
-      const b = String(import.meta.env.VITE_API_BASE).replace(/\/$/, "");
-      return b + "/api/admin/coupons";
-    }
-  } catch (e) {}
-
-  try {
- 
-    if (typeof window !== "undefined" && window.REACT_APP_API_BASE_URL) {
-      return String(window.REACT_APP_API_BASE_URL).replace(/\/$/, "") + "/api/admin/coupons";
-    }
-  } catch (e) {}
-
-  try {
-
-    if (typeof window !== "undefined") {
-      const loc = window.location || {};
-      const hostname = loc.hostname || "";
-      if (hostname === "localhost" || hostname === "127.0.0.1") {
-        return "https://aachiamma-backend.fly.dev/api/admin/coupons";
-      }
-    }
-  } catch (e) {}
-
-  return "/api/admin/coupons";
-})();
 
 const PRIMARY_COLOR = "#08665F";
 const PRIMARY_HOVER = "#064e4a";
@@ -87,7 +57,7 @@ export default function AdminCouponsPage() {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const res = await axios.get(`${API_ADMIN}/list`);
+      const res = await api.get("/api/admin/coupons/list");
       if (res.data && res.data.success) {
         const arr = Array.isArray(res.data.data) ? res.data.data : [];
         setCoupons(arr);
@@ -128,7 +98,7 @@ export default function AdminCouponsPage() {
     setPendingDeleteId(null);
 
     try {
-      const res = await axios.delete(`${API_ADMIN}/${id}`);
+      const res = await api.delete(`/api/admin/coupons/${id}`);
       const ok = res?.data?.success || res?.status === 200;
       if (ok) {
         setCoupons((s) => s.filter((c) => (c._id || c.id) !== id));

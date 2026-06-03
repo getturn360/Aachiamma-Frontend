@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import {
   Card,
   CardContent,
@@ -23,26 +23,6 @@ const DEFAULT_ZONES = [
   { name: "north india", charge: 0 },
   { name: "special zones", charge: 0 },
 ];
-
-function buildApiPath(pathWithoutApiPrefix) {
-  const cleanPath = pathWithoutApiPrefix.startsWith("/")
-    ? pathWithoutApiPrefix
-    : "/" + pathWithoutApiPrefix;
-
-  const base = axios.defaults.baseURL || "";
-
-  try {
-    if (base) {
-      const b = base.endsWith("/") ? base.slice(0, -1) : base;
-      if (b.includes("/api")) return `${b}${cleanPath}`;
-      return `${b}/api${cleanPath}`;
-    } else {
-      return `/api${cleanPath}`;
-    }
-  } catch (e) {
-    return `/api${cleanPath}`;
-  }
-}
 
 export default function AdminShipping() {
   const { toast } = useToast();
@@ -134,8 +114,7 @@ export default function AdminShipping() {
     try {
       setLoading(true);
       setFetchError(null);
-      const url = buildApiPath("/admin/shipping");
-      const res = await axios.get(url);
+      const res = await api.get("/api/admin/shipping");
       if (res.data && res.data.success && res.data.data) {
         const doc = res.data.data;
         if (Array.isArray(doc.zones) && doc.zones.length > 0) setZones(doc.zones);
@@ -269,8 +248,7 @@ export default function AdminShipping() {
 
   async function saveZones() {
     try {
-      const url = buildApiPath("/admin/shipping/zones");
-      await axios.put(url, { zones });
+      await api.put("/api/admin/shipping/zones", { zones });
       toast({ title: "Zones saved" });
       fetchShipping();
     } catch (err) {
@@ -281,8 +259,7 @@ export default function AdminShipping() {
 
   async function saveAssignments() {
     try {
-      const url = buildApiPath("/admin/shipping/assignments");
-      await axios.put(url, { assignments });
+      await api.put("/api/admin/shipping/assignments", { assignments });
       toast({ title: "Assignments saved" });
       fetchShipping();
       setSelectedStates(new Set());
@@ -298,8 +275,7 @@ export default function AdminShipping() {
     try {
       setSavingThreshold(true);
       const amount = Number(thresholdInput) || 0;
-      const url = buildApiPath("/admin/shipping/threshold");
-      const res = await axios.put(url, { amount });
+      const res = await api.put("/api/admin/shipping/threshold", { amount });
       if (res.data && res.data.success) {
         setFreeShippingThreshold(Number(res.data.data.freeShippingThreshold || 0));
         setThresholdInput(String(res.data.data.freeShippingThreshold || 0));
@@ -319,7 +295,7 @@ export default function AdminShipping() {
   async function notifyAdmin(amount) {
     try {
       const payload = { subject: "Free shipping threshold changed", message: `Threshold changed to ₹${Number(amount || 0).toFixed(2)}` };
-      await axios.post(buildApiPath("/admin/notify"), payload);
+      await api.post("/api/admin/notify", payload);
       toast({ title: "Notification sent to team" });
     } catch (err) {
       console.error("notifyAdmin err", err);

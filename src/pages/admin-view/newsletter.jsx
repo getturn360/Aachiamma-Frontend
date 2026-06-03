@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { SearchIcon } from "lucide-react";
 import { useSelector } from "react-redux";
+import api from "@/api/axios";
 
 
 function IconSend(props) {
@@ -20,12 +21,6 @@ export default function AdminNewsletter() {
 
 
   const token = useSelector((s) => (s.auth ? s.auth.token : null));
-
-  const API_BASE =
-    import.meta.env.VITE_API_BASE ||
-    import.meta.env.VITE_API_URL ||
-    import.meta.env.VITE_API ||
-    "https://aachiamma-backend.fly.dev";
 
   const [subscribers, setSubscribers] = useState([]);
   const [total, setTotal] = useState(0);
@@ -69,12 +64,6 @@ export default function AdminNewsletter() {
   }, [notification]);
 
 
-  const buildHeaders = (extra = {}) => {
-    const h = { Accept: "application/json", "Content-Type": "application/json", ...extra };
-    if (token) h["Authorization"] = `Bearer ${token}`;
-    return h;
-  };
-
   const ensureAuth = () => {
     if (!token) {
       setNotification({ type: "error", title: "Not authenticated", message: "Please login as admin/superadmin to access this page." });
@@ -88,14 +77,13 @@ export default function AdminNewsletter() {
     setLoading(true);
     try {
       const q = typeof searchParam !== "undefined" ? searchParam : search;
-      const url = `${API_BASE}/api/admin/newsletter?search=${encodeURIComponent(q)}&page=${page}&limit=${limit}`;
-      const res = await fetch(url, {
-        method: "GET",
-        headers: buildHeaders(),
+      const res = await api.get("/api/admin/newsletter", {
+        params: { search: q, page, limit },
+        skipGlobalLoader: true,
+        validateStatus: (status) => status < 500,
       });
 
       if (res.status === 401 || res.status === 403) {
-      
         setNotification({ type: "error", title: "Unauthorized", message: "You are not authorized — please login." });
         setSubscribers([]);
         setTotal(0);
@@ -103,7 +91,7 @@ export default function AdminNewsletter() {
         return;
       }
 
-      const data = await res.json();
+      const data = res.data;
 
       if (data?.success) {
         const items = (data.data && data.data.items) || [];
@@ -143,10 +131,9 @@ export default function AdminNewsletter() {
         recipientsAll: !!recipientsAll,
       };
 
-      const res = await fetch(`${API_BASE}/api/admin/newsletter/send`, {
-        method: "POST",
-        headers: buildHeaders(),
-        body: JSON.stringify(body),
+      const res = await api.post("/api/admin/newsletter/send", body, {
+        skipGlobalLoader: true,
+        validateStatus: (status) => status < 500,
       });
 
       if (res.status === 401 || res.status === 403) {
@@ -154,7 +141,7 @@ export default function AdminNewsletter() {
         return;
       }
 
-      const data = await res.json();
+      const data = res.data;
       if (data?.success) {
         setNotification({ type: "success", title: "Sent", message: data.message || "Newsletter sent." });
       } else {
@@ -189,9 +176,9 @@ export default function AdminNewsletter() {
     if (!sub) return;
     setActionLoadingId(sub._id);
     try {
-      const res = await fetch(`${API_BASE}/api/admin/newsletter/${sub._id}/unsubscribe`, {
-        method: "PATCH",
-        headers: buildHeaders(),
+      const res = await api.patch(`/api/admin/newsletter/${sub._id}/unsubscribe`, null, {
+        skipGlobalLoader: true,
+        validateStatus: (status) => status < 500,
       });
 
       if (res.status === 401 || res.status === 403) {
@@ -201,7 +188,7 @@ export default function AdminNewsletter() {
         return;
       }
 
-      const data = await res.json();
+      const data = res.data;
       if (data?.success) {
         setNotification({ type: "success", title: "Unsubscribed", message: data.message || `${sub.email} was unsubscribed.` });
         fetchSubscribers();
@@ -221,9 +208,9 @@ export default function AdminNewsletter() {
     if (!window.confirm(`Re-activate ${sub.email}?`)) return;
     setActionLoadingId(sub._id);
     try {
-      const res = await fetch(`${API_BASE}/api/admin/newsletter/${sub._id}/activate`, {
-        method: "PATCH",
-        headers: buildHeaders(),
+      const res = await api.patch(`/api/admin/newsletter/${sub._id}/activate`, null, {
+        skipGlobalLoader: true,
+        validateStatus: (status) => status < 500,
       });
 
       if (res.status === 401 || res.status === 403) {
@@ -232,7 +219,7 @@ export default function AdminNewsletter() {
         return;
       }
 
-      const data = await res.json();
+      const data = res.data;
       if (data?.success) {
         setNotification({ type: "success", title: "Activated", message: data.message || `${sub.email} re-activated.` });
         fetchSubscribers();

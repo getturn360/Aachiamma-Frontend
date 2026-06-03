@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/api/axios";
 
 const initialState = {
   isLoading: false,
@@ -10,7 +10,7 @@ const initialState = {
 export const getFeatureImages = createAsyncThunk(
   "/common/getFeatureImages",
   async () => {
-    const response = await axios.get(`https://aachiamma-backend.fly.dev/api/common/feature/get`);
+    const response = await api.get("/api/common/feature/get");
     return response.data;
   }
 );
@@ -18,7 +18,7 @@ export const getFeatureImages = createAsyncThunk(
 export const addFeatureImage = createAsyncThunk(
   "/common/addFeatureImage",
   async (image) => {
-    const response = await axios.post(`https://aachiamma-backend.fly.dev/api/common/feature/add`, { image });
+    const response = await api.post("/api/common/feature/add", { image });
     return response.data;
   }
 );
@@ -27,7 +27,6 @@ const commonSlice = createSlice({
   name: "common",
   initialState,
   reducers: {
-  
     setLoading(state, action) {
       const payload = action.payload ?? {};
       state.isLoading = Boolean(payload.value);
@@ -43,7 +42,6 @@ const commonSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    
       .addCase(getFeatureImages.pending, (state) => {
         state.isLoading = true;
         state.loadingMessage = "Loading feature images...";
@@ -51,7 +49,6 @@ const commonSlice = createSlice({
       .addCase(getFeatureImages.fulfilled, (state, action) => {
         state.isLoading = false;
         state.loadingMessage = null;
-
         state.featureImageList = action.payload?.data ?? [];
       })
       .addCase(getFeatureImages.rejected, (state) => {
@@ -59,7 +56,6 @@ const commonSlice = createSlice({
         state.loadingMessage = null;
         state.featureImageList = [];
       })
-
       .addCase(addFeatureImage.pending, (state) => {
         state.isLoading = true;
         state.loadingMessage = "Uploading image...";
@@ -67,12 +63,11 @@ const commonSlice = createSlice({
       .addCase(addFeatureImage.fulfilled, (state, action) => {
         state.isLoading = false;
         state.loadingMessage = null;
-        
+
         const payloadData = action.payload?.data;
         if (Array.isArray(payloadData)) {
           state.featureImageList = payloadData;
         } else if (payloadData) {
-          
           state.featureImageList = [...state.featureImageList, payloadData];
         }
       })

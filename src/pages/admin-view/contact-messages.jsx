@@ -20,7 +20,7 @@ export default function AdminContactMessages() {
   const fetchAll = async () => {
     try {
       setLoading(true);
-      const res = await api.get("api/admin/contact-messages/get");
+      const res = await api.get("/api/admin/contact-messages/get");
       if (res.data?.success) {
         setMessages(res.data.data || []);
       } else {
@@ -36,7 +36,7 @@ export default function AdminContactMessages() {
 
   const fetchSettings = async () => {
     try {
-      const res = await api.get("api/common/site-settings/get");
+      const res = await api.get("/api/common/site-settings/get");
       if (res.data?.success) {
         setSettings(res.data.data || { address: "", phone: "", email: "" });
       }
@@ -51,7 +51,7 @@ export default function AdminContactMessages() {
 
   const saveSettings = async () => {
     try {
-      const res = await api.put("api/admin/site-settings/update", settings);
+      const res = await api.put("/api/admin/site-settings/update", settings);
       if (res.data?.success) {
         toast.success("Saved");
         setEditing(false);
@@ -73,7 +73,7 @@ export default function AdminContactMessages() {
     if (!messageToDelete?.id) return;
     try {
       setDeleteLoading(true);
-      const res = await api.delete(`api/admin/contact-messages/delete/${messageToDelete.id}`);
+      const res = await api.delete(`/api/admin/contact-messages/delete/${messageToDelete.id}`);
       if (res.data?.success) {
         setMessages((m) => m.filter((x) => x._id !== messageToDelete.id));
         toast.success("Deleted");
@@ -115,7 +115,7 @@ export default function AdminContactMessages() {
     }
 
     try {
-      await api.put(`api/admin/contact-messages/mark-read/${id}`, { read: newRead });
+      await api.put(`/api/admin/contact-messages/mark-read/${id}`, { read: newRead });
     } catch (err) {
 
       toast.error("Failed to update read status");

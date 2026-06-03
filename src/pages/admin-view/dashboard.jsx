@@ -3,12 +3,10 @@ import ProductImageUpload from "@/components/admin-view/image-upload";
 import { Button } from "@/components/ui/button";
 import { getFeatureImages } from "@/store/common-slice";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import { Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
-import PopupsManager from "@/components/admin-view/popups-manager"; 
-
-const API_HOST = import.meta.env.VITE_API_BASE || "https://aachiamma-backend.fly.dev";
+import PopupsManager from "@/components/admin-view/popups-manager";
+import api from "@/api/axios";
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -40,7 +38,7 @@ export default function AdminDashboard() {
     if (!uploadedImageUrl) return toastAlert("Upload an image first");
     try {
       setImageLoadingState(true);
-      await axios.post(`${API_HOST}/api/common/feature/add`, { image: uploadedImageUrl });
+      await api.post("/api/common/feature/add", { image: uploadedImageUrl });
       setUploadedImageUrl("");
       setImageFile(null);
       dispatch(getFeatureImages());
@@ -55,7 +53,7 @@ export default function AdminDashboard() {
 
   async function fetchLogos() {
     try {
-      const res = await axios.get(`${API_HOST}/api/admin/site-media/get`);
+      const res = await api.get("/api/admin/site-media/get");
       if (res.data && res.data.success) {
         setLogos(res.data.logos || []);
       } else {
@@ -84,7 +82,7 @@ export default function AdminDashboard() {
       fd.append("my_file", file);
       fd.append("variant", variant);
 
-      const res = await axios.post(`${API_HOST}/api/admin/site-media/upload`, fd);
+      const res = await api.post("/api/admin/site-media/upload", fd);
       if (res.data && res.data.success) {
         setLogoMsg("Logo uploaded");
         setLogoFiles((s) => ({ ...s, [variant]: null }));
@@ -110,7 +108,7 @@ export default function AdminDashboard() {
     if (!logoToDeleteId) return;
     try {
       setLogoDeleteLoading(true);
-      await axios.delete(`${API_HOST}/api/admin/site-media/delete/${logoToDeleteId}`);
+      await api.delete(`/api/admin/site-media/delete/${logoToDeleteId}`);
       setLogoMsg("Deleted");
       setLogoToDeleteId(null);
       setLogoConfirmOpen(false);
@@ -139,7 +137,7 @@ export default function AdminDashboard() {
     if (!imageToDelete?._id) return;
     try {
       setDeleteLoading(true);
-      await axios.delete(`${API_HOST}/api/common/feature/delete/${imageToDelete._id}`);
+      await api.delete(`/api/common/feature/delete/${imageToDelete._id}`);
       dispatch(getFeatureImages());
       closeConfirm();
       toastAlert("Image deleted", "success");
