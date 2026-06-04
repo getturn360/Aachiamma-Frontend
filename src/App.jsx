@@ -39,6 +39,7 @@ import PrivacyPolicy from "./pages/shopping-view/PrivacyPolicy";
 import RefundPolicy from "./pages/shopping-view/RefundPolicy";
 import ShippingPolicy from "./pages/shopping-view/ShippingPolicy";
 import ProductDetailsPage from "./pages/shopping-view/product-details";
+import SpecialProductsPage from "./pages/shopping-view/special-products";
 import { ConnectedLoader } from "@/components/common/Loader";
 
 function ScrollManager() {
@@ -215,6 +216,7 @@ function App() {
         >
           <Route path="home" element={<ShoppingHome />} />
           <Route path="listing" element={<ShoppingListing />} />
+          <Route path="special/:type" element={<SpecialProductsPage />} />
           <Route path="product/:id" element={<ProductDetailsPage />} />
           <Route path="checkout" element={<ShoppingCheckout />} />
           <Route path="account" element={<ShoppingAccount />} />

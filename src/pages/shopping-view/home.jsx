@@ -297,6 +297,23 @@ export default function ShoppingHome() {
   }, [featureImageList]);
 
   useEffect(() => {
+    if (!featureImageList || featureImageList.length <= 1) return;
+
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    const intervalId = setInterval(() => {
+      if (hoverRef.current || pointerActive.current) return;
+      setCurrentSlide((prev) => (prev + 1) % featureImageList.length);
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [featureImageList]);
+
+  useEffect(() => {
     if (!location || !location.hash) return;
     const id = location.hash.replace(/^#/, "");
     if (!id) return;
@@ -789,7 +806,7 @@ export default function ShoppingHome() {
             featureImageList.map((slide, idx) => (
               <figure
                 key={idx}
-                className={`absolute inset-0 transition-opacity duration-500 ease-out transform ${idx === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out transform ${idx === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"}`}
                 aria-hidden={idx === currentSlide ? "false" : "true"}
               >
                 <img src={slide?.image} alt={slide?.title || `slide-${idx}`} className="w-full h-full object-cover" draggable={false} style={{ pointerEvents: "none", borderRadius: 0 }} />
@@ -919,11 +936,11 @@ export default function ShoppingHome() {
           const bestSelling = productList.filter((p) => Array.isArray(p.special) && p.special.includes("best-selling"));
           if (!bestSelling.length) return null;
           return (
-            <section id="best-selling" className="bg-white rounded-2xl p-4 sm:p-8 mt-[60px]">
+            <section id="best-selling" className="bg-white rounded-2xl p-6 sm:p-12 md:py-16 mt-[60px] min-h-[550px] md:min-h-[700px]">
               <SectionTitle text="BEST SELLING" />
               <PaginatedProducts
                 products={bestSelling}
-                pageSize={4}
+                pageSize={8}
                 sectionId="best-selling-paginated"
                 renderProduct={(product) => (
                   <ShoppingProductTile product={product} handleGetProductDetails={handleGetProductDetails} handleAddtoCart={handleAddtoCart} />
@@ -934,15 +951,19 @@ export default function ShoppingHome() {
         })()}
 
         {productList && productList.length > 0 && (() => {
-          const trending = productList.filter((p) => Array.isArray(p.special) && p.special.includes("trending"));
-          if (!trending.length) return null;
+          const combosProducts = productList.filter(
+            (p) =>
+              (p.category && p.category.toLowerCase() === "combos") ||
+              (Array.isArray(p.special) && p.special.includes("combos"))
+          );
+          if (!combosProducts.length) return null;
           return (
-            <section id="trending" className="bg-white rounded-2xl p-4 sm:p-8 mt-[50px]">
-              <SectionTitle text="TRENDING" />
+            <section id="combos" className="bg-white rounded-2xl p-4 sm:p-8 mt-[50px]">
+              <SectionTitle text="COMBOS" />
               <PaginatedProducts
-                products={trending}
+                products={combosProducts}
                 pageSize={4}
-                sectionId="trending-paginated"
+                sectionId="combos-paginated"
                 renderProduct={(product) => (
                   <ShoppingProductTile product={product} handleGetProductDetails={handleGetProductDetails} handleAddtoCart={handleAddtoCart} />
                 )}
@@ -951,23 +972,7 @@ export default function ShoppingHome() {
           );
         })()}
 
-        {productList && productList.length > 0 && (() => {
-          const newArrival = productList.filter((p) => Array.isArray(p.special) && p.special.includes("new-arrival"));
-          if (!newArrival.length) return null;
-          return (
-            <section id="new-arrival" className="bg-white rounded-2xl p-4 sm:p-8">
-              <SectionTitle text="NEW ARRIVAL" />
-              <PaginatedProducts
-                products={newArrival}
-                pageSize={4}
-                sectionId="new-arrival-paginated"
-                renderProduct={(product) => (
-                  <ShoppingProductTile product={product} handleGetProductDetails={handleGetProductDetails} handleAddtoCart={handleAddtoCart} />
-                )}
-              />
-            </section>
-          );
-        })()}
+        
       </main>
 
       <div className="w-full overflow-hidden">

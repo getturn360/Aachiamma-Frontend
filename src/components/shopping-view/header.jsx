@@ -116,8 +116,9 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
       sessionStorage.removeItem("filters");
 
       const id = getCurrentMenuItem.id;
+      const isAll = id === "all";
       const currentFilter =
-        id !== "home" && id !== "products" && id !== "search"
+        !isAll && id !== "home" && id !== "products" && id !== "search"
           ? { category: [id] }
           : null;
 
@@ -183,32 +184,15 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
       try {
         sessionStorage.removeItem("filters");
       } catch (e) {}
-      const targetPath = "/shop/home";
-      try {
-        navigate(`${targetPath}#${anchorId}`);
-      } catch (e) {
-        try {
-          window.location.href = `${targetPath}#${anchorId}`;
-        } catch (err) {}
-      }
+      
+      // Establish all product listing in history stack
+      navigate("/shop/listing");
+      
+      // Navigate to the special collection page
       setTimeout(() => {
-        try {
-          const el = document.getElementById(anchorId);
-          if (el) {
-            const headerEl = document.querySelector("header");
-            const headerHeight = (headerEl && headerEl.getBoundingClientRect && headerEl.getBoundingClientRect().height) || 80;
-            const extraGap = 20;
-            const offset = Math.round(headerHeight + extraGap);
-            const top = el.getBoundingClientRect().top + window.scrollY - offset;
-            window.scrollTo({ top, behavior: "smooth" });
-            try {
-              if (window && window.location && window.history && window.location.hash !== `#${anchorId}`) {
-                window.history.replaceState({}, "", `${targetPath}#${anchorId}`);
-              }
-            } catch (e) {}
-          }
-        } catch (e) {}
-      }, 140);
+        navigate(`/shop/special/${anchorId}`);
+      }, 10);
+
       try {
         onItemClick && onItemClick();
       } catch (e) {}
@@ -240,9 +224,16 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                 </button>
 
                 <div className={`flex flex-col ml-0 mt-2 mb-2 ${productsExpandedMobile ? "block" : "hidden"}`}>
-                  {(menuCategories || []).length === 0 ? (
-                    <div className="text-sm text-gray-600 px-3 py-2">No categories</div>
-                  ) : (
+                  {/* Static "All Products" entry — always visible */}
+                  <button
+                    key="all-products"
+                    onClick={() => handleNavigate({ id: "all", path: "/shop/listing" })}
+                    className="w-full text-left py-3 px-3 rounded-lg text-sm font-semibold shadow-xs hover:shadow-sm border-b"
+                    style={{ borderColor: "rgba(8,102,95,0.06)" }}
+                  >
+                    All Products
+                  </button>
+                  {(menuCategories || []).length === 0 ? null : (
                     menuCategories.map((c) => (
                       <button
                         key={c._id || c.slug || c.name}
@@ -309,7 +300,15 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent id="products-menu" side="bottom" align="start" className="w-56">
-                  {(!menuCategories || menuCategories.length === 0) && <div className="px-3 py-2 text-sm text-gray-600">No categories</div>}
+                  {/* Static "All Products" entry — always visible regardless of backend categories */}
+                  <DropdownMenuItem
+                    key="all-products"
+                    onSelect={() => handleNavigate({ id: "all", path: "/shop/listing" })}
+                    className="border-b font-semibold"
+                    style={{ borderColor: "rgba(8,102,95,0.06)" }}
+                  >
+                    All Products
+                  </DropdownMenuItem>
                   {menuCategories.map((c, idx) => (
                     <DropdownMenuItem
                       key={c._id || c.slug || c.name}
@@ -757,25 +756,18 @@ function MobileMenu({ navigateTo } = {}) {
   function mobileNavigateToAnchor(anchorId) {
     setOpen(false);
     try {
-      navigate(`/shop/home#${anchorId}`);
-    } catch (e) {
       try {
-        window.location.href = `/shop/home#${anchorId}`;
-      } catch (err) {}
-    }
-    setTimeout(() => {
-      try {
-        const el = document.getElementById(anchorId);
-        if (el) {
-          const headerEl = document.querySelector("header");
-          const headerHeight = (headerEl && headerEl.getBoundingClientRect && headerEl.getBoundingClientRect().height) || 80;
-          const extraGap = 20;
-          const offset = Math.round(headerHeight + extraGap);
-          const top = el.getBoundingClientRect().top + window.scrollY - offset;
-          window.scrollTo({ top, behavior: "smooth" });
-        }
+        sessionStorage.removeItem("filters");
       } catch (e) {}
-    }, 160);
+      
+      // Establish all product listing in history stack
+      navigate("/shop/listing");
+      
+      // Navigate to the special collection page
+      setTimeout(() => {
+        navigate(`/shop/special/${anchorId}`);
+      }, 10);
+    } catch (e) {}
   }
 
   return (

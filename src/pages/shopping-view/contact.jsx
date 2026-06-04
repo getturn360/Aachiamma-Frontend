@@ -5,7 +5,7 @@ import { toast } from "@/lib/toast";
 import SEO from "@/components/SEO";
 
 const CONTACT_DETAILS = {
-  address: "Mankavu, Palakkad, Kerala – 678001",
+  address: "20/617-3, Mankavu, Palakkad, Kerala – 678001",
   phone: "+91 7356 428 330",
   email: "info@aachiammafoods.com",
 };

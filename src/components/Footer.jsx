@@ -168,14 +168,14 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                 />
                 <div>
                   <div className="text-lg sm:text-2xl font-semibold tracking-wide">
-                    AachiammaFoods
+                    Aachiammafoods
                   </div>
-                  <div className="text-xs sm:text-sm text-slate-300">Taste of tradition</div>
+                  <div className="text-xs sm:text-sm text-slate-300">Timeless Memories</div>
                 </div>
               </div>
 
               <address className="not-italic text-slate-300 text-xs sm:text-sm leading-relaxed">
-                AachiammaFoods,
+                Aachiammafoods,
                 <br />
                 20/617-3, Mankavu, Palakkad
                 <br />
