@@ -41,6 +41,7 @@ import ShippingPolicy from "./pages/shopping-view/ShippingPolicy";
 import ProductDetailsPage from "./pages/shopping-view/product-details";
 import SpecialProductsPage from "./pages/shopping-view/special-products";
 import { ConnectedLoader } from "@/components/common/Loader";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 function ScrollManager() {
   const location = useLocation();
@@ -160,6 +161,7 @@ function App() {
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
+      <GoogleAnalytics />
       <ScrollManager />
       <ConnectedLoader />
 
