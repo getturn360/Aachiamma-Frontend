@@ -785,6 +785,21 @@ export default function ShoppingHome() {
           className="relative w-full aspect-[15/6] overflow-hidden"
           style={{ zIndex: 10 }}
         >
+          <div className="absolute top-4 sm:top-6 left-4 sm:left-8 z-30 max-w-xl pointer-events-none">
+            <h1
+              className="text-white font-extrabold tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]"
+              style={{ fontSize: "clamp(22px, 3.8vw, 44px)" }}
+            >
+              Aachiamma Foods
+            </h1>
+            <p
+              className="mt-1 sm:mt-2 text-white/95 font-medium drop-shadow-[0_1px_6px_rgba(0,0,0,0.4)]"
+              style={{ fontSize: "clamp(13px, 1.6vw, 18px)" }}
+            >
+              Authentic Kerala Traditional Pickles &amp; Snacks
+            </p>
+          </div>
+
           {featureImageList && featureImageList.length > 0 ? (
             featureImageList.map((slide, idx) => (
               <figure

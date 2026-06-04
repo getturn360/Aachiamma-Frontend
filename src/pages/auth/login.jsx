@@ -74,9 +74,13 @@ function AuthLogin() {
     <div className="mx-auto w-full max-w-md space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Sign in to your account</h1>
-        <p className="mt-2">
-          Don't have an account
-          <Link className="font-medium ml-2 text-primary hover:underline" to="/auth/register">
+        <p className="mt-2 flex flex-wrap items-center justify-center gap-2">
+          <span>Don&apos;t have an account?</span>
+          <Link
+            to="/auth/register"
+            className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#08665F]"
+            style={{ backgroundColor: "#08665F" }}
+          >
             Register
           </Link>
         </p>

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { ArrowUp, Facebook, Instagram, Phone, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "@/api/axios";
 import Logo from "../assets/logo-1.png";
 
 /**
@@ -76,25 +77,22 @@ export default function Footer() {
     setStatus("loading");
 
     try {
-      // Replace /api/newsletter with your real newsletter endpoint or mail provider integration
-      const res = await fetch("/api/newsletter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
-      });
-
-      if (res.ok) {
-        setStatus("success");
-        try {
-          localStorage.setItem("aachiamma_newsletter_email", email.trim());
-        } catch (e) { }
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setErrorMsg(data.message || "Subscription failed. Please try again later.");
-        setStatus("error");
+      await api.post(
+        "/api/newsletter",
+        { email: email.trim() },
+        { skipGlobalLoader: true }
+      );
+      setStatus("success");
+      try {
+        localStorage.setItem("aachiamma_newsletter_email", email.trim());
+      } catch (e) {
+        // ignore
       }
     } catch (err) {
-      setErrorMsg("Network error. Please try again later.");
+      const data = err?.response?.data;
+      setErrorMsg(
+        data?.message || "Network error. Please try again later."
+      );
       setStatus("error");
     }
   };
@@ -170,14 +168,14 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                 />
                 <div>
                   <div className="text-lg sm:text-2xl font-semibold tracking-wide">
-                    Aachiamma Foods
+                    AachiammaFoods
                   </div>
                   <div className="text-xs sm:text-sm text-slate-300">Taste of tradition</div>
                 </div>
               </div>
 
               <address className="not-italic text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Aachiamma Foods,
+                AachiammaFoods,
                 <br />
                 20/617-3, Mankavu, Palakkad
                 <br />
@@ -379,7 +377,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
           <div className="mt-6 border-t border-white/5 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             {/* reduced contrast for copyright text */}
             <div className="text-slate-400 text-[11px] sm:text-sm text-center sm:text-left">
-              © 2025 Aachiamma Foods by{' '}
+              © 2025 Aachiammafoods by{' '}
               <a
                 href="https://turn360.in/"
                 target="_blank"

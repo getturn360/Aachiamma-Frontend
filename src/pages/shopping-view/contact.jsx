@@ -106,8 +106,8 @@ export default function ContactPage({ accent = "#08665F" }) {
 
             <div className="mt-6 text-gray-700 max-w-md mx-auto text-sm">
               <div className="font-semibold">Customer Service Hours:</div>
-              <div className="mt-1">Monday-Friday: 9.00 AM – 6.00 PM</div>
-              <div>Saturday: 10.00 AM – 2.00 PM</div>
+              <div className="mt-1">Monday-Saturday: 9.00 AM – 6.00 PM</div>
+              
             </div>
           </div>
         </motion.header>
