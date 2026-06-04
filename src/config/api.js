@@ -3,8 +3,12 @@
  *
  * Vite: VITE_API_BASE or VITE_API_URL (e.g. http://localhost:5000)
  * Runtime override: window.REACT_APP_API_BASE_URL
- * Fallback: "/api" (relative — Vite dev proxy or same-origin)
+ * Production build without env: Fly backend (see PRODUCTION_API_DEFAULT)
+ * Dev fallback: "/api" (Vite dev proxy)
  */
+
+/** Used when VITE_API_BASE is not set at build time (e.g. Vercel env missing). */
+const PRODUCTION_API_DEFAULT = "https://aachiamma-backend.fly.dev";
 
 export function normalizeApiHost(url) {
   if (!url) return "";
@@ -33,7 +37,18 @@ export function getApiHost() {
     runtimeBase = "";
   }
 
-  return normalizeApiHost(buildBase || runtimeBase);
+  const fromEnv = normalizeApiHost(buildBase || runtimeBase);
+  if (fromEnv) return fromEnv;
+
+  try {
+    if (typeof import.meta !== "undefined" && import.meta.env?.PROD) {
+      return PRODUCTION_API_DEFAULT;
+    }
+  } catch {
+    // ignore
+  }
+
+  return "";
 }
 
 /** Axios instance baseURL */
