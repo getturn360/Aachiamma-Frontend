@@ -107,7 +107,7 @@ export default function Footer() {
   const setCategoryFilterForListing = (category) => {
     try {
       if (category) {
-        // listing.jsx expects sessionStorage "filters" as JSON e.g. { category: ['pickles'] }
+        // listing.jsx expects sessionStorage "filters" as JSON e.g. { category: ['pickle'] }
         sessionStorage.setItem("filters", JSON.stringify({ category: [category] }));
       } else {
         sessionStorage.removeItem("filters");
@@ -229,8 +229,8 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   <button
                     className="block hover:text-white transition text-left w-full"
                     onClick={() => {
-                      setCategoryFilterForListing("pickles");
-                      navigateTo(`${ROUTES.listing}?category=pickles`);
+                      setCategoryFilterForListing("pickle");
+                      navigateTo(`${ROUTES.listing}?category=pickle`);
                     }}
                   >
                     Pickles

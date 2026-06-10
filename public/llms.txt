@@ -1,52 +1,52 @@
-# Aachiammafoods
-
-> Authentic Kerala homemade food brand from Palakkad, Kerala, India, offering traditional pickles, snacks, kondattam, spices, and combo packs prepared using time-honored Agraharam recipes.
-
-Aachiammafoods brings the taste of traditional Kerala homes to customers through handcrafted food products made in small batches. The brand focuses on authentic recipes, quality ingredients, homemade preparation methods, and products rooted in Kerala food culture.
-
-## Brand Information
-
-- [Website](https://www.aachiammafoods.com/): Official website
-- [Shop](https://www.aachiammafoods.com/shop/listing): Main shopping page
-- [About Us](https://www.aachiammafoods.com/shop/about): Brand story and background
-- [Contact](https://www.aachiammafoods.com/shop/contact): Contact information and enquiries
-- [FAQ](https://www.aachiammafoods.com/shop/faq): Frequently asked questions
-- [Blog](https://www.aachiammafoods.com/blog/): Articles and updates
-
-## Product Categories
-
-- [Kerala Pickles](https://www.aachiammafoods.com/shop/listing?category=pickle): Traditional homemade pickles including tender mango, garlic, lemon, and bitter gourd pickle
-- [Kerala Snacks](https://www.aachiammafoods.com/shop/listing?category=snacks): Popular Kerala snacks including banana chips, jackfruit chips, and rice murukku
-- [Kondattam](https://www.aachiammafoods.com/shop/listing?category=kondattam): Traditional rice kondattam varieties
-- [Kerala Spices & Powders](https://www.aachiammafoods.com/shop/listing?category=spices-and-powders): Spice powders including sambar powder
-- [Combo Packs](https://www.aachiammafoods.com/shop/listing?category=combos): Curated product bundles
-
-## Business Details
-
-- [Email](mailto:info@aachiammafoods.com): info@aachiammafoods.com
-- [Phone](tel:+917356428330): +91 7356428330
-- Location: Mankavu, Palakkad, Kerala, India - 678001
-- Service Areas: Kerala and India
-
-## Social Profiles
-
-- [Instagram](https://www.instagram.com/aachiammafoods/): Official Instagram profile
-- [Facebook](https://www.facebook.com/aachiammafoods): Official Facebook page
-
-## Topics
-
-- Kerala homemade food
-- Traditional Kerala recipes
-- Agraharam food culture
-- Kerala pickles
-- Kerala snacks
-- Kondattam
-- Kerala spices
-- Homemade food products
-- South Indian traditional foods
-
-## Optional
-
-- [Homepage](https://www.aachiammafoods.com/shop/home): Primary brand landing page
-- [Sitemap](https://www.aachiammafoods.com/sitemap.xml): XML sitemap for site discovery
-- [robots.txt](https://www.aachiammafoods.com/robots.txt): Crawl guidance file
+# Aachiammafoods
+
+> Authentic Kerala homemade food brand from Palakkad, Kerala, India, offering traditional pickles, snacks, kondattam, spices, and combo packs prepared using time-honored Agraharam recipes.
+
+Aachiammafoods brings the taste of traditional Kerala homes to customers through handcrafted food products made in small batches. The brand focuses on authentic recipes, quality ingredients, homemade preparation methods, and products rooted in Kerala food culture.
+
+## Brand Information
+
+- [Website](https://www.aachiammafoods.com/): Official website
+- [Shop](https://www.aachiammafoods.com/listing): Main shopping page
+- [About Us](https://www.aachiammafoods.com/about): Brand story and background
+- [Contact](https://www.aachiammafoods.com/contact): Contact information and enquiries
+- [FAQ](https://www.aachiammafoods.com/faq): Frequently asked questions
+- [Blog](https://www.aachiammafoods.com/blog/): Articles and updates
+
+## Product Categories
+
+- [Kerala Pickles](https://www.aachiammafoods.com/listing?category=pickle): Traditional homemade pickles including tender mango, garlic, lemon, and bitter gourd pickle
+- [Kerala Snacks](https://www.aachiammafoods.com/listing?category=snacks): Popular Kerala snacks including banana chips, jackfruit chips, and rice murukku
+- [Kondattam](https://www.aachiammafoods.com/listing?category=kondattam): Traditional rice kondattam varieties
+- [Kerala Spices & Powders](https://www.aachiammafoods.com/listing?category=spices-and-powders): Spice powders including sambar powder
+- [Combo Packs](https://www.aachiammafoods.com/listing?category=combos): Curated product bundles
+
+## Business Details
+
+- [Email](mailto:info@aachiammafoods.com): info@aachiammafoods.com
+- [Phone](tel:+917356428330): +91 7356428330
+- Location: Mankavu, Palakkad, Kerala, India - 678001
+- Service Areas: Kerala and India
+
+## Social Profiles
+
+- [Instagram](https://www.instagram.com/aachiammafoods/): Official Instagram profile
+- [Facebook](https://www.facebook.com/aachiammafoods): Official Facebook page
+
+## Topics
+
+- Kerala homemade food
+- Traditional Kerala recipes
+- Agraharam food culture
+- Kerala pickles
+- Kerala snacks
+- Kondattam
+- Kerala spices
+- Homemade food products
+- South Indian traditional foods
+
+## Optional
+
+- [Homepage](https://www.aachiammafoods.com/): Primary brand landing page
+- [Sitemap](https://www.aachiammafoods.com/sitemap.xml): XML sitemap for site discovery
+- [robots.txt](https://www.aachiammafoods.com/robots.txt): Crawl guidance file
