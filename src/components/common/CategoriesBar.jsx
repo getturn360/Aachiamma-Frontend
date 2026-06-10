@@ -31,7 +31,7 @@ export default function CategoriesBar({ max = 12 }) {
 
   function handleNavigateToListingPage(cat) {
     if (!cat) return;
-    navigate(`/shop/listing?category=${encodeURIComponent(cat.slug)}`);
+    navigate(`/listing?category=${encodeURIComponent(cat.slug)}`);
     setTimeout(() => {
       try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
     }, 60);

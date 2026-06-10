@@ -202,7 +202,7 @@ export default function ShoppingListing() {
   const handleGetProductDetails = (productOrId) => {
     const id = productOrId && productOrId._id ? productOrId._id : productOrId;
     const state = productOrId && productOrId._id ? { product: productOrId } : undefined;
-    navigate(`/shop/product/${id}`, { state });
+    navigate(`/product/${id}`, { state });
   };
 
   const handleAddtoCart = (productId, stock, productObj = null) => {

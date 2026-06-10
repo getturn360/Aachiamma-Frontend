@@ -51,15 +51,15 @@ const hostname = (env.VITE_SITE_URL || env.SITEMAP_HOSTNAME || DEFAULT_HOSTNAME)
 
 /** Public storefront routes only (no auth/admin/checkout/product detail pages). */
 const staticRoutes = [
-  { url: "/shop/home", changefreq: "daily", priority: 1.0 },
-  { url: "/shop/listing", changefreq: "daily", priority: 0.9 },
-  { url: "/shop/about", changefreq: "monthly", priority: 0.7 },
-  { url: "/shop/contact", changefreq: "monthly", priority: 0.7 },
-  { url: "/shop/faq", changefreq: "monthly", priority: 0.6 },
-  { url: "/shop/terms", changefreq: "yearly", priority: 0.4 },
-  { url: "/shop/privacy", changefreq: "yearly", priority: 0.4 },
-  { url: "/shop/refunds", changefreq: "yearly", priority: 0.4 },
-  { url: "/shop/shipping", changefreq: "yearly", priority: 0.4 },
+  { url: "/", changefreq: "daily", priority: 1.0 },
+  { url: "/listing", changefreq: "daily", priority: 0.9 },
+  { url: "/about", changefreq: "monthly", priority: 0.7 },
+  { url: "/contact", changefreq: "monthly", priority: 0.7 },
+  { url: "/faq", changefreq: "monthly", priority: 0.6 },
+  { url: "/terms", changefreq: "yearly", priority: 0.4 },
+  { url: "/privacy", changefreq: "yearly", priority: 0.4 },
+  { url: "/refunds", changefreq: "yearly", priority: 0.4 },
+  { url: "/shipping", changefreq: "yearly", priority: 0.4 },
 ];
 
 async function writeSitemap(links) {

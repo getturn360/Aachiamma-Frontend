@@ -29,7 +29,6 @@ import ShoppingCheckout from "./pages/shopping-view/checkout";
 import ShoppingAccount from "./pages/shopping-view/account";
 import CheckAuth from "./components/common/check-auth";
 import UnauthPage from "./pages/unauth-page";
-import { Skeleton } from "@/components/ui/skeleton";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import AboutInner from "./pages/shopping-view/about";
 import ContactPage from "./pages/shopping-view/contact";
@@ -166,7 +165,29 @@ function App() {
       <ConnectedLoader />
 
       <Routes>
-        <Route path="/" element={<CheckAuth isAuthenticated={isAuthenticated} user={user} loading={loading} />} />
+        <Route
+          path="/"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} loading={loading}>
+              <ShoppingLayout />
+            </CheckAuth>
+          }
+        >
+          <Route index element={<ShoppingHome />} />
+          <Route path="listing" element={<ShoppingListing />} />
+          <Route path="special/:type" element={<SpecialProductsPage />} />
+          <Route path="product/:id" element={<ProductDetailsPage />} />
+          <Route path="checkout" element={<ShoppingCheckout />} />
+          <Route path="account" element={<ShoppingAccount />} />
+          <Route path="payment-success" element={<PaymentSuccessPage />} />
+          <Route path="about" element={<AboutInner />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="faq" element={<FAQsPage />} />
+          <Route path="terms" element={<TermsPage />} />
+          <Route path="privacy" element={<PrivacyPolicy />} />
+          <Route path="refunds" element={<RefundPolicy />} />
+          <Route path="shipping" element={<ShippingPolicy />} />
+        </Route>
 
         <Route
           path="/auth"
@@ -194,7 +215,6 @@ function App() {
           <Route path="features" element={<AdminFeatures />} />
           <Route path="xl-features" element={<AdminXLFeatures />} />
           <Route path="newsletter" element={<AdminNewsletter />} />
-
           <Route path="topbar" element={<AdminTopbar />} />
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="categories" element={<AdminCategories />} />
@@ -202,34 +222,9 @@ function App() {
           <Route path="coupons/add" element={<AdminAddCoupon />} />
           <Route path="coupons/add/:id" element={<AdminAddCoupon />} />
           <Route path="shipping" element={<AdminShipping />} />
-
           <Route path="templates" element={<MessageTemplatesPage />} />
           <Route path="invoice-control" element={<InvoiceControlPage />} />
           <Route path="contact-messages" element={<AdminContactMessages />} />
-        </Route>
-
-        <Route
-          path="/shop"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user} loading={loading}>
-              <ShoppingLayout />
-            </CheckAuth>
-          }
-        >
-          <Route path="home" element={<ShoppingHome />} />
-          <Route path="listing" element={<ShoppingListing />} />
-          <Route path="special/:type" element={<SpecialProductsPage />} />
-          <Route path="product/:id" element={<ProductDetailsPage />} />
-          <Route path="checkout" element={<ShoppingCheckout />} />
-          <Route path="account" element={<ShoppingAccount />} />
-          <Route path="payment-success" element={<PaymentSuccessPage />} />
-          <Route path="about" element={<AboutInner />} />
-          <Route path="contact" element={<ContactPage />} />
-          <Route path="faq" element={<FAQsPage />} />
-          <Route path="terms" element={<TermsPage />} />
-          <Route path="privacy" element={<PrivacyPolicy />} />
-          <Route path="refunds" element={<RefundPolicy />} />
-          <Route path="shipping" element={<ShippingPolicy />} />
         </Route>
 
         <Route path="/unauth-page" element={<UnauthPage />} />

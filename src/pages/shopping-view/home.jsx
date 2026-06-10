@@ -355,7 +355,7 @@ export default function ShoppingHome() {
     const currentFilter = { [section]: [value] };
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
 
-    navigate(`/shop/listing?category=${encodeURIComponent(value)}`);
+    navigate(`/listing?category=${encodeURIComponent(value)}`);
     
     try {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -365,7 +365,7 @@ export default function ShoppingHome() {
   }
 
   function handleGetProductDetails(getCurrentProductId) {
-    navigate(`/shop/product/${getCurrentProductId}`);
+    navigate(`/product/${getCurrentProductId}`);
   }
 
   function handleAddtoCart(getCurrentProductId, getQuantity = 1, getProductObj = null) {
@@ -535,7 +535,7 @@ export default function ShoppingHome() {
               Experience the taste of tradition, made with love just for you!
             </p>
             <div>
-              <Button className="uppercase px-6 py-2 shadow-md" style={{ background: ACCENT, color: "#fff" }} onClick={() => navigate("/shop/about")}>
+              <Button className="uppercase px-6 py-2 shadow-md" style={{ background: ACCENT, color: "#fff" }} onClick={() => navigate("/about")}>
                 READ MORE
               </Button>
             </div>

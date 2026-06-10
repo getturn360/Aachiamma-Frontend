@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ArrowUp, Facebook, Instagram, Phone, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
+import { ROUTES } from "@/config/routes";
 import Logo from "../assets/logo-1.png";
 
 /**
@@ -229,7 +230,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                     className="block hover:text-white transition text-left w-full"
                     onClick={() => {
                       setCategoryFilterForListing("pickles");
-                      navigateTo("/shop/listing?category=pickles");
+                      navigateTo(`${ROUTES.listing}?category=pickles`);
                     }}
                   >
                     Pickles
@@ -240,7 +241,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                     className="block hover:text-white transition text-left w-full"
                     onClick={() => {
                       setCategoryFilterForListing("snacks");
-                      navigateTo("/shop/listing?category=snacks");
+                      navigateTo(`${ROUTES.listing}?category=snacks`);
                     }}
                   >
                     Snacks
@@ -251,7 +252,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                     className="block hover:text-white transition text-left w-full"
                     onClick={() => {
                       setCategoryFilterForListing("spices-and-powders");
-                      navigateTo("/shop/listing?category=spices-and-powders");
+                      navigateTo(`${ROUTES.listing}?category=spices-and-powders`);
                     }}
                   >
                     Spices & Powders
@@ -262,7 +263,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                     className="block hover:text-white transition text-left w-full"
                     onClick={() => {
                       setCategoryFilterForListing("kondattam");
-                      navigateTo("/shop/listing?category=kondattam");
+                      navigateTo(`${ROUTES.listing}?category=kondattam`);
                     }}
                   >
                     Kondattam
@@ -273,7 +274,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                     className="block hover:text-white transition text-left w-full"
                     onClick={() => {
                       setCategoryFilterForListing("combos");
-                      navigateTo("/shop/listing?category=combos");
+                      navigateTo(`${ROUTES.listing}?category=combos`);
                     }}
                   >
                     Combos
@@ -289,7 +290,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                 <li>
                   <button
                     className="block hover:text-white transition text-left w-full"
-                    onClick={() => navigateTo("/shop/about")}
+                    onClick={() => navigateTo(ROUTES.about)}
                   >
                     About
                   </button>
@@ -309,7 +310,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                 <li>
                   <button
                     className="block hover:text-white transition text-left w-full"
-                    onClick={() => navigateTo("/shop/contact")}
+                    onClick={() => navigateTo(ROUTES.contact)}
                   >
                     Contact
                   </button>
@@ -317,7 +318,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                 <li>
                   <button
                     className="block hover:text-white transition text-left w-full"
-                    onClick={() => navigateTo("/shop/faq")}
+                    onClick={() => navigateTo(ROUTES.faq)}
                   >
                     FAQ
                   </button>
@@ -391,10 +392,10 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
             </div>
 
             <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-              <button className="text-slate-200 hover:text-white text-xs sm:text-sm" onClick={() => navigateTo("/shop/terms")}>Terms</button>
-              <button className="text-slate-200 hover:text-white text-xs sm:text-sm" onClick={() => navigateTo("/shop/privacy")}>Privacy</button>
-              <button className="text-slate-200 hover:text-white text-xs sm:text-sm" onClick={() => navigateTo("/shop/refunds")}>Refunds</button>
-              <button className="text-slate-200 hover:text-white text-xs sm:text-sm" onClick={() => navigateTo("/shop/shipping")}>Shipping</button>
+              <button className="text-slate-200 hover:text-white text-xs sm:text-sm" onClick={() => navigateTo(ROUTES.terms)}>Terms</button>
+              <button className="text-slate-200 hover:text-white text-xs sm:text-sm" onClick={() => navigateTo(ROUTES.privacy)}>Privacy</button>
+              <button className="text-slate-200 hover:text-white text-xs sm:text-sm" onClick={() => navigateTo(ROUTES.refunds)}>Refunds</button>
+              <button className="text-slate-200 hover:text-white text-xs sm:text-sm" onClick={() => navigateTo(ROUTES.shipping)}>Shipping</button>
             </div>
           </div>
         </div>

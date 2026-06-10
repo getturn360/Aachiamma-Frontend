@@ -31,8 +31,8 @@ function PaymentSuccessPage() {
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             {isAuthenticated ? (
               <>
-                <Button onClick={() => navigate("/shop/account")}>View Orders</Button>
-                <Button variant="ghost" onClick={() => navigate("/shop/home")}>Continue Shopping</Button>
+                <Button onClick={() => navigate("/account")}>View Orders</Button>
+                <Button variant="ghost" onClick={() => navigate("/")}>Continue Shopping</Button>
               </>
             ) : (
               <>

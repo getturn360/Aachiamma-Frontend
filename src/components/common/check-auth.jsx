@@ -1,46 +1,29 @@
 import { Navigate, useLocation } from "react-router-dom";
+import { ROUTES, isAdminUser } from "@/config/routes";
 
 function CheckAuth({ isAuthenticated, user, children, loading = false }) {
   const location = useLocation();
   const pathname = location.pathname;
 
-  if (pathname === "/") {
-    if (!isAuthenticated) {
-      if (loading) {
-        return <Navigate to="/shop/home" replace />;
-      }
-      return <Navigate to="/shop/home" replace />;
-    } else {
-
-      if (user?.role === "admin" || user?.role === "superadmin") {
-        return <Navigate to="/admin/dashboard" />;
-      } else {
-        return <Navigate to="/shop/home" />;
-      }
-    }
+  // Logged-in admins visiting the storefront home go to the admin dashboard
+  if (pathname === "/" && isAuthenticated && user && isAdminUser(user) && !loading) {
+    return <Navigate to={ROUTES.adminDashboard} replace />;
   }
 
-
   if (pathname.startsWith("/admin")) {
-
     if (!isAuthenticated) {
-
       if (loading) {
         return <>{children}</>;
       }
-      return <Navigate to="/auth/login" />;
+      return <Navigate to={ROUTES.login} state={{ from: location }} replace />;
     }
-
 
     if (isAuthenticated && !user) {
       return <>{children}</>;
     }
 
-
-    if (user) {
-      if (!(user.role === "admin" || user.role === "superadmin")) {
-        return <Navigate to="/unauth-page" />;
-      }
+    if (user && !isAdminUser(user)) {
+      return <Navigate to={ROUTES.unauth} replace />;
     }
   }
 
@@ -49,11 +32,10 @@ function CheckAuth({ isAuthenticated, user, children, loading = false }) {
     (pathname.includes("/login") || pathname.includes("/register")) &&
     !loading
   ) {
-    if (user?.role === "admin" || user?.role === "superadmin") {
-      return <Navigate to="/admin/dashboard" />;
-    } else {
-      return <Navigate to="/shop/home" />;
+    if (isAdminUser(user)) {
+      return <Navigate to={ROUTES.adminDashboard} replace />;
     }
+    return <Navigate to={ROUTES.home} replace />;
   }
 
   return <>{children}</>;

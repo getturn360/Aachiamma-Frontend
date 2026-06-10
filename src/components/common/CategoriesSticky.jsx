@@ -60,7 +60,7 @@ export default function CategoriesSticky({ max = 10 }) {
         >
           {categories.map((c) => (
             <Link
-              to={`/shop/listing?category=${encodeURIComponent(c.slug)}`}
+              to={`/listing?category=${encodeURIComponent(c.slug)}`}
               key={c._id}
               className="inline-flex items-center gap-2 px-3 py-2 bg-white border rounded-full shadow-sm hover:shadow-md transition flex-shrink-0 whitespace-nowrap"
               role="tab"

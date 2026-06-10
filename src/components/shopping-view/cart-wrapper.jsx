@@ -66,7 +66,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         <Button
           onClick={() => {
             if (isCartEmpty) return; 
-            navigate("/shop/checkout");
+            navigate("/checkout");
             setOpenCartSheet(false);
           }}
           disabled={isCartEmpty}

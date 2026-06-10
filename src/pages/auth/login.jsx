@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { addToCart, fetchCartItems, clearGuestCart } from "@/store/shop/cart-slice";
+import { getPostLoginPath } from "@/config/routes";
 
 import { setLoading, setLoadingMessage } from "@/store/common-slice";
 
@@ -46,9 +47,7 @@ function AuthLogin() {
       }
 
       try {
-    
         await dispatch(fetchCartItems());
-  
         try {
           dispatch(clearGuestCart());
         } catch (e) {}
@@ -56,7 +55,9 @@ function AuthLogin() {
         /* cart merge optional */
       }
 
-      navigate(from, { replace: true });
+      const loggedInUser =
+        result?.user || result?.data?.user || result?.data || null;
+      navigate(getPostLoginPath(loggedInUser, from), { replace: true });
       toast?.toast?.({ title: "Welcome", description: "Logged in successfully" });
     } catch (err) {
    

@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { ROUTES } from "@/config/routes";
 
 const ACCENT = "#08665F";
 
@@ -69,7 +70,7 @@ export default function SpecialProductsPage() {
   }, [productList, collectionInfo.tag]);
 
   const handleGetProductDetails = (productId) => {
-    navigate(`/shop/product/${productId}`);
+    navigate(ROUTES.product(productId));
   };
 
   const handleAddtoCart = (productId, quantity = 1, productObj = null) => {
@@ -106,7 +107,7 @@ export default function SpecialProductsPage() {
       <div className={`w-full bg-gradient-to-b ${collectionInfo.gradient} border-b border-gray-100 py-12 md:py-16 px-4`}>
         <div className="max-w-6xl mx-auto flex flex-col items-start gap-4">
           <Button
-            onClick={() => navigate("/shop/listing")}
+            onClick={() => navigate(ROUTES.listing)}
             className="flex items-center gap-2 text-white transition-all font-semibold shadow-md px-4 py-2 rounded-lg hover:opacity-90"
             style={{ background: ACCENT }}
           >
@@ -130,7 +131,7 @@ export default function SpecialProductsPage() {
             <Button
               className="mt-4 text-white uppercase font-bold"
               style={{ background: ACCENT }}
-              onClick={() => navigate("/shop/listing")}
+              onClick={() => navigate(ROUTES.listing)}
             >
               Explore All Products
             </Button>

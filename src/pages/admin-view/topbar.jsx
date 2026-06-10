@@ -301,7 +301,7 @@ export default function AdminTopbar() {
             <div className="grid md:grid-cols-3 gap-2 items-center">
               <div className="text-sm font-medium">Link (optional)</div>
               <div className="col-span-2">
-                <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder="/shop/listing?category=foo or https://..." />
+                <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder="/listing?category=foo or https://..." />
               </div>
             </div>
 

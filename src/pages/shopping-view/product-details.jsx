@@ -423,7 +423,7 @@ export default function ProductDetailsPage() {
         };
 
         dispatch(setProductDetails());
-        navigate("/shop/checkout", { state: { buyNow: true, items: [buyNowItem] } });
+        navigate("/checkout", { state: { buyNow: true, items: [buyNowItem] } });
     }
 
     function handleAddReview() {
@@ -471,7 +471,7 @@ export default function ProductDetailsPage() {
     }
 
     const handleShare = async () => {
-        const url = `${window.location.origin}/shop/product/${productDetails?._id}`;
+        const url = `${window.location.origin}/product/${productDetails?._id}`;
         const title = productDetails?.title ?? "Product";
 
         if (navigator.share) {
@@ -543,9 +543,9 @@ export default function ProductDetailsPage() {
     function openProductSmooth(productId) {
         try {
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(() => navigate(`/shop/product/${productId}`), 220);
+            setTimeout(() => navigate(`/product/${productId}`), 220);
         } catch (e) {
-            navigate(`/shop/product/${productId}`);
+            navigate(`/product/${productId}`);
         }
     }
 
@@ -943,7 +943,7 @@ export default function ProductDetailsPage() {
                                     <ShoppingProductTile
                                         product={r}
                                         handleGetProductDetails={() => {
-                                            navigate(`/shop/product/${r._id}`);
+                                            navigate(`/product/${r._id}`);
                                         }}
                                         handleAddtoCart={(id, qty, prodObj) => {
                                             dispatch(
@@ -963,7 +963,7 @@ export default function ProductDetailsPage() {
                                     <ShoppingProductTile
                                         product={r}
                                         handleGetProductDetails={() => {
-                                            navigate(`/shop/product/${r._id}`);
+                                            navigate(`/product/${r._id}`);
                                         }}
                                         handleAddtoCart={(id, qty, prodObj) => {
                                             dispatch(

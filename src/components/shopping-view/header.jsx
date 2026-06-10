@@ -30,6 +30,7 @@ import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { shoppingViewHeaderMenuItems } from "@/config";
+import { ROUTES } from "@/config/routes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -128,9 +129,16 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
         } catch (e) {}
       }
 
-      const targetPath = getCurrentMenuItem.path || "/shop/listing";
+      const targetPath = getCurrentMenuItem.path || ROUTES.listing;
 
-      if (location.pathname.includes("/shop/listing")) {
+      const isOnListing =
+        location.pathname === ROUTES.listing ||
+        location.pathname.startsWith(`${ROUTES.listing}/`);
+      const isListingTarget =
+        targetPath === ROUTES.listing ||
+        targetPath.startsWith(`${ROUTES.listing}?`);
+
+      if (isOnListing && isListingTarget) {
         const params = new URLSearchParams();
         if (currentFilter) params.set("category", String(id));
         params.set("_", String(Date.now()));
@@ -138,10 +146,10 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
           setSearchParams(params);
         } catch (e) {}
         try {
-          navigate(`${targetPath}?${params.toString()}`);
+          navigate(`${ROUTES.listing}?${params.toString()}`);
         } catch (e) {
           try {
-            window.history.replaceState({}, "", `${targetPath}?${params.toString()}`);
+            window.history.replaceState({}, "", `${ROUTES.listing}?${params.toString()}`);
           } catch (err) {}
         }
         try {
@@ -174,7 +182,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
     } catch (err) {
       console.error("handleNavigate error", err);
       try {
-        navigate(getCurrentMenuItem.path || "/shop/listing");
+        navigate(getCurrentMenuItem.path || ROUTES.listing);
       } catch (e) {}
     }
   }
@@ -184,13 +192,10 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
       try {
         sessionStorage.removeItem("filters");
       } catch (e) {}
-      
-      // Establish all product listing in history stack
-      navigate("/shop/listing");
-      
-      // Navigate to the special collection page
+
+      navigate(ROUTES.listing);
       setTimeout(() => {
-        navigate(`/shop/special/${anchorId}`);
+        navigate(ROUTES.special(anchorId));
       }, 10);
 
       try {
@@ -227,7 +232,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                   {/* Static "All Products" entry — always visible */}
                   <button
                     key="all-products"
-                    onClick={() => handleNavigate({ id: "all", path: "/shop/listing" })}
+                    onClick={() => handleNavigate({ id: "all", path: ROUTES.listing })}
                     className="w-full text-left py-3 px-3 rounded-lg text-sm font-semibold shadow-xs hover:shadow-sm border-b"
                     style={{ borderColor: "rgba(8,102,95,0.06)" }}
                   >
@@ -237,7 +242,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                     menuCategories.map((c) => (
                       <button
                         key={c._id || c.slug || c.name}
-                        onClick={() => handleNavigate({ id: c.slug || c._id || c.name, path: "/shop/listing" })}
+                        onClick={() => handleNavigate({ id: c.slug || c._id || c.name, path: ROUTES.listing })}
                         className="w-full text-left py-3 px-3 rounded-lg text-sm font-medium shadow-xs hover:shadow-sm border-b last:border-b-0"
                         style={{ borderColor: "rgba(8,102,95,0.06)" }}
                       >
@@ -303,7 +308,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                   {/* Static "All Products" entry — always visible regardless of backend categories */}
                   <DropdownMenuItem
                     key="all-products"
-                    onSelect={() => handleNavigate({ id: "all", path: "/shop/listing" })}
+                    onSelect={() => handleNavigate({ id: "all", path: ROUTES.listing })}
                     className="border-b font-semibold"
                     style={{ borderColor: "rgba(8,102,95,0.06)" }}
                   >
@@ -312,7 +317,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                   {menuCategories.map((c, idx) => (
                     <DropdownMenuItem
                       key={c._id || c.slug || c.name}
-                      onSelect={() => handleNavigate({ id: c.slug || c._id || c.name, path: "/shop/listing" })}
+                      onSelect={() => handleNavigate({ id: c.slug || c._id || c.name, path: ROUTES.listing })}
                       className="border-b last:border-b-0"
                       style={{ borderColor: "rgba(8,102,95,0.06)" }}
                     >
@@ -374,7 +379,7 @@ function SearchIconButton({ navigateTo } = {}) {
       aria-label="go to search"
       onClick={() => {
         const path = window.location.pathname || "";
-        if (path.includes("/shop/listing")) {
+        if (path === ROUTES.listing || path.startsWith(`${ROUTES.listing}/`)) {
           const focused = focusListingSearchInput();
           if (!focused) {
             window.scrollTo({ top: 0, behavior: "smooth" });
@@ -382,7 +387,7 @@ function SearchIconButton({ navigateTo } = {}) {
           }
           return;
         }
-        navigate("/shop/listing");
+        navigate(ROUTES.listing);
         setTimeout(() => {
           try {
             window.scrollTo({ top: 0, behavior: "smooth" });
@@ -414,7 +419,7 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
 
   function handleLogout() {
     dispatch(logoutUser());
-    navigate("/shop/home");
+    navigate(ROUTES.home);
     setTimeout(() => {
       try {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -503,7 +508,7 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
-                    navigate("/shop/account");
+                    navigate(ROUTES.account);
                     setTimeout(() => {
                       try {
                         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -759,13 +764,10 @@ function MobileMenu({ navigateTo } = {}) {
       try {
         sessionStorage.removeItem("filters");
       } catch (e) {}
-      
-      // Establish all product listing in history stack
-      navigate("/shop/listing");
-      
-      // Navigate to the special collection page
+
+      navigate(ROUTES.listing);
       setTimeout(() => {
-        navigate(`/shop/special/${anchorId}`);
+        navigate(ROUTES.special(anchorId));
       }, 10);
     } catch (e) {}
   }
@@ -794,7 +796,7 @@ function MobileMenu({ navigateTo } = {}) {
         `}</style>
 
         <div className="flex items-center justify-between mb-4">
-          <Link to="/shop/home" className="flex items-center gap-3" onClick={() => setOpen(false)}>
+          <Link to={ROUTES.home} className="flex items-center gap-3" onClick={() => setOpen(false)}>
             <img src={showFront} alt="Logo" className="w-14 h-14 object-contain rounded-md" />
             <div>
               <div className="font-bold text-lg" style={{ color: ACCENT }}>Aachiamma</div>
@@ -811,19 +813,19 @@ function MobileMenu({ navigateTo } = {}) {
           <div className="mt-2 grid grid-cols-3 gap-3">
             <button
               className="py-3 rounded-lg font-medium shadow-sm border"
-              onClick={() => { setOpen(false); navigate("/shop/about"); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
+              onClick={() => { setOpen(false); navigate(ROUTES.about); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
               style={{ borderColor: "rgba(8,102,95,0.06)" }}
             >About</button>
 
             <button
               className="py-3 rounded-lg font-medium shadow-sm border"
-              onClick={() => { setOpen(false); navigate("/shop/faq"); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
+              onClick={() => { setOpen(false); navigate(ROUTES.faq); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
               style={{ borderColor: "rgba(8,102,95,0.06)" }}
             >FAQ</button>
 
             <button
               className="py-3 rounded-lg font-medium shadow-sm border"
-              onClick={() => { setOpen(false); navigate("/shop/contact"); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
+              onClick={() => { setOpen(false); navigate(ROUTES.contact); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
               style={{ borderColor: "rgba(8,102,95,0.06)" }}
             >Contact</button>
           </div>
@@ -1031,7 +1033,7 @@ function ShoppingHeader() {
     
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center pointer-events-auto" style={{ maxWidth: 240 }}>
             <Link
-              to="/shop/home"
+              to={ROUTES.home}
               aria-label="home"
               onClick={() => {
                 setTimeout(() => {
@@ -1057,13 +1059,13 @@ function ShoppingHeader() {
         
           <div className="flex items-center justify-end gap-4 flex-1 min-w-0 ml-auto">
             <div className="hidden md:flex items-center gap-4 mr-4">
-              <button onClick={() => { navigateTo("/shop/about"); }} className="text-sm font-medium" style={{ color: ACCENT }}>
+              <button onClick={() => { navigateTo(ROUTES.about); }} className="text-sm font-medium" style={{ color: ACCENT }}>
                 About
               </button>
-              <button onClick={() => { navigateTo("/shop/faq"); }} className="text-sm font-medium" style={{ color: ACCENT }}>
+              <button onClick={() => { navigateTo(ROUTES.faq); }} className="text-sm font-medium" style={{ color: ACCENT }}>
                 FAQ
               </button>
-              <button onClick={() => { navigateTo("/shop/contact"); }} className="text-sm font-medium" style={{ color: ACCENT }}>
+              <button onClick={() => { navigateTo(ROUTES.contact); }} className="text-sm font-medium" style={{ color: ACCENT }}>
                 Contact
               </button>
               <SearchIconButton navigateTo={navigateTo} />

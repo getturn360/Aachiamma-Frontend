@@ -668,7 +668,7 @@ export default function ShoppingCheckout() {
                 dispatch(fetchCartItems(user?.id || user?._id));
               }
 
-              navigate("/shop/payment-success");
+              navigate("/payment-success");
             } else {
               toast({ title: "Payment verification failed", description: capPayload?.message || "Verification failed", variant: "destructive" });
             }
