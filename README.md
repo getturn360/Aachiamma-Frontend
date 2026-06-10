@@ -1,91 +1,245 @@
-# Aachiamma - Client / Frontend
+# Aachiamma — Frontend
 
-This is the frontend client for the Aachiamma application, built using React, Vite, and Redux Toolkit. It provides a robust, responsive, and animated user interface for both regular customers (shopping view) and administrators (admin view).
+React + Vite storefront and admin dashboard for **Aachiamma Foods**. Uses Redux Toolkit for state, React Router v6 for routing, Tailwind CSS for styling, and Axios for API calls.
 
-## 🚀 Technology Stack
+## Technology stack
 
-- **Framework:** React 18 with Vite
-- **State Management:** Redux Toolkit (`react-redux`)
-- **Routing:** React Router v6
-- **Styling:** Tailwind CSS, Styled Components
-- **UI Components:** Radix UI primitives
-- **Animations:** Framer Motion, GSAP, Tailwind-Animate
-- **API Calls:** Axios
-- **Icons & Charts:** Lucide React, React Icons, Recharts
-- **Forms & Data:** React Hook Form (or standard controlled components), xlsx (for data exports)
+| Area | Libraries |
+|------|-----------|
+| Framework | React 18, Vite |
+| State | Redux Toolkit |
+| Routing | React Router v6 |
+| Styling | Tailwind CSS, Styled Components |
+| UI | Radix UI |
+| API | Axios |
+| Animations | Framer Motion, GSAP |
 
-## 📂 Project Structure
+## Project structure
 
-The source code is primarily located in the `src` directory:
+```
+src/
+├── api/              # Axios instance and interceptors
+├── components/
+│   ├── admin-view/   # Admin dashboard UI
+│   ├── shopping-view/# Storefront UI (header, cart, etc.)
+│   ├── common/       # Shared components (CheckAuth, Loader, …)
+│   └── auth/         # Auth layout
+├── config/
+│   ├── index.js      # Form configs, menu items, sort options
+│   └── routes.js     # Central route constants and auth helpers
+├── pages/
+│   ├── admin-view/   # Admin pages
+│   ├── shopping-view/# Storefront pages
+│   └── auth/         # Login & register
+└── store/            # Redux slices (auth, shop, …)
+```
 
-- `components/`: Contains all reusable UI components.
-  - `admin-view/`: Components specific to the admin dashboard.
-  - `shopping-view/`: Components specific to the customer storefront.
-  - `common/`: Shared components like Loaders, CheckAuth, UI elements (buttons, inputs).
-  - `auth/`: Layout and components for login/registration pages.
-- `pages/`: The main page views rendered by React Router.
-  - `admin-view/`: Dashboard, Products, Orders, Features, Categories, Newsletters, etc.
-  - `shopping-view/`: Home, Listing, Checkout, Account, Policies, Product Details, etc.
-  - `auth/`: Login and Register screens.
-- `store/`: Redux setup containing slices for state management (auth, shop, admin data).
-- `api/`, `lib/`, `utils/`: Utility functions, API configurations, and helper logic.
-- `assets/`: Static assets like images and fonts.
+---
 
-## 🛠️ Features & Architecture
+## Routes
 
-### 1. User Authentication (`/auth/*`)
-- Robust authentication layout.
-- Protected routes using the `CheckAuth` component, which checks user roles and tokens.
-- Automatic redirection based on authentication state and user roles (Admin vs User).
+All application routes are defined in `src/App.jsx`. Shared path constants live in `src/config/routes.js` — **use `ROUTES` in code instead of hardcoding paths**.
 
-### 2. Admin Dashboard (`/admin/*`)
-A comprehensive control panel for site administrators to manage:
-- **Products & Orders:** Full CRUD capabilities for inventory and viewing customer orders.
-- **Content Management:** Features, XL-Features, Topbar announcements.
-- **Marketing & SEO:** Coupons, Newsletters, and Contact Messages.
-- **Settings:** Shipping configurations, Invoice Control, Message Templates, and Categories.
+### Route constants (`src/config/routes.js`)
 
-### 3. Storefront (`/shop/*` & `/`)
-The customer-facing e-commerce interface:
-- **Shopping Experience:** Dynamic homepage, product listings, detailed product views, and category filtering.
-- **Checkout Flow:** Cart management, address selection, and payment processing integration.
-- **User Account:** Order history and account details.
-- **Static Pages:** About, Contact, FAQs, Privacy, Terms, Refund, and Shipping policies.
+| Constant | Path | Notes |
+|----------|------|-------|
+| `ROUTES.home` | `/` | Storefront home |
+| `ROUTES.listing` | `/listing` | Product listing / search |
+| `ROUTES.special(type)` | `/special/:type` | Curated collections |
+| `ROUTES.product(id)` | `/product/:id` | Product detail |
+| `ROUTES.checkout` | `/checkout` | Checkout |
+| `ROUTES.account` | `/account` | User account & orders |
+| `ROUTES.paymentSuccess` | `/payment-success` | Post-payment confirmation |
+| `ROUTES.about` | `/about` | About page |
+| `ROUTES.contact` | `/contact` | Contact form |
+| `ROUTES.faq` | `/faq` | FAQs |
+| `ROUTES.terms` | `/terms` | Terms of service |
+| `ROUTES.privacy` | `/privacy` | Privacy policy |
+| `ROUTES.refunds` | `/refunds` | Refund policy |
+| `ROUTES.shipping` | `/shipping` | Shipping policy |
+| `ROUTES.login` | `/auth/login` | Login |
+| `ROUTES.register` | `/auth/register` | Register |
+| `ROUTES.adminDashboard` | `/admin/dashboard` | Admin home |
+| `ROUTES.unauth` | `/unauth-page` | Unauthorized access |
 
-## 💻 Running Locally
+**Helper functions**
+
+- `isAdminUser(user)` — returns `true` for `admin` or `superadmin` roles.
+- `getPostLoginPath(user, from)` — admins → `/admin/dashboard`; shoppers → previous page or `/`.
+
+---
+
+### Storefront (`/` layout)
+
+Wrapped in `ShoppingLayout` + `CheckAuth`. All paths below are relative to the site root.
+
+| Path | Page component | Description |
+|------|----------------|-------------|
+| `/` | `ShoppingHome` | Homepage with featured sections |
+| `/listing` | `ShoppingListing` | All products, filters, search, sort |
+| `/special/:type` | `SpecialProductsPage` | Curated product collections |
+| `/product/:id` | `ProductDetailsPage` | Single product detail |
+| `/checkout` | `ShoppingCheckout` | Cart checkout & payment |
+| `/account` | `ShoppingAccount` | Profile, addresses, order history |
+| `/payment-success` | `PaymentSuccessPage` | Shown after successful payment |
+| `/about` | `AboutInner` | About Aachiamma Foods |
+| `/contact` | `ContactPage` | Contact form |
+| `/faq` | `FAQsPage` | Frequently asked questions |
+| `/terms` | `TermsPage` | Terms of service |
+| `/privacy` | `PrivacyPolicy` | Privacy policy |
+| `/refunds` | `RefundPolicy` | Refund policy |
+| `/shipping` | `ShippingPolicy` | Shipping policy |
+
+#### Query parameters — `/listing`
+
+| Param | Example | Purpose |
+|-------|---------|---------|
+| `category` | `?category=pickles` | Filter by category slug |
+| `_` | `?category=snacks&_=1710000000000` | Cache-bust when re-applying filters on the same page |
+
+Category slugs used in the footer and navigation include: `pickles`, `snacks`, `spices-and-powders`, `kondattam`, `combos`. Additional slugs come from the backend categories API.
+
+Filters can also be restored from `sessionStorage` key `filters` (JSON, e.g. `{ "category": ["pickles"] }`).
+
+#### Dynamic segments — `/special/:type`
+
+| `:type` value | Label | Product tag |
+|---------------|-------|-------------|
+| `trending` | Trending | `trending` |
+| `best-selling` | Best Selling | `best-selling` |
+| `new-arrival` | New Arrival | `new-arrival` |
+
+Example: `/special/trending`
+
+#### Dynamic segments — `/product/:id`
+
+`:id` is the MongoDB product `_id` from the API.
+
+Example: `/product/64a1b2c3d4e5f6789012345`
+
+#### Homepage hash anchors
+
+The home page exposes section anchors for in-page scrolling (used by `ScrollManager` in `App.jsx`):
+
+| Hash | Section |
+|------|---------|
+| `#best-selling` | Best selling products |
+| `#trending` | Trending products (if present) |
+| `#new-arrival` | New arrivals (if present) |
+
+---
+
+### Authentication (`/auth` layout)
+
+| Path | Page component | Description |
+|------|----------------|-------------|
+| `/auth/login` | `AuthLogin` | User / admin login |
+| `/auth/register` | `AuthRegister` | New account registration |
+
+**Redirects (via `CheckAuth`)**
+
+- Logged-in user visiting `/auth/login` or `/auth/register` → `/` (shopper) or `/admin/dashboard` (admin).
+- Unauthenticated user visiting `/admin/*` → `/auth/login` (with `state.from` for return navigation).
+
+---
+
+### Admin (`/admin` layout)
+
+Requires authentication and `admin` or `superadmin` role. Non-admins are sent to `/unauth-page`.
+
+| Path | Page component | Description |
+|------|----------------|-------------|
+| `/admin/dashboard` | `AdminDashboard` | Overview & stats |
+| `/admin/products` | `AdminProducts` | Product CRUD |
+| `/admin/orders` | `AdminOrders` | Order management |
+| `/admin/features` | `AdminFeatures` | Homepage features |
+| `/admin/xl-features` | `AdminXLFeatures` | XL feature blocks |
+| `/admin/newsletter` | `AdminNewsletter` | Newsletter subscribers |
+| `/admin/topbar` | `AdminTopbar` | Top announcement bar |
+| `/admin/reviews` | `AdminReviews` | Product reviews |
+| `/admin/categories` | `AdminCategories` | Product categories |
+| `/admin/coupons` | `AdminCoupons` | Coupon list |
+| `/admin/coupons/add` | `AdminAddCoupon` | Create coupon |
+| `/admin/coupons/add/:id` | `AdminAddCoupon` | Edit coupon |
+| `/admin/shipping` | `AdminShipping` | Shipping rules |
+| `/admin/templates` | `MessageTemplatesPage` | SMS / message templates |
+| `/admin/invoice-control` | `InvoiceControlPage` | Invoice settings |
+| `/admin/contact-messages` | `AdminContactMessages` | Contact form inbox |
+
+**Admin redirect**
+
+- Logged-in admin visiting `/` → `/admin/dashboard`.
+
+---
+
+### Global / fallback routes
+
+| Path | Page component | Description |
+|------|----------------|-------------|
+| `/unauth-page` | `UnauthPage` | Shown when a non-admin tries to access admin routes |
+| `*` (any other path) | `NotFound` | 404 page |
+
+---
+
+### Route guard summary
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CheckAuth (wraps /, /auth, /admin layouts)                 │
+├─────────────────────────────────────────────────────────────┤
+│  /admin/*     → must be logged in + admin/superadmin        │
+│  /auth/*      → redirect away if already logged in          │
+│  / (home)     → admins redirected to /admin/dashboard     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Sitemap (public SEO routes)
+
+`npm run sitemap` (runs automatically before `npm run build`) writes `public/sitemap.xml` with these public URLs:
+
+`/`, `/listing`, `/about`, `/contact`, `/faq`, `/terms`, `/privacy`, `/refunds`, `/shipping`
+
+Product detail, checkout, account, auth, and admin routes are intentionally excluded.
+
+---
+
+## Running locally
 
 ### Prerequisites
-Ensure Node.js is installed.
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+- Node.js 18+
+- Backend API running (see `Aachiamma-backend`)
 
-2. **Environment Variables:**
-   Create a `.env` file in the root of the `client` directory (if needed):
-   ```env
-   VITE_API_URL=http://localhost:5000/api
-   ```
-   *(Note: The actual variable name depends on your Axios setup. Check `src/api` or `src/config` for the exact expected API URL variable).*
+### Setup
 
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-   This will start the Vite server with Hot Module Replacement (HMR).
+```bash
+npm install
+```
 
-4. **Build for production:**
-   ```bash
-   npm run build
-   ```
-   The production-ready files will be generated in the `dist` directory.
+Create or edit `.env` in the project root:
 
-5. **Preview the production build:**
-   ```bash
-   npm run preview
-   ```
+```env
+VITE_API_BASE=http://localhost:5000
+VITE_API_URL=http://localhost:5000
+```
 
-## 📜 Notes
-- This project utilizes modern scroll management inside `App.jsx` to handle proper scrolling behaviors during navigation, catering also to `prefers-reduced-motion`.
-- Ensure the backend server is running concurrently for data fetching to work properly.
+### Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Vite dev server with HMR |
+| `npm run build` | Generate sitemap, then production build → `dist/` |
+| `npm run preview` | Preview the production build |
+| `npm run sitemap` | Regenerate `public/sitemap.xml` and `robots.txt` |
+| `npm run lint` | Run ESLint |
+
+---
+
+## Notes
+
+- Scroll behaviour (including hash anchors and `prefers-reduced-motion`) is handled by `ScrollManager` in `App.jsx`.
+- Navigation in components should import paths from `@/config/routes` rather than string literals.
+- The backend must be running for API calls (products, cart, auth, etc.) to work.
