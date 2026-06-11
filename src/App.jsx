@@ -42,6 +42,7 @@ import SpecialProductsPage from "./pages/shopping-view/special-products";
 import { ConnectedLoader } from "@/components/common/Loader";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { Analytics } from "@vercel/analytics/react";
+import {SpeedInsights} from "@vercel/speed-insights/react";
 
 function ScrollManager() {
   const location = useLocation();
@@ -163,6 +164,7 @@ function App() {
     <div className="flex flex-col overflow-hidden bg-white">
       <GoogleAnalytics />
       <Analytics />
+      <SpeedInsights/>
       <ScrollManager />
       <ConnectedLoader />
 
