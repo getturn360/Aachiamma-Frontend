@@ -91,8 +91,8 @@ export default function AuthLayout({
           </p>
         </div>
 
-        <div className="absolute bottom-10 right-10 hidden md:block">
-          <div className="rounded-2xl bg-white/6 px-6 py-4 shadow-lg backdrop-blur-sm max-w-xs text-sm text-white/90">
+        <div className="absolute bottom-10 inset-x-0 hidden md:flex justify-center">
+          <div className="text-sm text-white/90 text-center whitespace-nowrap">
             Premium quality ingredients • Freshly prepared • Delivered with love
           </div>
         </div>
