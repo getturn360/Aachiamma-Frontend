@@ -88,12 +88,6 @@ const adminSidebarMenuItems = [
     icon: <Truck size={18} />,
   },
   {
-    id: "message_templates",
-    label: "Message Templates",
-    path: "/admin/templates",
-    icon: <MessageSquare size={18} />,
-  },
-  {
     id: "invoice_control",
     label: "Invoice Control",
     path: "/admin/invoice-control",
@@ -107,7 +101,7 @@ function MenuItems({ onNavigate }) {
   const role = user && user.role ? String(user.role).toLowerCase() : null;
 
 
-  const allowedForAdmin = ["products", "orders", "reviews"];
+  const allowedForAdmin = ["products", "orders", "reviews", "contact_messages", "invoice_control"];
   const listToRender =
     role === "admin" ? adminSidebarMenuItems.filter((mi) => allowedForAdmin.includes(mi.id)) : adminSidebarMenuItems;
 

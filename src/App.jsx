@@ -12,7 +12,6 @@ import AdminOrders from "./pages/admin-view/orders";
 import AdminFeatures from "./pages/admin-view/features";
 import AdminXLFeatures from "./pages/admin-view/xl-features";
 import AdminNewsletter from "./pages/admin-view/newsletter";
-import MessageTemplatesPage from "./pages/admin-view/message-templates";
 import InvoiceControlPage from "./pages/admin-view/invoice-control";
 import AdminReviews from "./pages/admin-view/reviews";
 import AdminCoupons from "./pages/admin-view/coupons";
@@ -226,7 +225,6 @@ function App() {
           <Route path="coupons/add" element={<AdminAddCoupon />} />
           <Route path="coupons/add/:id" element={<AdminAddCoupon />} />
           <Route path="shipping" element={<AdminShipping />} />
-          <Route path="templates" element={<MessageTemplatesPage />} />
           <Route path="invoice-control" element={<InvoiceControlPage />} />
           <Route path="contact-messages" element={<AdminContactMessages />} />
         </Route>

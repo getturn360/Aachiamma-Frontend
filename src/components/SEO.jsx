@@ -2,9 +2,9 @@ import React from "react";
 import { Helmet } from "react-helmet";
 
 const DEFAULTS = {
-  title: "Kerala Homemade Pickles, Snacks & Spices | Aachiammafoods",
+  title: "Kerala Homemade Pickles and Snacks | Aachiammafoods",
   description:
-    "Authentic Kerala homemade pickles, snacks & spices from Aachiammafoods. Traditional recipes, no preservatives. Order online and taste the difference!",
+    "Authentic Kerala homemade pickles and snacks from Aachiammafoods. Traditional recipes, no preservatives. Order online and taste the difference!",
   robots: "index, follow",
   author: "Aachiammafoods",
   viewport: "width=device-width, initial-scale=1",

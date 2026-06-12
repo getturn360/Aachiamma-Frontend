@@ -60,6 +60,8 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                     "Kerala homemade foods",
                     "aachiammafoods",
                 ]}
+                author="aachiammafoods"
+                robots="index, follow"
                 canonical="https://aachiammafoods.com/about"
                 ogTitle="Authentic Kerala Agraharam Recipes | About aachiammafoods"
                 ogDescription="Discover aachiammafoods and our authentic Kerala Agraharam recipes, traditional pickles, homemade snacks and preservative-free South Indian flavors."

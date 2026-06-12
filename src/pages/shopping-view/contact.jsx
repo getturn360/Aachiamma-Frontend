@@ -7,7 +7,7 @@ import SEO from "@/components/SEO";
 const CONTACT_DETAILS = {
   address: "20/617-3, Mankavu, Palakkad, Kerala – 678001",
   phone: "+91 7356 428 330",
-  email: "info@aachiammafoods.com",
+  email: "aachiammafoods@gmail.com",
 };
 
 export default function ContactPage({ accent = "#08665F" }) {
@@ -68,6 +68,8 @@ export default function ContactPage({ accent = "#08665F" }) {
           "homemade snacks",
           "aachiammafoods",
         ]}
+        author="aachiammafoods"
+        robots="index, follow"
         canonical="https://aachiammafoods.com/contact"
         ogTitle="South Indian Pickles & Snacks | Contact aachiammafoods"
         ogDescription="Discover authentic homemade flavours from trusted South Indian pickles and snacks suppliers. Explore tasty traditional varieties at aachiammafoods."

@@ -14,49 +14,15 @@ function InvoiceControlPage() {
   const [isSaving, setIsSaving] = useState(false);
   const fileRef = useRef(null);
 
-  const pollRef = useRef(null);
   const mountedRef = useRef(true);
-  const initialSuccessRef = useRef(false); 
-  const failCountRef = useRef(0); 
-  const MAX_CONSECUTIVE_FAILURES = 3;
-  const POLL_INTERVAL_MS = 5000;
 
   useEffect(() => {
     mountedRef.current = true;
-
-    (async () => {
-      const ok = await fetchSettings();
-      if (ok && mountedRef.current) {
-        initialSuccessRef.current = true;
-        pollRef.current = setInterval(() => fetchSettings(), POLL_INTERVAL_MS);
-      }
-    })();
-
-    const onVisibility = () => {
-      if (document.hidden) {
-        if (pollRef.current) {
-          clearInterval(pollRef.current);
-          pollRef.current = null;
-        }
-      } else {
-      
-        if (initialSuccessRef.current && !pollRef.current) {
-          pollRef.current = setInterval(() => fetchSettings(), POLL_INTERVAL_MS);
-        }
-      }
-    };
-
-    document.addEventListener("visibilitychange", onVisibility);
+    fetchSettings();
 
     return () => {
       mountedRef.current = false;
-      document.removeEventListener("visibilitychange", onVisibility);
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
-      }
     };
-  
   }, []);
 
   async function fetchSettings() {
@@ -65,17 +31,11 @@ function InvoiceControlPage() {
       const j = res?.data;
 
       if (j && j.success) {
-        failCountRef.current = 0; 
         if (mountedRef.current) setSettings(j.data || {});
         return true;
       } else {
-     
-        failCountRef.current += 1;
         if (mountedRef.current) {
           toast({ title: "Failed to load invoice settings", variant: "destructive" });
-        }
-        if (failCountRef.current >= MAX_CONSECUTIVE_FAILURES) {
-          stopPolling();
         }
         return false;
       }
@@ -83,33 +43,19 @@ function InvoiceControlPage() {
       const status = err?.response?.status;
       console.error("fetchSettings err", status, err?.message || err);
 
-  
       if (status === 401 || status === 403) {
         if (mountedRef.current) {
           toast({ title: "Unauthorized", description: "Please login with an admin account", variant: "destructive" });
           setSettings({});
         }
-        stopPolling();
         return false;
       }
 
-      failCountRef.current += 1;
       if (mountedRef.current) {
         toast({ title: "Failed to load invoice settings", description: err?.message || "See console", variant: "destructive" });
       }
 
-      if (failCountRef.current >= MAX_CONSECUTIVE_FAILURES) {
-        stopPolling();
-      }
-
       return false;
-    }
-  }
-
-  function stopPolling() {
-    if (pollRef.current) {
-      clearInterval(pollRef.current);
-      pollRef.current = null;
     }
   }
 
@@ -154,7 +100,6 @@ function InvoiceControlPage() {
       console.error("save settings err", err);
       const status = err?.response?.status;
       if (status === 401 || status === 403) {
-        stopPolling();
         toast({ title: "Unauthorized", description: "Please login as admin", variant: "destructive" });
       } else {
         toast({ title: "Save failed", description: err?.message || "See console", variant: "destructive" });
@@ -213,7 +158,6 @@ function InvoiceControlPage() {
       console.error("logo upload err", err);
       const status = err?.response?.status;
       if (status === 401 || status === 403) {
-        stopPolling();
         toast({ title: "Unauthorized", description: "Please login as admin", variant: "destructive" });
       } else {
         toast({ title: "Upload failed", description: err?.message || "See console", variant: "destructive" });

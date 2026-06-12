@@ -33,6 +33,7 @@ const isTodayLocal = (dateStr) => {
 
 export default function AdminReviewsView() {
   const { user } = useSelector((s) => s.auth || {});
+  const isSuperAdmin = user?.role !== 'admin';
   const isAdmin = Boolean(user?.role === 'admin' || user?.role === 'superadmin' || user?.isAdmin);
 
 
@@ -308,7 +309,9 @@ export default function AdminReviewsView() {
                   {viewTarget.adminReply?.text ? (
 
                     <div className="flex gap-2 justify-end">
-                      <Button variant="destructive" onClick={deleteReply} disabled={replySaving}>Delete Replay</Button>
+                      {isSuperAdmin && (
+                        <Button variant="destructive" onClick={deleteReply} disabled={replySaving}>Delete Reply</Button>
+                      )}
                       <Button variant="outline" onClick={closeViewDialog}>Close</Button>
                     </div>
                   ) : (

@@ -128,6 +128,8 @@ const getInvoiceNumber = (order, invoiceSettings = {}) => {
 export default function AdminOrdersView() {
   const dispatch = useDispatch();
   const { orderList, orderDetails, invoiceSettings } = useSelector((state) => state.adminOrder);
+  const { user } = useSelector((state) => state.auth || {});
+  const isSuperAdmin = user?.role !== "admin";
 
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
@@ -547,13 +549,13 @@ export default function AdminOrdersView() {
           </div>
         </div>
 
-        <div className="w-full md:w-auto flex flex-col md:flex-row gap-2 md:gap-3 items-stretch md:items-center">
+        <div className="w-full md:w-auto flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3 items-stretch md:items-center">
     
-          <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
-            <div className="inline-flex rounded-md border overflow-hidden w-full md:w-auto">
+          <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto shrink-0">
+            <div className="inline-flex h-9 rounded-md border border-slate-200 overflow-hidden w-full md:w-auto shrink-0 shadow-sm">
               <button
                 onClick={() => setShowTodayOnly(true)}
-                className={`flex-1 md:flex-none px-3 py-1 text-sm font-medium transition ${showTodayOnly ? "bg-[#08665F] text-white" : "bg-white text-slate-700 hover:bg-slate-50"}`}
+                className={`flex-1 md:flex-none h-full px-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 ${showTodayOnly ? "bg-[#08665F] text-white" : "bg-white text-slate-700 hover:bg-slate-50"}`}
                 aria-pressed={showTodayOnly}
                 title="Show only today's orders"
               >
@@ -561,7 +563,7 @@ export default function AdminOrdersView() {
               </button>
               <button
                 onClick={() => setShowTodayOnly(false)}
-                className={`flex-1 md:flex-none px-3 py-1 text-sm font-medium transition ${!showTodayOnly ? "bg-[#08665F] text-white" : "bg-white text-slate-700 hover:bg-slate-50"}`}
+                className={`flex-1 md:flex-none h-full px-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 ${!showTodayOnly ? "bg-[#08665F] text-white" : "bg-white text-slate-700 hover:bg-slate-50"}`}
                 aria-pressed={!showTodayOnly}
                 title="Show all orders"
               >
@@ -569,25 +571,25 @@ export default function AdminOrdersView() {
               </button>
             </div>
 
-            <div className="hidden md:block text-sm text-slate-500">
+            <div className="hidden md:block text-sm text-slate-500 whitespace-nowrap">
               {showTodayOnly ? "Showing: Today" : "Showing: All"} • {displayOrders.length}
             </div>
           </div>
 
-          <div className="flex gap-2 md:gap-3 items-center w-full md:w-auto flex-wrap md:bg-slate-50 md:rounded-md md:px-3 md:py-1 md:shadow-sm">
+          <div className="flex gap-2 md:gap-3 items-center w-full md:w-auto flex-wrap md:bg-slate-50 md:rounded-lg md:px-3 md:py-1.5 md:border md:border-slate-100 md:shadow-sm">
             <div className="flex gap-2 w-full md:w-auto">
               <input
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="border rounded px-2 py-1 text-sm w-full md:w-36"
+                className="h-9 border border-slate-200 rounded-md bg-white px-3 text-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#08665F]/50 disabled:cursor-not-allowed disabled:opacity-50 w-full md:w-36 transition-colors duration-200 hover:border-slate-300"
                 aria-label="Export from date"
               />
               <input
                 type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="border rounded px-2 py-1 text-sm w-full md:w-36"
+                className="h-9 border border-slate-200 rounded-md bg-white px-3 text-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#08665F]/50 disabled:cursor-not-allowed disabled:opacity-50 w-full md:w-36 transition-colors duration-200 hover:border-slate-300"
                 aria-label="Export to date"
               />
             </div>
@@ -608,14 +610,14 @@ export default function AdminOrdersView() {
           </div>
 
 
-          <div className="flex gap-2 md:gap-3 items-center w-full md:w-auto flex-wrap md:bg-slate-50 md:rounded-md md:px-3 md:py-1 md:shadow-sm md:ml-2">
+          <div className="flex gap-2 md:gap-3 items-center w-full md:w-auto flex-wrap md:bg-slate-50 md:rounded-lg md:px-3 md:py-1.5 md:border md:border-slate-100 md:shadow-sm">
             <div className="flex gap-2 w-full md:w-auto items-center">
               <input
                 type="text"
                 value={invoiceFromSuffix}
                 onChange={(e) => setInvoiceFromSuffix(e.target.value.trim().slice(0, INVOICE_SUFFIX_LENGTH))}
                 placeholder={`From (last ${INVOICE_SUFFIX_LENGTH})`}
-                className="border rounded px-2 py-1 text-sm w-28 md:w-28"
+                className="h-9 border border-slate-200 rounded-md bg-white px-3 text-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#08665F]/50 disabled:cursor-not-allowed disabled:opacity-50 w-28 md:w-28 transition-colors duration-200 hover:border-slate-300"
                 aria-label={`Invoice from suffix (last ${INVOICE_SUFFIX_LENGTH})`}
                 maxLength={INVOICE_SUFFIX_LENGTH}
               />
@@ -624,7 +626,7 @@ export default function AdminOrdersView() {
                 value={invoiceToSuffix}
                 onChange={(e) => setInvoiceToSuffix(e.target.value.trim().slice(0, INVOICE_SUFFIX_LENGTH))}
                 placeholder={`To (last ${INVOICE_SUFFIX_LENGTH})`}
-                className="border rounded px-2 py-1 text-sm w-28 md:w-28"
+                className="h-9 border border-slate-200 rounded-md bg-white px-3 text-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#08665F]/50 disabled:cursor-not-allowed disabled:opacity-50 w-28 md:w-28 transition-colors duration-200 hover:border-slate-300"
                 aria-label={`Invoice to suffix (last ${INVOICE_SUFFIX_LENGTH})`}
                 maxLength={INVOICE_SUFFIX_LENGTH}
               />
@@ -803,33 +805,31 @@ export default function AdminOrdersView() {
                             )}
                           </Button>
 
-                
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={async () => {
-                              if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
-                              try {
-                                await dispatch(deleteOrderForAdmin(id)).unwrap();
-                         
-                                if (typeof window !== 'undefined' && window?.toast && window.toast.success) {
-                                  window.toast.success && window.toast.success("Order deleted");
-                                } else {
-      
-                                  alert("Order deleted");
+                          {isSuperAdmin && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={async () => {
+                                if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
+                                try {
+                                  await dispatch(deleteOrderForAdmin(id)).unwrap();
+                                  if (typeof window !== 'undefined' && window?.toast && window.toast.success) {
+                                    window.toast.success && window.toast.success("Order deleted");
+                                  } else {
+                                    alert("Order deleted");
+                                  }
+                                } catch (err) {
+                                  console.error("Delete order failed", err);
+                                  alert("Failed to delete order. See console.");
                                 }
-                              } catch (err) {
-                                console.error("Delete order failed", err);
-           
-                                alert("Failed to delete order. See console.");
-                              }
-                            }}
-                            className="inline-flex items-center gap-2 text-rose-600"
-                            aria-label={`Delete order ${invoiceNumber}`}
-                          >
-                            <Trash2 size={14} />
-                            Delete
-                          </Button>
+                              }}
+                              className="inline-flex items-center gap-2 text-rose-600"
+                              aria-label={`Delete order ${invoiceNumber}`}
+                            >
+                              <Trash2 size={14} />
+                              Delete
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -955,24 +955,26 @@ export default function AdminOrdersView() {
                             )}
                           </Button>
 
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={async () => {
-                              if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
-                              try {
-                                await dispatch(deleteOrderForAdmin(id)).unwrap();
-            
-                                alert("Order deleted");
-                              } catch (err) {
-      
-                                alert("Failed to delete order. See console.");
-                                console.error("Delete order failed", err);
-                              }
-                            }}
-                          >
-                            <Trash2 size={14} />
-                          </Button>
+                          {isSuperAdmin && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={async () => {
+                                if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
+                                try {
+                                  await dispatch(deleteOrderForAdmin(id)).unwrap();
+              
+                                  alert("Order deleted");
+                                } catch (err) {
+        
+                                  alert("Failed to delete order. See console.");
+                                  console.error("Delete order failed", err);
+                                }
+                              }}
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>

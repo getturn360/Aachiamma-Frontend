@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CommonForm from "../common/form";
 import { DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
@@ -21,6 +21,12 @@ function AdminOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth || {});
   const dispatch = useDispatch();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (orderDetails?.orderStatus) {
+      setFormData({ status: orderDetails.orderStatus });
+    }
+  }, [orderDetails]);
 
   function handleUpdateStatus(event) {
     event.preventDefault();
