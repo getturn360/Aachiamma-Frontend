@@ -4,7 +4,7 @@ import { ArrowUp, Facebook, Instagram, Phone, MessageCircle } from "lucide-react
 import { Link, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { ROUTES } from "@/config/routes";
-import Logo from "../assets/logo-1.png";
+import Logo from "../../assets/logo-1.png";
 
 /**
  * Updated: when clicking a shop category link we set sessionStorage "filters"
@@ -56,6 +56,7 @@ export default function Footer() {
       const saved = localStorage.getItem("aachiamma_newsletter_email");
       if (saved) setEmail(saved);
     } catch (e) {
+      console.error("[Footer.jsx] Error:", e);
       // ignore
     }
   }, []);
@@ -87,9 +88,11 @@ export default function Footer() {
       try {
         localStorage.setItem("aachiamma_newsletter_email", email.trim());
       } catch (e) {
+      console.error("[Footer.jsx] Error:", e);
         // ignore
       }
     } catch (err) {
+      console.error("[Footer.jsx] Error:", err);
       const data = err?.response?.data;
       setErrorMsg(
         data?.message || "Network error. Please try again later."
@@ -113,6 +116,7 @@ export default function Footer() {
         sessionStorage.removeItem("filters");
       }
     } catch (e) {
+      console.error("[Footer.jsx] Error:", e);
       // ignore storage errors
     }
   };
@@ -122,6 +126,7 @@ export default function Footer() {
     try {
       navigate(path);
     } catch (e) {
+      console.error("[Footer.jsx] Error:", e);
       // fallback
       window.location.href = path;
     }
@@ -129,7 +134,9 @@ export default function Footer() {
     setTimeout(() => {
       try {
         window.scrollTo({ top: 0, behavior: "smooth" });
-      } catch (e) {}
+      } catch (e) {
+      console.error("[Footer.jsx] Error:", e);
+    }
     }, 60);
   };
 
@@ -178,7 +185,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
               <address className="not-italic text-slate-300 text-xs sm:text-sm leading-relaxed">
                 Aachiammafoods,
                 <br />
-                20/617-3, Mankavu, Palakkad
+                20/617-5, Mankavu, Palakkad
                 <br />
                 Kerala, India. PIN - 678001
               </address>

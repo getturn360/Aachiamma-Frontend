@@ -72,6 +72,7 @@ export default function ShoppingOrdersResponsive() {
       const d = new Date(iso);
       return d.toLocaleDateString("en-IN");
     } catch (e) {
+      console.error("[orders.jsx] Error:", e);
       return iso.split("T")[0] || "-";
     }
   };

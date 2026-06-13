@@ -5,6 +5,8 @@ const initialState = {
   isLoading: false,
   loadingMessage: null,
   featureImageList: [],
+  categories: [],
+  categoriesLoaded: false,
 };
 
 export const getFeatureImages = createAsyncThunk(
@@ -20,6 +22,19 @@ export const addFeatureImage = createAsyncThunk(
   async (image) => {
     const response = await api.post("/api/common/feature/add", { image });
     return response.data;
+  }
+);
+
+export const fetchCategories = createAsyncThunk(
+  "/common/fetchCategories",
+  async (_, { getState }) => {
+    const response = await api.get("/api/common/categories/get?sticky=true");
+    return response.data;
+  },
+  {
+    condition: (_, { getState }) => {
+      return !getState().commonFeature?.categoriesLoaded;
+    },
   }
 );
 
@@ -74,6 +89,14 @@ const commonSlice = createSlice({
       .addCase(addFeatureImage.rejected, (state) => {
         state.isLoading = false;
         state.loadingMessage = null;
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        const payload = action.payload || {};
+        state.categories = payload.categories || [];
+        state.categoriesLoaded = true;
+      })
+      .addCase(fetchCategories.rejected, (state) => {
+        state.categoriesLoaded = true;
       });
   },
 });

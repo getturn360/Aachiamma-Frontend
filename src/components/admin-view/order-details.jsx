@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import CommonForm from "../common/form";
-import { DialogContent } from "../ui/dialog";
+import { DialogContent, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
@@ -18,6 +18,7 @@ const initialFormData = {
 
 function AdminOrderDetailsView({ orderDetails }) {
   const [formData, setFormData] = useState(initialFormData);
+  const [isUpdating, setIsUpdating] = useState(false);
   const { user } = useSelector((state) => state.auth || {});
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -31,10 +32,12 @@ function AdminOrderDetailsView({ orderDetails }) {
   function handleUpdateStatus(event) {
     event.preventDefault();
     const { status } = formData;
+    setIsUpdating(true);
 
     dispatch(
       updateOrderStatus({ id: orderDetails?._id, orderStatus: status })
     ).then((data) => {
+      setIsUpdating(false);
       if (data?.payload?.success) {
         dispatch(getOrderDetailsForAdmin(orderDetails?._id));
         dispatch(getAllOrdersForAdmin());
@@ -43,6 +46,8 @@ function AdminOrderDetailsView({ orderDetails }) {
           title: data?.payload?.message,
         });
       }
+    }).catch(() => {
+      setIsUpdating(false);
     });
   }
 
@@ -100,7 +105,7 @@ function AdminOrderDetailsView({ orderDetails }) {
     <DialogContent className="sm:max-w-[600px] p-0 bg-white rounded-xl shadow-lg">
       <div className="p-6 flex items-center justify-between border-b">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Order Information</h2>
+          <DialogTitle className="text-lg font-semibold text-slate-900">Order Information</DialogTitle>
           <div className="text-sm text-slate-500">Order #{orderDetails?._id}</div>
         </div>
         <div className="flex items-center gap-3">
@@ -216,6 +221,7 @@ function AdminOrderDetailsView({ orderDetails }) {
               setFormData={setFormData}
               buttonText={"Update Order Status"}
               onSubmit={handleUpdateStatus}
+              isBtnDisabled={isUpdating}
             />
           </div>
         </div>

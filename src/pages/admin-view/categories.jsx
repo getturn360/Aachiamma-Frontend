@@ -52,6 +52,7 @@ export default function AdminCategories() {
         setCategories([]);
       }
     } catch (e) {
+      console.error("[categories.jsx] Error:", e);
       setCategories([]);
     } finally {
       setLoading(false);
@@ -122,6 +123,7 @@ export default function AdminCategories() {
         setFormError(res?.data?.message || "Operation failed");
       }
     } catch (err) {
+      console.error("[categories.jsx] Error:", err);
       setFormError(err?.response?.data?.message || err.message || "Server error");
     } finally {
       setLoading(false);
@@ -157,6 +159,7 @@ export default function AdminCategories() {
         alert(res?.data?.message || "Delete failed");
       }
     } catch (err) {
+      console.error("[categories.jsx] Error:", err);
       alert("Delete failed");
     } finally {
       setConfirmLoading(false);
@@ -178,6 +181,7 @@ export default function AdminCategories() {
         withOrder.map((it) => api.put(`/api/admin/categories/update/${it._id}`, { order: it.order }))
       );
     } catch (err) {
+      console.error("[categories.jsx] Error:", err);
       setFormError("Failed to save new order. Re-loading categories.");
       await loadCategories();
     } finally {

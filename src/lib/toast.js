@@ -70,7 +70,9 @@ function makeToastNode({ title, description, variant }) {
   close.addEventListener("click", () => {
     try {
       if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
-    } catch (e) {}
+    } catch (e) {
+      console.error("[toast.js] Error:", e);
+    }
   });
   wrap.appendChild(close);
 
@@ -87,7 +89,9 @@ export function showToast({ title = "", description = "", variant = "default", t
       const timer = setTimeout(() => {
         try {
           if (node && node.parentNode) node.parentNode.removeChild(node);
-        } catch (e) {}
+        } catch (e) {
+      console.error("[toast.js] Error:", e);
+    }
       }, timeout);
 
       node.addEventListener("mouseenter", () => {
@@ -97,9 +101,11 @@ export function showToast({ title = "", description = "", variant = "default", t
 
     return { success: true };
   } catch (e) {
+      console.error("[toast.js] Error:", e);
     try {
       alert((title ? title + "\n" : "") + (description || ""));
-    } catch (er) {}
+    } catch (er) {
+      console.error("[toast.js] Error:", er);}
     return { success: false, error: e };
   }
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { DialogContent } from "../ui/dialog";
+import { DialogContent, DialogTitle } from "../ui/dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -85,7 +85,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
     <DialogContent className="sm:max-w-[980px] bg-white rounded-2xl shadow-xl p-4 sm:p-6 max-h-[80vh] sm:max-h-none overflow-auto sm:overflow-visible">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
         <div className="min-w-0">
-          <h2 className="text-base sm:text-lg font-semibold text-slate-900 truncate">Order #{orderDetails?._id || "-"}</h2>
+          <DialogTitle className="text-base sm:text-lg font-semibold text-slate-900 truncate">Order #{orderDetails?._id || "-"}</DialogTitle>
           <p className="text-xs text-slate-500 mt-1">Placed on {fmtDate(orderDetails?.orderDate)}</p>
         </div>
 

@@ -45,8 +45,8 @@ function CommonForm({
           return;
         }
       } catch (err) {
-
-      }
+      console.error("[form.jsx] Error:", err);
+    }
     })();
     return () => {
       mounted = false;
@@ -597,69 +597,7 @@ function CommonForm({
         break;
       }
 
-      case "qaList": {
-        const arr = Array.isArray(value) ? value : [];
-        element = (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">{getControlItem.label}</div>
-              <Button
-                type="button"
-                onClick={() => {
-                  const newArr = [...arr, { question: "", answer: "" }];
-                  setField(getControlItem.name, newArr);
-                }}
-              >
-                Add Q&A
-              </Button>
-            </div>
 
-            <div className="space-y-2">
-              {arr.map((it, idx) => (
-                <div key={idx} className="space-y-2 border p-3 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium">Q&A {idx + 1}</div>
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        const newArr = [...arr];
-                        newArr.splice(idx, 1);
-                        setField(getControlItem.name, newArr);
-                      }}
-                      size="icon"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                  <Input
-                    placeholder="Question"
-                    value={it.question || ""}
-                    onChange={(e) => {
-                      const newArr = [...arr];
-                      newArr[idx] = { ...newArr[idx], question: e.target.value };
-                      setField(getControlItem.name, newArr);
-                    }}
-                    className="rounded-xl p-2"
-                  />
-                  <Textarea
-                    placeholder="Answer"
-                    value={it.answer || ""}
-                    onChange={(e) => {
-                      const newArr = [...arr];
-                      newArr[idx] = { ...newArr[idx], answer: e.target.value };
-                      setField(getControlItem.name, newArr);
-                    }}
-                    rows={3}
-                    className="rounded-xl p-2"
-                  />
-                </div>
-              ))}
-              {arr.length === 0 && <div className="text-sm text-slate-400">No FAQs added yet.</div>}
-            </div>
-          </div>
-        );
-        break;
-      }
 
       default:
         element = (
@@ -682,7 +620,7 @@ function CommonForm({
   const nameControls = formControls.filter((c) => c.name === "firstName" || c.name === "lastName");
   const cityBlockNames = ["city", "state", "postcode", "pincode"];
   const cityControls = formControls.filter((c) => cityBlockNames.includes(c.name));
-  const suppressOuterLabelTypes = ["variations", "specList", "sections", "qaList"];
+  const suppressOuterLabelTypes = ["variations", "specList", "sections"];
   const otherControls = formControls.filter((c) => !nameControls.includes(c) && !cityControls.includes(c));
 
   return (

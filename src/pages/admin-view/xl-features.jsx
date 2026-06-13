@@ -207,6 +207,7 @@ function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new
     if (Number.isNaN(res)) return "#ERR";
     return String(res);
   } catch (e) {
+      console.error("[xl-features.jsx] Error:", e);
     return "#ERR";
   }
 }
@@ -245,10 +246,54 @@ function parseCSV(text) {
     cur += ch;
   }
 
-  if (cur !== '' || inQuotes) row.push(cur);
   if (row.length > 0) rows.push(row);
   return rows;
 }
+
+const Cell = React.memo(({ r, c, data, sel, colWidths, freezeLeft, evaluateCell, onCellDoubleClick, onCellClick, setFormulaBar, formulaBar, editorRef, onEditorCommit }) => {
+  const key = coordsToCell(r, c);
+  const cellObj = data[key] || { value: '', format: {} };
+  const raw = cellObj.value;
+  const editing = sel.editing && sel.r === r && sel.c === c;
+  const selected = r >= Math.min(sel.r, sel.r2) && r <= Math.max(sel.r, sel.r2) && c >= Math.min(sel.c, sel.c2) && c <= Math.max(sel.c, sel.c2);
+  const display = React.useMemo(() => {
+    if (typeof raw === 'string' && raw.startsWith('=')) return evaluateCell(r, c);
+    return raw;
+  }, [raw, r, c, evaluateCell]);
+
+  const style = { width: colWidths[c] || 120, minWidth: colWidths[c] || 120 };
+  const className = `border border-gray-200 relative p-2 min-h-[36px] overflow-hidden ${selected ? 'bg-blue-50' : 'bg-white'}`;
+
+  const cellStyle = { ...style };
+  if (freezeLeft && c === 0) {
+    cellStyle.position = 'sticky'; cellStyle.left = 0; cellStyle.zIndex = 5; cellStyle.background = selected ? '#eef2ff' : '#fff';
+    cellStyle.boxShadow = '2px 0 0 rgba(0,0,0,0.03)';
+  }
+
+  return (
+    <div
+      onDoubleClick={() => onCellDoubleClick(r, c)}
+      onClick={(e) => onCellClick(r, c, e)}
+      className={className}
+      style={cellStyle}
+    >
+      {editing ? (
+        <input
+          ref={editorRef}
+          value={formulaBar}
+          onChange={(e) => setFormulaBar(e.target.value)}
+          onBlur={onEditorCommit}
+          onKeyDown={(ev) => { if (ev.key === 'Enter') onEditorCommit(); }}
+          className="w-full h-full outline-none"
+        />
+      ) : (
+        <div className="text-sm select-none whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontWeight: cellObj.format?.bold ? 700 : 400, fontStyle: cellObj.format?.italic ? 'italic' : 'normal' }}>
+          {display}
+        </div>
+      )}
+    </div>
+  );
+});
 
 export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_workbook_v2" }) {
   const [rowCount, setRowCount] = useState(rows);
@@ -258,7 +303,9 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     try {
       const raw = localStorage.getItem(storageKey);
       if (raw) return JSON.parse(raw).data || {};
-    } catch (e) {}
+    } catch (e) {
+      console.error("[xl-features.jsx] Error:", e);
+    }
     return {};
   });
 
@@ -342,7 +389,9 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
 
   useEffect(() => {
     const payload = { data, rowCount, colCount, colWidths };
-    try { localStorage.setItem(storageKey, JSON.stringify(payload)); } catch (e) {}
+    try { localStorage.setItem(storageKey, JSON.stringify(payload)); } catch (e) {
+      console.error("[xl-features.jsx] Error:", e);
+    }
   }, [data, rowCount, colCount, colWidths, storageKey]);
 
   useEffect(() => {
@@ -489,6 +538,7 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     try {
       await navigator.clipboard.writeText(txt);
     } catch (e) {
+      console.error("[xl-features.jsx] Error:", e);
       const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
     }
   }, [sel, getRaw]);
@@ -498,6 +548,7 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
     try {
       txt = await navigator.clipboard.readText();
     } catch (e) {
+      console.error("[xl-features.jsx] Error:", e);
       txt = prompt('Paste data here (tab/CSV)');
     }
     if (!txt) return;
@@ -634,7 +685,8 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
           setColCount(parsed.colCount || cols);
           setColWidths(parsed.colWidths || Array(parsed.colCount || cols).fill(120));
         }
-      } catch (e) { alert('Invalid file'); }
+      } catch (e) {
+      console.error("[xl-features.jsx] Error:", e); alert('Invalid file'); }
     };
     reader.readAsText(file);
   }, [pushHistory, rows, cols]);
@@ -660,50 +712,7 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
 
   const headers = useMemo(() => Array.from({ length: colCount }).map((_, i) => colIndexToName(i)), [colCount]);
 
-  function Cell({ r, c }) {
-    const key = coordsToCell(r, c);
-    const cellObj = data[key] || { value: '', format: {} };
-    const raw = cellObj.value;
-    const editing = sel.editing && sel.r === r && sel.c === c;
-    const selected = r >= Math.min(sel.r, sel.r2) && r <= Math.max(sel.r, sel.r2) && c >= Math.min(sel.c, sel.c2) && c <= Math.max(sel.c, sel.c2);
-    const display = useMemo(() => {
-      if (typeof raw === 'string' && raw.startsWith('=')) return evaluateCell(r, c);
-      return raw;
-    }, [raw, r, c, data]);
 
-    const style = { width: colWidths[c] || 120, minWidth: colWidths[c] || 120 };
-    const className = `border border-gray-200 relative p-2 min-h-[36px] overflow-hidden ${selected ? 'bg-blue-50' : 'bg-white'}`;
-
-    const cellStyle = { ...style };
-    if (freezeLeft && c === 0) {
-      cellStyle.position = 'sticky'; cellStyle.left = 0; cellStyle.zIndex = 5; cellStyle.background = selected ? '#eef2ff' : '#fff';
-      cellStyle.boxShadow = '2px 0 0 rgba(0,0,0,0.03)';
-    }
-
-    return (
-      <div
-        onDoubleClick={() => onCellDoubleClick(r, c)}
-        onClick={(e) => onCellClick(r, c, e)}
-        className={className}
-        style={cellStyle}
-      >
-        {editing ? (
-          <input
-            ref={editorRef}
-            value={formulaBar}
-            onChange={(e) => setFormulaBar(e.target.value)}
-            onBlur={onEditorCommit}
-            onKeyDown={(ev) => { if (ev.key === 'Enter') onEditorCommit(); }}
-            className="w-full h-full outline-none"
-          />
-        ) : (
-          <div className="text-sm select-none whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontWeight: cellObj.format?.bold ? 700 : 400, fontStyle: cellObj.format?.italic ? 'italic' : 'normal' }}>
-            {display}
-          </div>
-        )}
-      </div>
-    );
-  }
 
   return (
     <div className="p-4">
@@ -772,7 +781,22 @@ export default function XLWorkbook({ rows = 50, cols = 26, storageKey = "xl_work
             <div className="flex" key={r}>
               <div className="w-16 border-r border-b p-2 bg-gray-50 text-sm" style={{ position: freezeLeft ? 'sticky' : 'static', left: freezeLeft ? 0 : 'auto', zIndex: 10 }}>{r + 1}</div>
               {Array.from({ length: colCount }).map((__, c) => (
-                <Cell key={`${r}-${c}`} r={r} c={c} />
+                <Cell 
+                  key={`${r}-${c}`} 
+                  r={r} 
+                  c={c} 
+                  data={data}
+                  sel={sel}
+                  colWidths={colWidths}
+                  freezeLeft={freezeLeft}
+                  evaluateCell={evaluateCell}
+                  onCellDoubleClick={onCellDoubleClick}
+                  onCellClick={onCellClick}
+                  setFormulaBar={setFormulaBar}
+                  formulaBar={formulaBar}
+                  editorRef={editorRef}
+                  onEditorCommit={onEditorCommit}
+                />
               ))}
             </div>
           ))}

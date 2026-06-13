@@ -142,6 +142,7 @@ export default function AddCoupon() {
                         break;
                     }
                 } catch (e) {
+      console.error("[add-coupon.jsx] Error:", e);
                     lastErr = e;
                  
                 }
@@ -194,7 +195,9 @@ export default function AddCoupon() {
         setCreatedCoupon(null);
         try {
             if (nameRef.current) nameRef.current.focus();
-        } catch (e) { }
+        } catch (e) {
+      console.error("[add-coupon.jsx] Error:", e);
+    }
     };
 
     const validate = () => {

@@ -40,9 +40,10 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-import { logoutUser } from "@/store/auth-slice";
+import { logoutAsync } from "@/store/auth-slice";
 import UserCartWrapper from "./cart-wrapper";
 import { fetchCartItems } from "@/store/shop/cart-slice";
+import { fetchCategories } from "@/store/common-slice";
 import { Label } from "../ui/label";
 import api from "@/api/axios"; 
 
@@ -78,39 +79,36 @@ function safeScrollTo(top) {
     setTimeout(() => {
       try {
         html.style.scrollBehavior = prev || "";
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     }, 160);
   } catch (e) {
+      console.error("[header.jsx] Error:", e);
     try {
       window.scrollTo(0, top);
-    } catch (err) {}
+    } catch (err) {
+      console.error("[header.jsx] Error:", err);
+    }
   }
 }
 
 function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } = {}) {
-  const navigate = navigateTo || useNavigate();
+  const routerNavigate = useNavigate();
+  const navigate = navigateTo ?? routerNavigate;
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const dispatch = useDispatch();
+  const menuCategories = useSelector(
+    (state) => state.commonFeature?.categories || []
+  );
 
-  const [menuCategories, setMenuCategories] = useState([]);
   const [productsOpenDesktop, setProductsOpenDesktop] = useState(false);
   const [productsExpandedMobile, setProductsExpandedMobile] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-    async function loadCats() {
-      try {
-        const res = await api.get("/api/common/categories/get");
-        if (mounted && res?.data?.success) {
-          setMenuCategories(res.data.categories || []);
-        }
-      } catch (e) {}
-    }
-    loadCats();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   function handleNavigate(getCurrentMenuItem) {
     try {
@@ -126,7 +124,9 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
       if (currentFilter) {
         try {
           sessionStorage.setItem("filters", JSON.stringify(currentFilter));
-        } catch (e) {}
+        } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
       }
 
       const targetPath = getCurrentMenuItem.path || ROUTES.listing;
@@ -144,17 +144,24 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
         params.set("_", String(Date.now()));
         try {
           setSearchParams(params);
-        } catch (e) {}
+        } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
         try {
           navigate(`${ROUTES.listing}?${params.toString()}`);
         } catch (e) {
+      console.error("[header.jsx] Error:", e);
           try {
             window.history.replaceState({}, "", `${ROUTES.listing}?${params.toString()}`);
-          } catch (err) {}
+          } catch (err) {
+      console.error("[header.jsx] Error:", err);
+    }
         }
         try {
           window.scrollTo({ top: 0, behavior: "smooth" });
-        } catch (e) {}
+        } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
       } else {
         if (currentFilter) {
           const params = new URLSearchParams();
@@ -164,26 +171,35 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
           try {
             navigate(targetPath);
           } catch (e) {
+      console.error("[header.jsx] Error:", e);
             try {
               window.location.href = targetPath;
-            } catch (err) {}
+            } catch (err) {
+      console.error("[header.jsx] Error:", err);
+    }
           }
         }
         setTimeout(() => {
           try {
             window.scrollTo({ top: 0, behavior: "smooth" });
-          } catch (e) {}
+          } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
         }, 60);
       }
 
       try {
         onItemClick && onItemClick();
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     } catch (err) {
       console.error("handleNavigate error", err);
       try {
         navigate(getCurrentMenuItem.path || ROUTES.listing);
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     }
   }
 
@@ -191,7 +207,9 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
     try {
       try {
         sessionStorage.removeItem("filters");
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
 
       navigate(ROUTES.listing);
       setTimeout(() => {
@@ -200,8 +218,12 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
 
       try {
         onItemClick && onItemClick();
-      } catch (e) {}
-    } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
+    } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
   }
 
   const filtered = shoppingViewHeaderMenuItems.filter((m) => m.id !== "search" && !excludeIds.includes(m.id));
@@ -356,7 +378,8 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
 }
 
 function SearchIconButton({ navigateTo } = {}) {
-  const navigate = navigateTo || useNavigate();
+  const routerNavigate = useNavigate();
+  const navigate = navigateTo ?? routerNavigate;
 
   function focusListingSearchInput() {
     try {
@@ -370,7 +393,9 @@ function SearchIconButton({ navigateTo } = {}) {
         }
         return true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     return false;
   }
 
@@ -391,7 +416,9 @@ function SearchIconButton({ navigateTo } = {}) {
         setTimeout(() => {
           try {
             window.scrollTo({ top: 0, behavior: "smooth" });
-          } catch (e) {}
+          } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
           setTimeout(() => {
             focusListingSearchInput();
           }, 140);
@@ -418,12 +445,14 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
   const navigate = navigateTo || reactNavigate;
 
   function handleLogout() {
-    dispatch(logoutUser());
+    dispatch(logoutAsync());
     navigate(ROUTES.home);
     setTimeout(() => {
       try {
         window.scrollTo({ top: 0, behavior: "smooth" });
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     }, 60);
   }
 
@@ -443,7 +472,9 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
         const style = window.getComputedStyle(el);
         if (style.display === "none" || el.offsetParent === null) return;
         setOpenCartSheet(true);
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     }
     window.addEventListener("open-cart-sheet", onOpenCart);
     return () => window.removeEventListener("open-cart-sheet", onOpenCart);
@@ -483,7 +514,9 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
                 setTimeout(() => {
                   try {
                     window.scrollTo({ top: 0, behavior: "smooth" });
-                  } catch (e) {}
+                  } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
                 }, 60);
               }}
             >
@@ -512,7 +545,9 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
                     setTimeout(() => {
                       try {
                         window.scrollTo({ top: 0, behavior: "smooth" });
-                      } catch (e) {}
+                      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
                     }, 60);
                   }}
                 >
@@ -530,135 +565,6 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
         </>
       )}
     </div>
-  );
-}
-
-function FloatingCartButton() {
-  const { cartItems } = useSelector((state) => state.shopCart || {});
-  const count = Array.isArray(cartItems?.items) ? cartItems.items.length : cartItems?.length || 0;
-
-  const prevCountRef = useRef(count);
-  const btnRef = useRef(null);
-  const badgeRef = useRef(null);
-  const iconRef = useRef(null);
-  const pulseTimeoutRef = useRef(null);
-  const fillTimeoutRef = useRef(null);
-  const jumpTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    const prev = prevCountRef.current;
-    if (count > prev) {
-      const btn = btnRef.current;
-      const badge = badgeRef.current;
-      const icon = iconRef.current;
-
-      if (btn) {
-        btn.classList.add("fc-fill");
-        btn.classList.add("fc-jump");
-      }
-      if (badge) {
-        badge.classList.add("pulse");
-        badge.classList.add("fc-badge-float");
-      }
-      if (icon) icon.classList.add("fc-icon-pop");
-
-      if (pulseTimeoutRef.current) clearTimeout(pulseTimeoutRef.current);
-      if (fillTimeoutRef.current) clearTimeout(fillTimeoutRef.current);
-      if (jumpTimeoutRef.current) clearTimeout(jumpTimeoutRef.current);
-
-      pulseTimeoutRef.current = setTimeout(() => {
-        if (badge) {
-          badge.classList.remove("pulse");
-          badge.classList.remove("fc-badge-float");
-        }
-        if (icon) icon.classList.remove("fc-icon-pop");
-      }, 700);
-
-      fillTimeoutRef.current = setTimeout(() => {
-        if (btn) btn.classList.remove("fc-fill");
-      }, 900);
-
-      jumpTimeoutRef.current = setTimeout(() => {
-        if (btn) btn.classList.remove("fc-jump");
-      }, 700);
-    } else if (count === 0 && prev > 0) {
-      const btn = btnRef.current;
-      if (btn) {
-        btn.classList.add("fc-empty");
-        setTimeout(() => btn.classList.remove("fc-empty"), 420);
-      }
-    }
-    prevCountRef.current = count;
-
-    return () => {
-      if (pulseTimeoutRef.current) clearTimeout(pulseTimeoutRef.current);
-      if (fillTimeoutRef.current) clearTimeout(fillTimeoutRef.current);
-      if (jumpTimeoutRef.current) clearTimeout(jumpTimeoutRef.current);
-    };
-  }, [count]);
-
-  return (
-    <button
-      aria-label="open cart"
-      onClick={() => {
-   
-        try {
-          const headerBtn = document.querySelector('.header-cart-button');
-          if (headerBtn && typeof headerBtn.click === 'function') {
-            headerBtn.click();
-            return;
-          }
-        } catch (e) {}
-
-   
-        try {
-          window.dispatchEvent(new Event("open-cart-sheet"));
-        } catch (e) {}
-      }}
-      className="floating-cart floating-cart-button z-50"
-      ref={btnRef}
-      style={{
-        left: "50%",
-        transform: "translateX(-50%)",
-        bottom: "20px",
-      }}
-    >
-      <div className="floating-cart-inner" aria-hidden>
-        <ShoppingCart className="floating-cart-icon" ref={iconRef} />
-      </div>
-
-      <span className="floating-cart-label">Your Cart</span>
-
-      <span className="floating-cart-badge" aria-live="polite" ref={badgeRef}>
-        {count}
-      </span>
-
-      <style>{`
-        .floating-cart { position: fixed; display: inline-flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 999px; border: 1px solid ${ACCENT}22; background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,250,0.92)); box-shadow: 0 8px 30px rgba(5,35,32,0.08); cursor: pointer; transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms ease, background 220ms ease, color 220ms ease; backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%); outline: none; }
-        @media (max-width: 640px) { .floating-cart { display: none !important; } }
-        .floating-cart.fc-fill { background: linear-gradient(180deg, ${ACCENT}, ${ACCENT}); color: white; border-color: ${ACCENT}; box-shadow: 0 18px 48px ${ACCENT}22; }
-        .floating-cart.fc-empty { transform: translateX(-50%) translateY(-4px) scale(0.995); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
-        @keyframes fcJump {0% { transform: translateX(-50%) translateY(0) scale(1);}30% { transform: translateX(-50%) translateY(-16px) scale(1.03);}60% { transform: translateX(-50%) translateY(-6px) scale(1.015);}100% { transform: translateX(-50%) translateY(0) scale(1);} }
-        .floating-cart.fc-jump { animation: fcJump 700ms cubic-bezier(.2,.9,.3,1); }
-        .floating-cart-inner { width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, ${ACCENT}11, rgba(255,255,255,0.6)); border: 1px solid ${ACCENT}20; box-shadow: inset 0 -4px 8px rgba(255,255,255,0.5); transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease; }
-        .floating-cart-icon { width: 18px; height: 18px; color: ${ACCENT}; transition: transform 300ms cubic-bezier(.2,.9,.3,1), width 220ms ease, height 220ms ease; }
-        .fc-icon-pop { transform: scale(0.82) rotate(-8deg); opacity: 0.95; }
-        .floating-cart.fc-fill .floating-cart-icon { color: white; }
-        .floating-cart-label { font-weight: 600; font-size: 14px; color: ${ACCENT}; letter-spacing: 0.2px; transition: color 220ms ease, opacity 220ms ease; }
-        .floating-cart.fc-fill .floating-cart-label { color: #fff; }
-        .floating-cart-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 26px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: white; border: 1px solid ${ACCENT}; color: ${ACCENT}; box-shadow: 0 6px 18px ${ACCENT}22; transition: transform 200ms ease, box-shadow 200ms ease, background 220ms ease, color 220ms ease; }
-        @keyframes badgePulse {0% { transform: scale(1); }35% { transform: scale(1.22); }70% { transform: scale(0.98); }100% { transform: scale(1); }}
-        .floating-cart-badge.pulse { animation: badgePulse 560ms cubic-bezier(.2,.9,.3,1); }
-        @keyframes badgeFloat {0% { transform: translateY(0); opacity: 1; }60% { transform: translateY(-6px); opacity: 1; }100% { transform: translateY(0); opacity: 1; }}
-        .floating-cart-badge.fc-badge-float { animation: badgeFloat 700ms cubic-bezier(.2,.9,.3,1); }
-        .floating-cart:hover, .floating-cart:focus { transform: translateX(-50%) translateY(-6px) scale(1.02); box-shadow: 0 18px 50px ${ACCENT}20, 0 6px 32px rgba(0,0,0,0.08); background: linear-gradient(180deg, #fff, #fafafa); }
-        .floating-cart:hover .floating-cart-inner, .floating-cart:focus .floating-cart-inner { transform: translateY(-3px) rotate(-4deg); box-shadow: 0 12px 30px ${ACCENT}22, inset 0 -4px 8px rgba(255,255,255,0.5); }
-        .floating-cart::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); bottom: -8px; width: calc(100% + 24px); height: 10px; border-radius: 999px; pointer-events: none; opacity: 0; transition: opacity 220ms ease; }
-        .floating-cart:hover::after, .floating-cart:focus::after { opacity: 1; box-shadow: 0 6px 30px ${ACCENT}22; }
-        .floating-cart:focus-visible { box-shadow: 0 10px 34px ${ACCENT}44, 0 0 0 4px ${ACCENT}11; }
-        @media (max-width: 420px) { .floating-cart { padding: 10px; gap: 8px; border-radius: 14px; width: auto; } .floating-cart-label { display: none; } .floating-cart-badge { position: relative; top: -8px; left: 6px; min-width: 22px; height: 22px; padding: 0 6px; font-size: 11px; box-shadow: 0 8px 22px ${ACCENT}18; } .floating-cart-inner { width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 10px; } }
-      `}</style>
-    </button>
   );
 }
 
@@ -689,7 +595,9 @@ function TopBar({ hidden = false }) {
             return;
           }
         }
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
       if (!cancelled) setItems(fallback);
     }
     load();
@@ -732,7 +640,8 @@ function TopBar({ hidden = false }) {
 }
 
 function MobileMenu({ navigateTo } = {}) {
-  const navigate = navigateTo || useNavigate();
+  const routerNavigate = useNavigate();
+  const navigate = navigateTo ?? routerNavigate;
   const [open, setOpen] = useState(false);
   const auth = useSelector((s) => s.auth || {});
   const user = auth.user || null;
@@ -748,7 +657,9 @@ function MobileMenu({ navigateTo } = {}) {
           const front = res.data.logos.find((l) => l.variant === "front");
           if (front) setFrontUrl(front.url);
         }
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     }
     load();
     return () => {
@@ -763,13 +674,17 @@ function MobileMenu({ navigateTo } = {}) {
     try {
       try {
         sessionStorage.removeItem("filters");
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
 
       navigate(ROUTES.listing);
       setTimeout(() => {
         navigate(ROUTES.special(anchorId));
       }, 10);
-    } catch (e) {}
+    } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
   }
 
   return (
@@ -807,25 +722,33 @@ function MobileMenu({ navigateTo } = {}) {
 
         <div className="flex flex-col gap-4">
           <div className="px-1">
-            <MenuItems onItemClick={() => setOpen(false)} navigateTo={(p) => { navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }} excludeIds={['about','faq','contact']} mobile />
+            <MenuItems onItemClick={() => setOpen(false)} navigateTo={(p) => { navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
+      console.error("[header.jsx] Error:", err);
+    } },60); }} excludeIds={['about','faq','contact']} mobile />
           </div>
 
           <div className="mt-2 grid grid-cols-3 gap-3">
             <button
               className="py-3 rounded-lg font-medium shadow-sm border"
-              onClick={() => { setOpen(false); navigate(ROUTES.about); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
+              onClick={() => { setOpen(false); navigate(ROUTES.about); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
+      console.error("[header.jsx] Error:", err);
+    } },60); }}
               style={{ borderColor: "rgba(8,102,95,0.06)" }}
             >About</button>
 
             <button
               className="py-3 rounded-lg font-medium shadow-sm border"
-              onClick={() => { setOpen(false); navigate(ROUTES.faq); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
+              onClick={() => { setOpen(false); navigate(ROUTES.faq); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
+      console.error("[header.jsx] Error:", err);
+    } },60); }}
               style={{ borderColor: "rgba(8,102,95,0.06)" }}
             >FAQ</button>
 
             <button
               className="py-3 rounded-lg font-medium shadow-sm border"
-              onClick={() => { setOpen(false); navigate(ROUTES.contact); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }}
+              onClick={() => { setOpen(false); navigate(ROUTES.contact); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
+      console.error("[header.jsx] Error:", err);
+    } },60); }}
               style={{ borderColor: "rgba(8,102,95,0.06)" }}
             >Contact</button>
           </div>
@@ -843,7 +766,9 @@ function MobileMenu({ navigateTo } = {}) {
         <div className="mt-6 border-t border-gray-100 pt-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
         
-            <HeaderRightContent avatarOnly navigateTo={(p) => { setOpen(false); navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }} />
+            <HeaderRightContent avatarOnly navigateTo={(p) => { setOpen(false); navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
+      console.error("[header.jsx] Error:", err);
+    } },60); }} />
             <div className="text-sm">
               <div className="font-medium">{user ? (user.userName || user.name) : "Guest"}</div>
               <div className="text-xs text-gray-500">{user ? (user.email || "") : "Sign in for quicker checkout"}</div>
@@ -852,7 +777,9 @@ function MobileMenu({ navigateTo } = {}) {
 
           <div>
    
-            <HeaderRightContent cartOnly navigateTo={(p) => { setOpen(false); navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch{} },60); }} />
+            <HeaderRightContent cartOnly navigateTo={(p) => { setOpen(false); navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
+      console.error("[header.jsx] Error:", err);
+    } },60); }} />
           </div>
         </div>
       </SheetContent>
@@ -875,14 +802,19 @@ function ShoppingHeader() {
     try {
       reactNavigate(path);
     } catch (e) {
+      console.error("[header.jsx] Error:", e);
       try {
         window.location.href = path;
-      } catch (err) {}
+      } catch (err) {
+      console.error("[header.jsx] Error:", err);
+    }
     }
     setTimeout(() => {
       try {
         window.scrollTo({ top: 0, behavior: "smooth" });
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     }, 60);
   }
 
@@ -899,6 +831,7 @@ function ShoppingHeader() {
           if (back) setBackUrl(back.url);
         }
       } catch (e) {
+      console.error("[header.jsx] Error:", e);
         /* logos optional */
       }
     }
@@ -955,7 +888,7 @@ function ShoppingHeader() {
         if (!sourceEl) return;
 
         const startRect = sourceEl.getBoundingClientRect();
-        const target = document.querySelector(".floating-cart-button") || document.querySelector(".header-cart-button");
+        const target = document.querySelector(".header-cart-button");
         if (!target) return;
         const endRect = target.getBoundingClientRect();
 
@@ -998,7 +931,9 @@ function ShoppingHeader() {
             }, 220);
           }
         }, 800);
-      } catch (e) {}
+      } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
     };
   }, []);
 
@@ -1039,7 +974,9 @@ function ShoppingHeader() {
                 setTimeout(() => {
                   try {
                     window.scrollTo({ top: 0, behavior: "smooth" });
-                  } catch (e) {}
+                  } catch (e) {
+      console.error("[header.jsx] Error:", e);
+    }
                 }, 60);
               }}
             >
@@ -1081,8 +1018,6 @@ function ShoppingHeader() {
           </div>
         </div>
       </header>
-
-      <FloatingCartButton />
     </>
   );
 }

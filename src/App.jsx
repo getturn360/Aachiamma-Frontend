@@ -8,12 +8,12 @@ import AuthRegister from "./pages/auth/register";
 import AdminLayout from "./components/admin-view/layout";
 import AdminDashboard from "./pages/admin-view/dashboard";
 import AdminProducts from "./pages/admin-view/products";
-import AdminOrders from "./pages/admin-view/orders";
+import AdminOrders from "./components/admin-view/orders";
 import AdminFeatures from "./pages/admin-view/features";
 import AdminXLFeatures from "./pages/admin-view/xl-features";
 import AdminNewsletter from "./pages/admin-view/newsletter";
 import InvoiceControlPage from "./pages/admin-view/invoice-control";
-import AdminReviews from "./pages/admin-view/reviews";
+import AdminReviews from "./components/admin-view/reviews";
 import AdminCoupons from "./pages/admin-view/coupons";
 import AdminAddCoupon from "./pages/admin-view/add-coupon";
 import AdminShipping from "./pages/admin-view/shipping";
@@ -39,7 +39,7 @@ import ShippingPolicy from "./pages/shopping-view/ShippingPolicy";
 import ProductDetailsPage from "./pages/shopping-view/product-details";
 import SpecialProductsPage from "./pages/shopping-view/special-products";
 import { ConnectedLoader } from "@/components/common/Loader";
-import GoogleAnalytics from "@/components/GoogleAnalytics";
+import GoogleAnalytics from "@/components/common/GoogleAnalytics";
 import { Analytics } from "@vercel/analytics/react";
 import {SpeedInsights} from "@vercel/speed-insights/react";
 
@@ -142,15 +142,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("auth_token");
-      const token = raw ? (raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw) : null;
-      if (token) {
-        dispatch(checkAuth());
-      }
-    } catch (e) {
-      /* ignore localStorage errors */
-    }
+    dispatch(checkAuth());
   }, [dispatch]);
 
   useEffect(() => {

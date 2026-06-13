@@ -74,9 +74,14 @@ export default function ConfirmDialog({
             </button>
           ) : null}
           <button
-            onClick={() => {
-              onPrimary();
-              onClose();
+            onClick={async () => {
+              try {
+                await onPrimary();
+                onClose();
+              } catch (error) {
+                console.error("[confirm-dialog] Error during primary action:", error);
+                onClose();
+              }
             }}
             className="px-4 py-2 text-sm rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
           >

@@ -1,16 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { CheckCircle } from "lucide-react";
+import { ROUTES } from "@/config/routes";
 
 function PaymentSuccessPage() {
   const navigate = useNavigate();
   const isAuthenticated = useSelector((s) => s.auth && s.auth.isAuthenticated);
-
-  useEffect(() => {
-  }, [isAuthenticated]);
 
   return (
     <div className="max-w-3xl mx-auto mt-12 mt-[90px]">
@@ -31,17 +28,23 @@ function PaymentSuccessPage() {
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             {isAuthenticated ? (
               <>
-                <Button onClick={() => navigate("/account")}>View Orders</Button>
-                <Button variant="ghost" onClick={() => navigate("/")}>Continue Shopping</Button>
+                <Button onClick={() => navigate(ROUTES.account)}>View Orders</Button>
+                <Button variant="ghost" onClick={() => navigate(ROUTES.home)}>
+                  Continue Shopping
+                </Button>
               </>
             ) : (
               <>
+                <Button onClick={() => navigate(ROUTES.home)}>Continue Shopping</Button>
+                <Button variant="outline" onClick={() => navigate(ROUTES.login)}>
+                  Sign in to track orders
+                </Button>
               </>
             )}
           </div>
 
           <p className="mt-6 text-sm text-gray-500">
-            You'll also receive a SMS confirming your order (if you supplied a phone number).
+            You'll also receive an E-mail and Whatsapp Message confirming your order (if you supplied a phone number).
           </p>
         </CardContent>
       </Card>

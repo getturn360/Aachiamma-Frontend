@@ -109,12 +109,7 @@ export const addProductFormElements = [
     placeholder: "Enter ingredients text (single block).",
   },
 
-  {
-    label: "FAQ (Q & A)",
-    name: "faqList",
-    componentType: "qaList",
-    placeholder: "Add question and answer pairs. (Unlimited)",
-  },
+
 ];
 
 export const shoppingViewHeaderMenuItems = [

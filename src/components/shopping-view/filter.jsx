@@ -1,27 +1,21 @@
-import React, { Fragment } from "react";
-import api from "@/api/axios";
+import React, { Fragment, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories } from "@/store/common-slice";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { Separator } from "../ui/separator";
 
 function ProductFilter({ filters, handleFilter }) {
-  const [filterOptions, setFilterOptions] = React.useState({});
+  const dispatch = useDispatch();
+  const categories = useSelector((state) => state.commonFeature?.categories || []);
 
-  React.useEffect(() => {
-    let mounted = true;
-    async function load() {
-      try {
-        const res = await api.get("/api/common/categories/get?sticky=true");
-        if (!mounted) return;
-        const cats = (res?.data?.categories || []).map((c) => ({ id: c.slug || c._id, label: c.name }));
-        setFilterOptions({ category: cats });
-      } catch (e) {
-       
-      }
-    }
-    load();
-    return () => (mounted = false);
-  }, []);
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  const filterOptions = {
+    category: categories.map((c) => ({ id: c.slug || c._id, label: c.name })),
+  };
 
   // "All Products" is checked when no category filter is applied
   const noCategorySelected =
@@ -80,7 +74,7 @@ function ProductFilter({ filters, handleFilter }) {
               <div>
                 <h3 className="text-base font-bold">{keyItem}</h3>
                 <div className="grid gap-2 mt-2">
-                  {filterOptions[keyItem].map((option) => (
+                  {(filterOptions[keyItem] || []).map((option) => (
                     <Label className="flex font-medium items-center gap-2" key={option.id}>
                       <Checkbox
                         checked={

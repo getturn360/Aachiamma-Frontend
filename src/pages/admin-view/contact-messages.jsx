@@ -27,6 +27,7 @@ export default function AdminContactMessages() {
         setMessages([]);
       }
     } catch (err) {
+      console.error("[contact-messages.jsx] Error:", err);
       toast.error("Failed to load messages");
       setMessages([]);
     } finally {
@@ -41,6 +42,7 @@ export default function AdminContactMessages() {
         setSettings(res.data.data || { address: "", phone: "", email: "" });
       }
     } catch (err) {
+      console.error("[contact-messages.jsx] Error:", err);
     }
   };
 
@@ -59,6 +61,7 @@ export default function AdminContactMessages() {
         toast.error("Failed to save");
       }
     } catch (err) {
+      console.error("[contact-messages.jsx] Error:", err);
       toast.error("Server error");
     }
   };
@@ -81,6 +84,7 @@ export default function AdminContactMessages() {
         toast.error("Unable to delete");
       }
     } catch (err) {
+      console.error("[contact-messages.jsx] Error:", err);
       toast.error("Server error");
     } finally {
       setDeleteLoading(false);
@@ -95,6 +99,7 @@ export default function AdminContactMessages() {
       const now = new Date();
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
     } catch (err) {
+      console.error("[contact-messages.jsx] Error:", err);
       return false;
     }
   };
@@ -117,6 +122,7 @@ export default function AdminContactMessages() {
     try {
       await api.put(`/api/admin/contact-messages/mark-read/${id}`, { read: newRead });
     } catch (err) {
+      console.error("[contact-messages.jsx] Error:", err);
 
       toast.error("Failed to update read status");
       fetchAll();

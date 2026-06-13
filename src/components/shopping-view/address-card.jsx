@@ -221,6 +221,7 @@ function AddressCard({
                   try {
                     setCurrentSelectedAddress(null);
                   } catch (err) {
+      console.error("[address-card.jsx] Error:", err);
                     setCurrentSelectedAddress("");
                   }
                 } else {

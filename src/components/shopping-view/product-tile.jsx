@@ -113,9 +113,9 @@ export default function ShoppingProductTile({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full"
+      className="w-full h-full flex flex-col"
     >
-      <Card className="relative overflow-hidden rounded-lg md:rounded-2xl border bg-gradient-to-b from-white/60 to-white/30 backdrop-blur-md">
+      <Card className="relative overflow-hidden rounded-lg md:rounded-2xl border bg-gradient-to-b from-white/60 to-white/30 backdrop-blur-md h-full w-full flex flex-col justify-between">
         <div
           role="button"
           tabIndex={0}
@@ -181,7 +181,7 @@ export default function ShoppingProductTile({
                     <span className="font-semibold text-[10px] sm:text-[11px] md:text-xs">-{discountPercent}%</span>
                   </Badge>
                 ) : null}
-
+ 
       
                 {lowStock ? (
                   <Badge
@@ -213,31 +213,33 @@ export default function ShoppingProductTile({
           </div>
         </div>
 
-        <CardContent className="p-3 pt-2">
-          <h3 className="text-xs sm:text-sm md:text-base font-semibold leading-tight line-clamp-2">{product?.title}</h3>
+        <CardContent className="p-3 pt-2 flex-grow flex flex-col justify-between">
+          <div>
+            <h3 className="text-xs sm:text-sm md:text-base font-semibold leading-tight line-clamp-2">{product?.title}</h3>
 
-          <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground line-clamp-2">{product?.shortDescription || product?.subtitle}</p>
+            <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground line-clamp-2">{product?.shortDescription || product?.subtitle}</p>
 
-          {product?.variations?.length > 0 && (
-            <div className="mt-2 flex gap-2">
-              {product.variations.slice(0, 3).map((v, idx) => {
-                const isActive = selectedVariant?.label === v.label;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedVariant(v)}
-                    className={`px-2 py-1 rounded-md text-xs transition-all duration-150 focus:outline-none ${isActive
-                      ? "bg-amber-600 text-white ring-1 ring-amber-300 shadow-sm"
-                      : "bg-white text-gray-700 border border-gray-200 shadow-sm hover:shadow-md"
-                    }`}
-                    title={v.label}
-                  >
-                    {v.label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+            {product?.variations?.length > 0 && (
+              <div className="mt-2 flex gap-2">
+                {product.variations.slice(0, 3).map((v, idx) => {
+                  const isActive = selectedVariant?.label === v.label;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedVariant(v)}
+                      className={`px-2 py-1 rounded-md text-xs transition-all duration-150 focus:outline-none ${isActive
+                        ? "bg-amber-600 text-white ring-1 ring-amber-300 shadow-sm"
+                        : "bg-white text-gray-700 border border-gray-200 shadow-sm hover:shadow-md"
+                      }`}
+                      title={v.label}
+                    >
+                      {v.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           <div className="mt-3 flex items-center justify-start md:justify-between">
             <div /> 

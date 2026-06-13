@@ -7,12 +7,16 @@ const initialState = {
   invoiceSettings: {},
   isLoading: false,
   error: null,
+  totalPages: 1,
+  totalOrders: 0,
+  currentPage: 1,
+  limit: 20,
 };
 
 export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
-  async () => {
-    const response = await api.get("/api/admin/orders/get");
+  async ({ page = 1, limit = 20 } = {}) => {
+    const response = await api.get(`/api/admin/orders/get?page=${page}&limit=${limit}`);
     return response.data;
   }
 );
@@ -66,6 +70,9 @@ const adminOrderSlice = createSlice({
         } else if (payloadData && payloadData.orders) {
           state.orderList = payloadData.orders;
           state.invoiceSettings = payloadData.invoiceSettings || state.invoiceSettings;
+          state.totalOrders = payloadData.totalOrders || 0;
+          state.totalPages = payloadData.totalPages || 1;
+          state.currentPage = payloadData.currentPage || 1;
         } else if (Array.isArray(action.payload)) {
           state.orderList = action.payload;
         } else {

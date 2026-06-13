@@ -18,7 +18,7 @@ export function PremiumLoader({ message = "Loading..." }) {
 
 
 export function ConnectedLoader() {
-    const { isLoading, loadingMessage } = useSelector((state) => state.common);
+    const { isLoading, loadingMessage } = useSelector((state) => state.commonFeature);
 
     if (!isLoading) return null;
 

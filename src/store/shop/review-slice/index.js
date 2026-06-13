@@ -15,6 +15,7 @@ export const addReview = createAsyncThunk(
     
       return response.data;
     } catch (err) {
+      console.error("[index.js] Error:", err);
       const payload = err.response?.data || { message: err.message || "Network error" };
       return rejectWithValue(payload);
     }
@@ -28,6 +29,7 @@ export const getReviews = createAsyncThunk(
       const response = await api.get(`/api/shop/review/${productId}`);
       return response.data;
     } catch (err) {
+      console.error("[index.js] Error:", err);
       const payload = err.response?.data || { message: err.message || "Network error" };
       return rejectWithValue(payload);
     }

@@ -1,15 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api, { setAuthToken, clearAuthToken } from "@/api/axios";
-
-let savedToken = null;
-try {
-  const raw = localStorage.getItem("auth_token");
-  if (raw) {
-    savedToken = raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
-  }
-} catch {
-  savedToken = null;
-}
+import api from "@/api/axios";
 
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
@@ -31,15 +21,8 @@ export const loginUser = createAsyncThunk(
     try {
       const resp = await api.post("/api/auth/login", credentials);
       const data = resp.data || {};
-      const token = data.token || data?.data?.token || data?.accessToken || null;
-
-      if (token) {
-        try {
-          localStorage.setItem("auth_token", token);
-        } catch {
-          // ignore
-        }
-        setAuthToken(token);
+      
+      if (data?.success) {
         dispatch(checkAuth());
       }
 
@@ -66,27 +49,36 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
+export const logoutAsync = createAsyncThunk(
+  "auth/logoutAsync",
+  async (_, { dispatch }) => {
+    try {
+      await api.post("/api/auth/logout");
+      dispatch(logoutUser());
+    } catch (err) {
+      dispatch(logoutUser());
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    token: savedToken || null,
     loading: false,
-    isAuthenticated: !!savedToken,
+    isAuthenticated: false,
     error: null,
   },
   reducers: {
     logoutUser(state) {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
       state.error = null;
       try {
-        localStorage.removeItem("auth_token");
+        sessionStorage.removeItem("popup_seen_this_session");
       } catch {
         // ignore
       }
-      clearAuthToken();
     },
     setUser(state, action) {
       state.user = action.payload || null;
@@ -102,19 +94,14 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         const payload = action.payload || {};
-        const token =
-          payload.token || payload?.data?.token || payload?.accessToken || null;
         const user =
           payload.user || payload?.data?.user || payload?.data || null;
 
-        if (token) {
-          state.token = token;
+        if (user) {
           state.user = user;
           state.isAuthenticated = true;
-          localStorage.setItem("auth_token", token);
-          setAuthToken(token);
         } else {
-          state.user = user;
+          state.user = null;
           state.isAuthenticated = false;
         }
         state.error = null;
@@ -132,20 +119,12 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         const payload = action.payload || {};
-        const token =
-          payload.token || payload?.data?.token || payload?.accessToken || null;
         const user =
           payload.user || payload?.data?.user || payload?.data || null;
 
-        state.token = token || null;
         state.user = user || null;
-        state.isAuthenticated = !!token || !!user;
+        state.isAuthenticated = !!user;
         state.error = null;
-
-        if (token) {
-          localStorage.setItem("auth_token", token);
-          setAuthToken(token);
-        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -170,13 +149,6 @@ const authSlice = createSlice({
       .addCase(checkAuth.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
-        try {
-          localStorage.removeItem("auth_token");
-        } catch {
-          // ignore
-        }
-        clearAuthToken();
-        state.token = null;
         state.user = null;
         state.error =
           action.payload || action.error || { message: "Not authenticated" };

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/api/axios";
 import { toast } from "@/lib/toast";
-import SEO from "@/components/SEO";
+import SEO from "@/components/common/SEO";
 
 const CONTACT_DETAILS = {
-  address: "20/617-3, Mankavu, Palakkad, Kerala – 678001",
+  address: "Aachiammafoods, 20/617-5, Mankavu, Palakkad, Kerala – 678001",
   phone: "+91 7356 428 330",
   email: "aachiammafoods@gmail.com",
 };
@@ -48,6 +48,7 @@ export default function ContactPage({ accent = "#08665F" }) {
         toast.error((res && res.data && res.data.message) || "Failed to send");
       }
     } catch (err) {
+      console.error("[contact.jsx] Error:", err);
       toast.error("Network/server error");
     } finally {
       setSending(false);

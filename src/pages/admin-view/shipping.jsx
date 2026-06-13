@@ -61,6 +61,7 @@ export default function AdminShipping() {
       if (statesArr && statesArr.length > 0) setAllStates(statesArr);
       else fallbackStates();
     } catch (err) {
+      console.error("[shipping.jsx] Error:", err);
       fallbackStates();
     }
 
@@ -125,6 +126,7 @@ export default function AdminShipping() {
             const normalized = Object.fromEntries(Object.entries(doc.assignments));
             setAssignments(normalized);
           } catch (e) {
+      console.error("[shipping.jsx] Error:", e);
             setAssignments({});
           }
         } else {

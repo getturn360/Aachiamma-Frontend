@@ -16,6 +16,74 @@ function IconSend(props) {
   );
 }
 
+const Header = ({ search, handleSearchChange }) => (
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 className=" ">Newsletter</h1>
+      <p className="text-sm text-slate-500 mt-1">Manage subscribers and send newsletters — minimal, focused UI.</p>
+    </div>
+
+    <div className="flex items-center gap-3">
+      <div className="sm:hidden w-full relative">
+        <SearchIcon aria-hidden="true" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <input
+          aria-label="Search subscribers"
+          className="pl-9 pr-3 py-2 rounded-md border w-full text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
+          placeholder="Search email or name"
+          value={search}
+          onChange={handleSearchChange}
+        />
+      </div>
+    </div>
+  </div>
+);
+
+const TopNotification = ({ notification, setNotification }) => {
+  if (!notification) return null;
+  return (
+    <div className="mb-4" aria-live="polite">
+      <div className="rounded-lg overflow-hidden shadow-sm border bg-white p-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className={`h-10 w-10 rounded-md ${notification.type === "success" ? "bg-emerald-50" : "bg-rose-50"} flex items-center justify-center`}>
+            {notification.type === "success" ? (
+              <svg className="h-5 w-5 text-emerald-700" viewBox="0 0 24 24" fill="none">
+                <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5 text-rose-600" viewBox="0 0 24 24" fill="none">
+                <path d="M12 9v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 17h.01" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+          <div>
+            <div className={`text-sm font-semibold ${notification.type === "error" ? "text-rose-700" : ""}`}>{notification.title}</div>
+            <div className="text-xs text-slate-600 mt-1">{notification.message}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setNotification(null)} className="bg-slate-100 text-slate-800 hover:bg-slate-200">Close</Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SkeletonRows = ({ rows = 6 }) => (
+  <div className="space-y-2">
+    {Array.from({ length: rows }).map((_, i) => (
+      <div key={i} className="grid grid-cols-12 gap-2 items-center animate-pulse">
+        <div className="col-span-4 h-6 bg-slate-200 rounded" />
+        <div className="col-span-3 h-6 bg-slate-200 rounded" />
+        <div className="col-span-2 h-6 bg-slate-200 rounded" />
+        <div className="col-span-1 h-6 bg-slate-200 rounded" />
+        <div className="col-span-2 h-6 bg-slate-200 rounded" />
+      </div>
+    ))}
+  </div>
+);
+
 export default function AdminNewsletter() {
   const { toast } = useToast();
 
@@ -102,6 +170,7 @@ export default function AdminNewsletter() {
         setNotification({ type: "error", title: "Could not fetch subscribers", message: data?.message || "Server returned an error." });
       }
     } catch (e) {
+      console.error("[newsletter.jsx] Error:", e);
       setNotification({ type: "error", title: "Network error while fetching", message: e?.message || String(e) });
     } finally {
       setLoading(false);
@@ -148,6 +217,7 @@ export default function AdminNewsletter() {
         setNotification({ type: "error", title: "Send failed", message: data?.message || "Failed to send newsletter." });
       }
     } catch (err) {
+      console.error("[newsletter.jsx] Error:", err);
       setNotification({ type: "error", title: "Network error while sending", message: String(err) });
     } finally {
       setSending(false);
@@ -196,6 +266,7 @@ export default function AdminNewsletter() {
         setNotification({ type: "error", title: "Unsubscribe failed", message: data?.message || "Server returned an error." });
       }
     } catch (err) {
+      console.error("[newsletter.jsx] Error:", err);
       setNotification({ type: "error", title: "Network error", message: String(err) });
     } finally {
       setActionLoadingId(null);
@@ -227,85 +298,18 @@ export default function AdminNewsletter() {
         setNotification({ type: "error", title: "Activate failed", message: data?.message || "Server returned an error." });
       }
     } catch (err) {
+      console.error("[newsletter.jsx] Error:", err);
       setNotification({ type: "error", title: "Network error", message: String(err) });
     } finally {
       setActionLoadingId(null);
     }
   }
 
-  const Header = () => (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-      <div>
-        <h1 className=" ">Newsletter</h1>
-        <p className="text-sm text-slate-500 mt-1">Manage subscribers and send newsletters — minimal, focused UI.</p>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <div className="sm:hidden w-full relative">
-          <SearchIcon aria-hidden="true" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            aria-label="Search subscribers"
-            className="pl-9 pr-3 py-2 rounded-md border w-full text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
-            placeholder="Search email or name"
-            value={search}
-            onChange={handleSearchChange}
-          />
-        </div>
-      </div>
-    </div>
-  );
-
-  const TopNotification = () => {
-    if (!notification) return null;
-    return (
-      <div className="mb-4" aria-live="polite">
-        <div className="rounded-lg overflow-hidden shadow-sm border bg-white p-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className={`h-10 w-10 rounded-md ${notification.type === "success" ? "bg-emerald-50" : "bg-rose-50"} flex items-center justify-center`}>
-              {notification.type === "success" ? (
-                <svg className="h-5 w-5 text-emerald-700" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              ) : (
-                <svg className="h-5 w-5 text-rose-600" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 9v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M12 17h.01" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </div>
-            <div>
-              <div className={`text-sm font-semibold ${notification.type === "error" ? "text-rose-700" : ""}`}>{notification.title}</div>
-              <div className="text-xs text-slate-600 mt-1">{notification.message}</div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button onClick={() => setNotification(null)} className="bg-slate-100 text-slate-800 hover:bg-slate-200">Close</Button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const SkeletonRows = ({ rows = 6 }) => (
-    <div className="space-y-2">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="grid grid-cols-12 gap-2 items-center animate-pulse">
-          <div className="col-span-4 h-6 bg-slate-200 rounded" />
-          <div className="col-span-3 h-6 bg-slate-200 rounded" />
-          <div className="col-span-2 h-6 bg-slate-200 rounded" />
-          <div className="col-span-1 h-6 bg-slate-200 rounded" />
-          <div className="col-span-2 h-6 bg-slate-200 rounded" />
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="p-4">
-      <Header />
+      <Header search={search} handleSearchChange={handleSearchChange} />
 
-      <TopNotification />
+      <TopNotification notification={notification} setNotification={setNotification} />
 
       <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
         <div className="grid grid-cols-12 gap-2 text-sm font-medium border-b pb-2 mb-3 text-slate-600">

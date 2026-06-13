@@ -33,21 +33,37 @@ function AuthLogin() {
 
       const result = await dispatch(loginUser(formData)).unwrap();
 
-      const token =
-        result?.token ||
-        result?.data?.token ||
-        result?.accessToken ||
-        null;
-
-      if (!result || result?.success === false || !token) {
-        
+      if (!result || result?.success === false) {
         const msg = result?.message || "Login failed";
         toast?.toast?.({ title: "Login failed", description: msg });
         return;
       }
 
+      const loggedInUser =
+        result?.user || result?.data?.user || result?.data || null;
+
       try {
-        await dispatch(fetchCartItems());
+        const pendingItemStr = sessionStorage.getItem("pendingCartItem");
+        if (pendingItemStr) {
+          const pendingItem = JSON.parse(pendingItemStr);
+          await dispatch(addToCart({
+            userId: loggedInUser?.id || loggedInUser?._id,
+            productId: pendingItem.productId,
+            quantity: pendingItem.quantity,
+            productObj: pendingItem.productObj
+          })).unwrap();
+          sessionStorage.removeItem("pendingCartItem");
+          toast?.toast?.({ title: "Welcome", description: "Logged in successfully. Pending item added to cart." });
+        } else {
+          toast?.toast?.({ title: "Welcome", description: "Logged in successfully" });
+        }
+      } catch (e) {
+        console.error("Error processing pending cart item:", e);
+        toast?.toast?.({ title: "Welcome", description: "Logged in successfully" });
+      }
+
+      try {
+        await dispatch(fetchCartItems(loggedInUser?.id || loggedInUser?._id));
         try {
           dispatch(clearGuestCart());
         } catch (e) {}
@@ -55,10 +71,7 @@ function AuthLogin() {
         /* cart merge optional */
       }
 
-      const loggedInUser =
-        result?.user || result?.data?.user || result?.data || null;
       navigate(getPostLoginPath(loggedInUser, from), { replace: true });
-      toast?.toast?.({ title: "Welcome", description: "Logged in successfully" });
     } catch (err) {
    
       const message = err?.message || err?.msg || (err?.message === undefined && JSON.stringify(err)) || "Login error";

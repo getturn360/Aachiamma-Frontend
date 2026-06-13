@@ -25,6 +25,7 @@ import {
   resetOrderDetails,
   deleteOrderForAdmin,
 } from "@/store/admin/order-slice";
+import { useToast } from "../ui/use-toast";
 
 const INVOICE_SUFFIX_LENGTH = 5;
 
@@ -127,7 +128,9 @@ const getInvoiceNumber = (order, invoiceSettings = {}) => {
 
 export default function AdminOrdersView() {
   const dispatch = useDispatch();
-  const { orderList, orderDetails, invoiceSettings } = useSelector((state) => state.adminOrder);
+  const { toast } = useToast();
+  const { orderList, orderDetails, invoiceSettings, totalPages, currentPage } = useSelector((state) => state.adminOrder);
+  const [page, setPage] = useState(1);
   const { user } = useSelector((state) => state.auth || {});
   const isSuperAdmin = user?.role !== "admin";
 
@@ -150,8 +153,8 @@ export default function AdminOrdersView() {
   const [downloadingIds, setDownloadingIds] = useState([]); 
 
   useEffect(() => {
-    dispatch(getAllOrdersForAdmin());
-  }, [dispatch]);
+    dispatch(getAllOrdersForAdmin({ page, limit: 20 }));
+  }, [dispatch, page]);
 
   useEffect(() => {
     if (
@@ -217,175 +220,127 @@ export default function AdminOrdersView() {
     return showTodayOnly ? sortedOrders.filter((o) => isToday(o?.orderDate)) : sortedOrders;
   }, [sortedOrders, showTodayOnly]);
 
-  const exportTodayAsCSV = () => {
-    if (!Array.isArray(sortedOrders)) return;
-    const todayOrders = sortedOrders.filter((o) => isToday(o?.orderDate));
-    if (!todayOrders.length) {
-     
-      alert("No orders for today to export.");
-      return;
-    }
+  const exportTodayAsCSV = async () => {
+    try {
+      const resp = await fetch("/api/admin/orders/export?today=true", {
+        method: "GET",
+      });
 
-    const headers = [
-      "Order ID",
-      "Customer Name",
-      "Order Date (ISO)",
-      "Order Date (Local)",
-      "Order Status",
-      "Total Amount",
-      "Currency",
-      "Shipping Address",
-      "ItemsCount",
-    ];
-
-    const csvEscape = (v) => {
-      if (v === null || v === undefined) return "";
-      const s = String(v);
-      if (/[,\n"]/.test(s)) {
-        return `"${s.replace(/"/g, '""')}"`;
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => null);
+        toast({
+          title: "Export failed",
+          description: err?.message || "No orders to export today.",
+          variant: "destructive",
+        });
+        return;
       }
-      return s;
-    };
 
-    const rows = todayOrders.map((o) => {
-      const id = o?._id ?? "";
-      const customer = o?.customerName ?? "";
-      const isoDate = o?.orderDate ? new Date(o.orderDate).toISOString() : "";
-      const localDate = o?.orderDate ? new Date(o.orderDate).toLocaleString() : "";
-      const status = o?.orderStatus ?? "";
-      const amount =
-        typeof o?.totalAmount === "number"
-          ? o.totalAmount.toFixed(2)
-          : String(o?.totalAmount ?? "");
-      const currency = o?.currency ?? "INR";
-      const shippingAddress = o?.shippingAddress ? JSON.stringify(o.shippingAddress) : "";
-      const itemsCount = Array.isArray(o?.items) ? o.items.length : (o?.itemsCount ?? "");
+      const blob = await resp.blob();
+      const url = window.URL.createObjectURL(new Blob([blob], { type: "text/csv;charset=utf-8;" }));
+      const a = document.createElement("a");
+      a.href = url;
 
-      return [
-        csvEscape(id),
-        csvEscape(customer),
-        csvEscape(isoDate),
-        csvEscape(localDate),
-        csvEscape(status),
-        csvEscape(amount),
-        csvEscape(currency),
-        csvEscape(shippingAddress),
-        csvEscape(itemsCount),
-      ].join(",");
-    });
+      let filename = `orders_today.csv`;
+      const cd = resp.headers.get("content-disposition");
+      if (cd) {
+        const m = cd.match(/filename="?(.+?)"?($|;)/);
+        if (m && m[1]) filename = m[1];
+      }
 
-    const csvContent = [headers.join(","), ...rows].join("\n");
-    const now = getNow();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, "0");
-    const d = String(now.getDate()).padStart(2, "0");
-    const fileName = `orders_today_${y}${m}${d}.csv`;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      toast({
+        title: "Export successful",
+        description: "Today's orders have been exported.",
+      });
+    } catch (err) {
+      console.error("Export today error:", err);
+      toast({
+        title: "Export error",
+        description: err?.message || "Something went wrong while exporting.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const exportRangeAsCSV = () => {
-    if (!Array.isArray(sortedOrders)) return;
-
+  const exportRangeAsCSV = async () => {
     if (!fromDate || !toDate) {
-
-      alert("Please select both From and To dates.");
+      toast({
+        title: "Validation Error",
+        description: "Please select both From and To dates.",
+        variant: "destructive",
+      });
       return;
     }
-
     const from = new Date(`${fromDate}T00:00:00`);
     const to = new Date(`${toDate}T23:59:59.999`);
-
     if (isNaN(from.getTime()) || isNaN(to.getTime())) {
-
-      alert("Invalid date range.");
+      toast({
+        title: "Validation Error",
+        description: "Invalid date range.",
+        variant: "destructive",
+      });
       return;
     }
     if (from > to) {
-
-      alert("From date cannot be after To date.");
+      toast({
+        title: "Validation Error",
+        description: "From date cannot be after To date.",
+        variant: "destructive",
+      });
       return;
     }
 
-    const rangeOrders = sortedOrders.filter((o) => {
-      if (!o?.orderDate) return false;
-      const d = new Date(o.orderDate);
-      return d.getTime() >= from.getTime() && d.getTime() <= to.getTime();
-    });
+    try {
+      const resp = await fetch(`/api/admin/orders/export?fromDate=${fromDate}&toDate=${toDate}`, {
+        method: "GET",
+      });
 
-    if (!rangeOrders.length) {
-      alert("No orders found for the selected date range.");
-      return;
-    }
-
-    const headers = [
-      "Order ID",
-      "Customer Name",
-      "Order Date (ISO)",
-      "Order Date (Local)",
-      "Order Status",
-      "Total Amount",
-      "Currency",
-      "Shipping Address",
-      "ItemsCount",
-    ];
-
-    const csvEscape = (v) => {
-      if (v === null || v === undefined) return "";
-      const s = String(v);
-      if (/[,\n"]/.test(s)) {
-        return `"${s.replace(/"/g, '""')}"`;
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => null);
+        toast({
+          title: "Export failed",
+          description: err?.message || "No orders found in this date range.",
+          variant: "destructive",
+        });
+        return;
       }
-      return s;
-    };
 
-    const rows = rangeOrders.map((o) => {
-      const id = o?._id ?? "";
-      const customer = o?.customerName ?? "";
-      const isoDate = o?.orderDate ? new Date(o.orderDate).toISOString() : "";
-      const localDate = o?.orderDate ? new Date(o.orderDate).toLocaleString() : "";
-      const status = o?.orderStatus ?? "";
-      const amount =
-        typeof o?.totalAmount === "number"
-          ? o.totalAmount.toFixed(2)
-          : String(o?.totalAmount ?? "");
-      const currency = o?.currency ?? "INR";
-      const shippingAddress = o?.shippingAddress ? JSON.stringify(o.shippingAddress) : "";
-      const itemsCount = Array.isArray(o?.items) ? o.items.length : (o?.itemsCount ?? "");
+      const blob = await resp.blob();
+      const url = window.URL.createObjectURL(new Blob([blob], { type: "text/csv;charset=utf-8;" }));
+      const a = document.createElement("a");
+      a.href = url;
 
-      return [
-        csvEscape(id),
-        csvEscape(customer),
-        csvEscape(isoDate),
-        csvEscape(localDate),
-        csvEscape(status),
-        csvEscape(amount),
-        csvEscape(currency),
-        csvEscape(shippingAddress),
-        csvEscape(itemsCount),
-      ].join(",");
-    });
+      let filename = `orders_${fromDate}_to_${toDate}.csv`;
+      const cd = resp.headers.get("content-disposition");
+      if (cd) {
+        const m = cd.match(/filename="?(.+?)"?($|;)/);
+        if (m && m[1]) filename = m[1];
+      }
 
-    const csvContent = [headers.join(","), ...rows].join("\n");
-    const fileName = `orders_${fromDate.replace(/-/g, "")}_to_${toDate.replace(/-/g, "")}.csv`;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      toast({
+        title: "Export successful",
+        description: `Orders from ${fromDate} to ${toDate} have been exported.`,
+      });
+    } catch (err) {
+      console.error("Export range error:", err);
+      toast({
+        title: "Export error",
+        description: err?.message || "Something went wrong while exporting.",
+        variant: "destructive",
+      });
+    }
   };
 
   const countOrdersInRange = useMemo(() => {
@@ -454,7 +409,11 @@ export default function AdminOrdersView() {
         window.open(`/api/invoices/download/${orderId}`, "_blank", "noopener");
       } catch (openErr) {
       }
-      alert("Failed to download invoice. Check console for details or try opening the invoice in a new tab.");
+      toast({
+        title: "Download failed",
+        description: "Failed to download invoice. Check console for details or try opening the invoice in a new tab.",
+        variant: "destructive",
+      });
     } finally {
       finishDownloading(orderId);
     }
@@ -485,13 +444,21 @@ export default function AdminOrdersView() {
 
   const downloadMergedInvoicesForSuffixRange = async () => {
     if (!invoiceFromSuffix || !invoiceToSuffix) {
-      alert(`Please enter both Invoice From and Invoice To (last ${INVOICE_SUFFIX_LENGTH} chars).`);
+      toast({
+        title: "Validation Error",
+        description: `Please enter both Invoice From and Invoice To (last ${INVOICE_SUFFIX_LENGTH} chars).`,
+        variant: "destructive",
+      });
       return;
     }
 
     const matches = findOrdersByInvoiceSuffixRange(invoiceFromSuffix, invoiceToSuffix);
     if (!matches.length) {
-      alert("No orders found for the provided invoice suffix range.");
+      toast({
+        title: "No matches found",
+        description: "No orders found for the provided invoice suffix range.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -507,7 +474,11 @@ export default function AdminOrdersView() {
       if (!res.ok) {
         const text = await res.text().catch(() => null);
         console.error("bulk download failed", res.status, text);
-        alert(`Bulk download failed (HTTP ${res.status})`);
+        toast({
+          title: "Download failed",
+          description: `Bulk download failed (HTTP ${res.status})`,
+          variant: "destructive",
+        });
         return;
       }
 
@@ -529,7 +500,11 @@ export default function AdminOrdersView() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("download merged invoices error", err);
-      alert("Failed to download merged invoices. See console for details.");
+      toast({
+        title: "Download error",
+        description: "Failed to download merged invoices. See console for details.",
+        variant: "destructive",
+      });
     } finally {
       setIsBulkDownloading(false);
     }
@@ -597,7 +572,7 @@ export default function AdminOrdersView() {
             <Button
               size="sm"
               onClick={exportRangeAsCSV}
-              disabled={!fromDate || !toDate || new Date(fromDate) > new Date(toDate) || countOrdersInRange === 0}
+              disabled={!fromDate || !toDate || new Date(fromDate) > new Date(toDate)}
               className="w-full md:w-auto"
               aria-label="Export selected date range to CSV"
             >
@@ -813,14 +788,17 @@ export default function AdminOrdersView() {
                                 if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
                                 try {
                                   await dispatch(deleteOrderForAdmin(id)).unwrap();
-                                  if (typeof window !== 'undefined' && window?.toast && window.toast.success) {
-                                    window.toast.success && window.toast.success("Order deleted");
-                                  } else {
-                                    alert("Order deleted");
-                                  }
+                                  toast({
+                                    title: "Order deleted",
+                                    description: "The order has been permanently deleted.",
+                                  });
                                 } catch (err) {
                                   console.error("Delete order failed", err);
-                                  alert("Failed to delete order. See console.");
+                                  toast({
+                                    title: "Delete failed",
+                                    description: "Failed to delete order. See console.",
+                                    variant: "destructive",
+                                  });
                                 }
                               }}
                               className="inline-flex items-center gap-2 text-rose-600"
@@ -963,12 +941,17 @@ export default function AdminOrdersView() {
                                 if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
                                 try {
                                   await dispatch(deleteOrderForAdmin(id)).unwrap();
-              
-                                  alert("Order deleted");
+                                  toast({
+                                    title: "Order deleted",
+                                    description: "The order has been permanently deleted.",
+                                  });
                                 } catch (err) {
-        
-                                  alert("Failed to delete order. See console.");
                                   console.error("Delete order failed", err);
+                                  toast({
+                                    title: "Delete failed",
+                                    description: "Failed to delete order. See console.",
+                                    variant: "destructive",
+                                  });
                                 }
                               }}
                             >
@@ -984,6 +967,31 @@ export default function AdminOrdersView() {
               : (
                 <div className="py-6 text-center text-sm text-muted-foreground">No orders found.</div>
               )}
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between p-4 bg-white/50 border-t border-slate-100">
+          <div className="text-sm text-slate-500">
+            Page {currentPage} of {totalPages || 1}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+            >
+              Next
+            </Button>
+          </div>
         </div>
 
         <Dialog

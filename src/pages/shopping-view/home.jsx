@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllFilteredProducts,
@@ -8,15 +8,12 @@ import {
 } from "@/store/shop/products-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate, useLocation } from "react-router-dom";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { addProductToCart } from "@/lib/add-to-cart";
 import { useToast } from "@/components/ui/use-toast";
-import { getFeatureImages } from "@/store/common-slice";
-import api from "@/api/axios"; 
-
-
+import { getFeatureImages, fetchCategories } from "@/store/common-slice";
 import PopupModal from "@/components/common/PopupModal";
 import { fetchPopups } from "@/store/popup-slice";
-import SEO from "@/components/SEO";
+import SEO from "@/components/common/SEO";
 
 
 import bannerImg from "@/assets/feature-hero.jpg";
@@ -127,6 +124,18 @@ export default function ShoppingHome() {
   const { productList } = useSelector((state) => state.shopProducts);
   const { featureImageList } = useSelector((state) => state.commonFeature);
   const { user } = useSelector((state) => state.auth);
+  const rawCategories = useSelector((state) => state.commonFeature?.categories || []);
+
+  const categories = useMemo(
+    () =>
+      rawCategories.map((c) => ({
+        _id: c._id,
+        name: c.name,
+        slug: c.slug,
+        image: c.image || c.img || null,
+      })),
+    [rawCategories]
+  );
 
   const { list: popups = [] } = useSelector((s) => s.popup || {});
   const [showPopup, setShowPopup] = useState(false);
@@ -145,8 +154,6 @@ export default function ShoppingHome() {
   const pointerStartX = useRef(null);
   const pointerActive = useRef(false);
   const [cartPulse, setCartPulse] = useState(false);
-
-  const [categories, setCategories] = useState([]);
 
   const fallbackImageMap = {
     pickles: pickleImg,
@@ -169,6 +176,10 @@ export default function ShoppingHome() {
 
   useEffect(() => {
     dispatch(getFeatureImages());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchCategories());
   }, [dispatch]);
 
   useEffect(() => {
@@ -258,32 +269,6 @@ export default function ShoppingHome() {
   };
 
   useEffect(() => {
-    let mounted = true;
-    async function loadCategories() {
-      try {
-        const res = await api.get("/api/common/categories/get?sticky=true");
-        if (!mounted) return;
-        if (res && res.data && res.data.success) {
-       
-          const list = (res.data.categories || []).map((c) => ({
-            _id: c._id,
-            name: c.name,
-            slug: c.slug,
-            image: c.image || c.img || null,
-          }));
-          setCategories(list.length ? list : []);
-        } else {
-          setCategories([]);
-        }
-      } catch (e) {
-        setCategories([]);
-      }
-    }
-    loadCategories();
-    return () => { mounted = false; };
-  }, []);
-
-  useEffect(() => {
     function onKey(e) {
       if (!featureImageList || featureImageList.length === 0) return;
       if (e.key === "ArrowLeft") {
@@ -369,16 +354,14 @@ export default function ShoppingHome() {
   }
 
   function handleAddtoCart(getCurrentProductId, getQuantity = 1, getProductObj = null) {
-    dispatch(
-      addToCart({
-        userId: user?.id,
-        productId: getCurrentProductId,
-        quantity: getQuantity,
-        productObj: getProductObj,
-      })
-    ).then((data) => {
+    addProductToCart({
+      dispatch,
+      user,
+      productId: getCurrentProductId,
+      quantity: getQuantity,
+      productObj: getProductObj,
+    }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
         setCartPulse(true);
         setTimeout(() => setCartPulse(false), 900);
       } else {

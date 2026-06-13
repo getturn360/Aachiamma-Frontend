@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { addProductToCart } from "@/lib/add-to-cart";
 import { useToast } from "@/components/ui/use-toast";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { Button } from "@/components/ui/button";
@@ -74,16 +74,14 @@ export default function SpecialProductsPage() {
   };
 
   const handleAddtoCart = (productId, quantity = 1, productObj = null) => {
-    dispatch(
-      addToCart({
-        userId: user?.id,
-        productId,
-        quantity,
-        productObj,
-      })
-    ).then((data) => {
+    addProductToCart({
+      dispatch,
+      user,
+      productId,
+      quantity,
+      productObj,
+    }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
         toast({ title: "Product added to cart" });
       } else {
         const msg = data?.payload?.message || "Failed to add product to cart";
@@ -144,7 +142,7 @@ export default function SpecialProductsPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {filteredProducts.map((product) => (
-                <div key={product._id || product.id} className="transform hover:-translate-y-1 transition duration-300">
+                <div key={product._id || product.id} className="transform hover:-translate-y-1 transition duration-300 h-full flex flex-col">
                   <ShoppingProductTile
                     product={product}
                     handleGetProductDetails={handleGetProductDetails}

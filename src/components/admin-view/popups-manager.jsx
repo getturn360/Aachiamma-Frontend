@@ -14,6 +14,7 @@ function filenameFromUrl(url = "") {
     last = last.split("?")[0].split("#")[0];
     return last || url;
   } catch (e) {
+      console.error("[popups-manager.jsx] Error:", e);
     const parts = url.split("/");
     return parts[parts.length - 1] || url;
   }
@@ -39,7 +40,9 @@ export default function PopupsManager() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
-    try { dispatch(fetchAdminPopups()); } catch (e) {}
+    try { dispatch(fetchAdminPopups()); } catch (e) {
+      console.error("[popups-manager.jsx] Error:", e);
+    }
     loadPopups();
 
   }, []);
@@ -62,6 +65,7 @@ export default function PopupsManager() {
       setLocalList(Array.isArray(list) ? list : []);
       return;
     } catch (err) {
+      console.error("[popups-manager.jsx] Error:", err);
       if (reduxList && reduxList.length) {
         setLocalList(reduxList);
         return;
@@ -73,6 +77,7 @@ export default function PopupsManager() {
       const list2 = (res2.data && (res2.data.list || res2.data.data)) || [];
       setLocalList(Array.isArray(list2) ? list2 : []);
     } catch (err2) {
+      console.error("[popups-manager.jsx] Error:", err2);
       /* fallback popups load */
     }
   }
@@ -98,9 +103,13 @@ export default function PopupsManager() {
         try {
           setFile(null);
           if (fileInputRef.current) fileInputRef.current.value = "";
-        } catch (e) {}
+        } catch (e) {
+      console.error("[popups-manager.jsx] Error:", e);
+    }
 
-        try { dispatch(fetchAdminPopups()); } catch (e) {}
+        try { dispatch(fetchAdminPopups()); } catch (e) {
+      console.error("[popups-manager.jsx] Error:", e);
+    }
 
         if (created && created._id) {
           const finalTitle = (created.title && created.title.trim()) || file.name || filenameFromUrl(created.url || "");
@@ -143,7 +152,9 @@ export default function PopupsManager() {
       if (res.data && res.data.success) {
         setMsg("Popup deleted");
         setMsgType("success");
-        try { dispatch(fetchAdminPopups()); } catch (e) {}
+        try { dispatch(fetchAdminPopups()); } catch (e) {
+      console.error("[popups-manager.jsx] Error:", e);
+    }
         await loadPopups();
       } else {
         setLocalList(prev);
@@ -216,7 +227,9 @@ export default function PopupsManager() {
           <Button
             onClick={() => {
               setFile(null);
-              try { if (fileInputRef.current) fileInputRef.current.value = ""; } catch (e) {}
+              try { if (fileInputRef.current) fileInputRef.current.value = ""; } catch (e) {
+      console.error("[popups-manager.jsx] Error:", e);
+    }
             }}
             variant={undefined}
             className="px-3"

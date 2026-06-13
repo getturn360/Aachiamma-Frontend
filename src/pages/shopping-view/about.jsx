@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import heroImageDefault from "@/assets/feature-hero.jpg";
-import SEO from "@/components/SEO";
+import SEO from "@/components/common/SEO";
 import { Leaf, ChefHat, Sparkles, ShieldCheck, Heart, Clock } from "lucide-react";
 
 

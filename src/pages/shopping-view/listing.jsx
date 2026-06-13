@@ -12,10 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { sortOptions } from "@/config";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { addProductToCart } from "@/lib/add-to-cart";
 import {
   fetchAllFilteredProducts,
   fetchProductDetails,
+  setProductDetails,
 } from "@/store/shop/products-slice";
 import { ArrowUpDownIcon, Search, X, SlidersHorizontal } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -84,6 +85,10 @@ export default function ShoppingListing() {
   const skipUrlSyncRef = useRef(false);
 
   useEffect(() => {
+    dispatch(setProductDetails());
+  }, [dispatch]);
+
+  useEffect(() => {
 
     const sp = Object.fromEntries([...searchParams.entries()]);
     const hasUrlParams = Object.keys(sp).length > 0;
@@ -97,6 +102,7 @@ export default function ShoppingListing() {
         const saved = JSON.parse(sessionStorage.getItem("filters")) || {};
         initial = normalizeFilters(saved);
       } catch (e) {
+      console.error("[listing.jsx] Error:", e);
         initial = {};
       }
     }
@@ -126,8 +132,8 @@ export default function ShoppingListing() {
       try {
         sessionStorage.setItem("filters", JSON.stringify(newFilters));
       } catch (e) {
-    
-      }
+      console.error("[listing.jsx] Error:", e);
+    }
     }
    
   }, [searchParams]);
@@ -136,7 +142,7 @@ export default function ShoppingListing() {
     try {
       sessionStorage.setItem("filters", JSON.stringify(filters || {}));
     } catch (err) {
- 
+      console.error("[listing.jsx] Error:", err);
     }
   }, [filters]);
 
@@ -173,12 +179,20 @@ export default function ShoppingListing() {
   const handleSort = (value) => setSort(value);
 
   const handleFilter = (sectionId, option) => {
-
     setFilters((prev) => {
       const copy = { ...(prev || {}) };
+
+      if (sectionId === "category") {
+        if (copy[sectionId] && copy[sectionId].includes(option)) {
+          delete copy[sectionId];
+        } else {
+          copy[sectionId] = [option];
+        }
+        return copy;
+      }
+
       const existing = copy[sectionId];
 
-      
       let arr = [];
       if (Array.isArray(existing)) arr = [...existing];
       else if (typeof existing === "string") arr = existing.split(",").map((s) => s.trim()).filter(Boolean);
@@ -196,7 +210,6 @@ export default function ShoppingListing() {
       else copy[sectionId] = arr;
       return copy;
     });
-
   };
 
   const handleGetProductDetails = (productOrId) => {
@@ -206,9 +219,14 @@ export default function ShoppingListing() {
   };
 
   const handleAddtoCart = (productId, stock, productObj = null) => {
-    dispatch(addToCart({ userId: user?.id, productId, quantity: 1, productObj })).then((data) => {
+    addProductToCart({
+      dispatch,
+      user,
+      productId,
+      quantity: 1,
+      productObj,
+    }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
         toast({ title: "Product added to cart" });
       } else {
         const msg = data?.payload?.message || "Failed to add product to cart";
@@ -372,7 +390,7 @@ export default function ShoppingListing() {
               filteredList.map((product) => (
                 <div
                   key={product.id || product._id}
-                  className="bg-white rounded-2xl border border-gray-100 overflow-hidden transition-transform duration-300 hover:-translate-y-1"
+                  className="transition-transform duration-300 hover:-translate-y-1 h-full flex flex-col"
                 >
                   <ShoppingProductTile
                     product={product}

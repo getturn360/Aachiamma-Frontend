@@ -51,6 +51,7 @@ export default function AdminFeatures() {
    
       await new Promise((res) => setTimeout(res, 900));
     } catch (e) {
+      console.error("[features.jsx] Error:", e);
       /* export stub */
     } finally {
       setExporting(false);

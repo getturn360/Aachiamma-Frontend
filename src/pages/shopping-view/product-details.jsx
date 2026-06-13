@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import StarRatingComponent from "@/components/common/star-rating";
 
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { addProductToCart } from "@/lib/add-to-cart";
 import { useToast } from "@/components/ui/use-toast";
 import { setProductDetails, updateProductInList } from "@/store/shop/products-slice";
 import { addReview, getReviews } from "@/store/shop/review-slice";
@@ -181,7 +181,7 @@ export default function ProductDetailsPage() {
     const dispatch = useDispatch();
     const { toast } = useToast();
 
-    const { user } = useSelector((state) => state.auth || {});
+    const { user, isAuthenticated } = useSelector((state) => state.auth || {});
     const { cartItems } = useSelector((state) => state.shopCart || {});
     const { reviews } = useSelector((state) => state.shopReview || {});
 
@@ -369,17 +369,15 @@ export default function ProductDetailsPage() {
             selectedVariant: selectedVariant ? { ...selectedVariant } : null,
         };
 
-        dispatch(
-            addToCart({
-                userId: user?.id,
-                productId: productDetails?._id,
-                quantity,
-                productObj: productForCart,
-            })
-        ).then((data) => {
+        addProductToCart({
+            dispatch,
+            user,
+            productId: productDetails?._id,
+            quantity,
+            productObj: productForCart,
+        }).then((data) => {
             const payload = data?.payload;
             if (payload?.success || payload?.data) {
-                dispatch(fetchCartItems(user?.id));
                 toast({ title: "Added to cart" });
             } else {
                 toast({ title: payload?.message || "Failed to add", variant: "destructive" });
@@ -946,9 +944,13 @@ export default function ProductDetailsPage() {
                                             navigate(`/product/${r._id}`);
                                         }}
                                         handleAddtoCart={(id, qty, prodObj) => {
-                                            dispatch(
-                                                addToCart({ userId: user?.id, productId: id, quantity: qty, productObj: prodObj })
-                                            ).then(() => dispatch(fetchCartItems(user?.id)));
+                                            addProductToCart({
+                                                dispatch,
+                                                user,
+                                                productId: id,
+                                                quantity: qty,
+                                                productObj: prodObj,
+                                            }).then(() => toast({ title: "Added to cart" }));
                                         }}
                                     />
                                 </div>
@@ -966,9 +968,13 @@ export default function ProductDetailsPage() {
                                             navigate(`/product/${r._id}`);
                                         }}
                                         handleAddtoCart={(id, qty, prodObj) => {
-                                            dispatch(
-                                                addToCart({ userId: user?.id, productId: id, quantity: qty, productObj: prodObj })
-                                            ).then(() => dispatch(fetchCartItems(user?.id)));
+                                            addProductToCart({
+                                                dispatch,
+                                                user,
+                                                productId: id,
+                                                quantity: qty,
+                                                productObj: prodObj,
+                                            }).then(() => toast({ title: "Added to cart" }));
                                         }}
                                     />
                                 </div>

@@ -5,6 +5,7 @@ import { registerUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 
 const initialState = {
   userName: "",
@@ -25,7 +26,31 @@ function AuthRegister() {
         toast({
           title: data?.payload?.message,
         });
-        navigate("/auth/login");
+        
+        const loggedInUser = data?.payload?.user || data?.payload?.data?.user || data?.payload?.data || null;
+        const pendingItemStr = sessionStorage.getItem("pendingCartItem");
+        
+        if (pendingItemStr && loggedInUser) {
+          try {
+            const pendingItem = JSON.parse(pendingItemStr);
+            dispatch(addToCart({
+              userId: loggedInUser.id || loggedInUser._id,
+              productId: pendingItem.productId,
+              quantity: pendingItem.quantity,
+              productObj: pendingItem.productObj
+            })).then(() => {
+              sessionStorage.removeItem("pendingCartItem");
+              dispatch(fetchCartItems(loggedInUser.id || loggedInUser._id));
+              toast({ title: "Pending item added to your new cart!" });
+              navigate("/shop/cart");
+            });
+          } catch (e) {
+            console.error(e);
+            navigate("/auth/login");
+          }
+        } else {
+          navigate("/auth/login");
+        }
       } else {
         toast({
           title: data?.payload?.message,

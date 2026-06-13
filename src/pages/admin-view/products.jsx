@@ -100,6 +100,7 @@ export default function AdminProducts() {
           return;
         }
       } catch (err) {
+      console.error("[products.jsx] Error:", err);
         /* categories optional for products page */
       }
   
@@ -148,6 +149,7 @@ export default function AdminProducts() {
       const price = defaultVar?.price ?? defaultVar?.mrp ?? defaultVar?.salePrice ?? null;
       return price;
     } catch (err) {
+      console.error("[products.jsx] Error:", err);
       return null;
     }
   }
@@ -558,7 +560,7 @@ export default function AdminProducts() {
             <motion.div
               key={productItem._id}
               whileHover={{ scale: 1.02 }}
-              className="rounded-2xl bg-white shadow-sm border overflow-hidden transform-gpu transition hover:shadow-lg relative"
+              className="rounded-2xl bg-white shadow-sm border overflow-hidden transform-gpu transition hover:shadow-lg relative min-w-0"
             >
        
               <div className="absolute right-3 top-3 z-10">
@@ -570,10 +572,10 @@ export default function AdminProducts() {
               </div>
 
 
-              <div className="p-4 flex items-stretch gap-4">
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
+              <div className="p-4 flex items-stretch gap-4 min-w-0">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between w-full min-w-0">
+                    <div className="flex-1 min-w-0 pr-8">
                       <div className="font-semibold truncate">{productItem.title}</div>
                       <div className="text-xs text-slate-500 mt-1 line-clamp-2">{productItem.shortDescription || productItem.subtitle}</div>
               

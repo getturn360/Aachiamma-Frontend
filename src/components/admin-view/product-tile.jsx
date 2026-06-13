@@ -21,7 +21,7 @@ export default function AdminProductTile({
           />
         </div>
 
-        <CardFooter className="bottom-4 left-4 right-4 p-2 flex items-center justify-between gap-3">
+        <CardFooter className="p-2 flex items-center justify-between gap-3">
        
           <Button
             onClick={() => {
@@ -29,7 +29,7 @@ export default function AdminProductTile({
               setCurrentEditedId(product?._id);
               setFormData(product);
             }}
-            className="basis-2/3 w-full"
+            className="flex-1 w-full"
           >
             Edit
           </Button>
@@ -37,7 +37,7 @@ export default function AdminProductTile({
        
           <Button
             onClick={() => handleDelete(product?._id)}
-            className="basis-1/3 w-full !bg-red-600 !hover:!bg-red-700 !text-white"
+            className="flex-1 w-full !bg-red-600 !hover:!bg-red-700 !text-white"
           >
             Delete
           </Button>

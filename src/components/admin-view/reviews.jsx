@@ -11,7 +11,7 @@ import {
 } from "../ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import api from "@/api/axios";
-import { Eye } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 
@@ -33,7 +33,7 @@ const isTodayLocal = (dateStr) => {
 
 export default function AdminReviewsView() {
   const { user } = useSelector((s) => s.auth || {});
-  const isSuperAdmin = user?.role !== 'admin';
+  const isSuperAdmin = ['superadmin', 'super-admin', 'super_admin'].includes(user?.role?.toLowerCase());
   const isAdmin = Boolean(user?.role === 'admin' || user?.role === 'superadmin' || user?.isAdmin);
 
 
@@ -44,6 +44,10 @@ export default function AdminReviewsView() {
 
   const [viewOpen, setViewOpen] = useState(false);
   const [viewTarget, setViewTarget] = useState(null);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
 
   const [replyText, setReplyText] = useState("");
@@ -145,6 +149,31 @@ export default function AdminReviewsView() {
   function handleAll() {
     setDateFilter("");
     setShowTodayOnly(false);
+  }
+
+  function confirmDeleteReview(review) {
+    setDeleteTarget(review);
+    setDeleteOpen(true);
+  }
+
+  async function handleDeleteReview() {
+    if (!deleteTarget) return;
+    try {
+      setIsDeleting(true);
+      const resp = await api.delete(`/api/admin/reviews/${deleteTarget._id}`);
+      if (resp?.data?.success) {
+        setReviews((prev) => prev.filter((r) => r._id !== deleteTarget._id));
+        setDeleteOpen(false);
+        setDeleteTarget(null);
+      } else {
+        alert(resp?.data?.message || "Failed to delete review");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error deleting review");
+    } finally {
+      setIsDeleting(false);
+    }
   }
   function handleToday() {
     setDateFilter("");
@@ -257,6 +286,17 @@ export default function AdminReviewsView() {
 
                       <TableCell className="text-right">
                         <div className="inline-flex items-center justify-end gap-2">
+                          {isSuperAdmin && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => confirmDeleteReview(r)}
+                              className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                              title="Delete Review"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                           <Button size="sm" onClick={() => openViewDialog(r)} aria-label={`View review ${r._id}`}>
                             <Eye size={14} /> View
                           </Button>
@@ -341,6 +381,16 @@ export default function AdminReviewsView() {
           )}
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title="Delete Review"
+        message="Are you sure you want to delete this review? This action cannot be undone."
+        onPrimary={handleDeleteReview}
+        primaryLabel={isDeleting ? "Deleting..." : "Delete"}
+        secondaryLabel="Cancel"
+      />
     </Card>
   );
 }

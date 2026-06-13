@@ -60,6 +60,7 @@ export default function AdminDashboard() {
         setLogos([]);
       }
     } catch (err) {
+      console.error("[dashboard.jsx] Error:", err);
       setLogos([]);
     }
   }

@@ -26,7 +26,7 @@ const store = configureStore({
     shopSearch: shopSearchSlice,
     shopReview: shopReviewSlice,
 
-    common: commonReducer,
+    
 
     commonFeature: commonReducer,
 

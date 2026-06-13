@@ -37,13 +37,17 @@ function PrimaryButton({ children, className = "", style = {}, ...props }) {
       onMouseEnter={(e) => {
         try {
           e.currentTarget.style.backgroundColor = PRIMARY_HOVER;
-        } catch { }
+        } catch (err) {
+      console.error("[checkout.jsx] Error:", err);
+    }
         if (props.onMouseEnter) props.onMouseEnter(e);
       }}
       onMouseLeave={(e) => {
         try {
           e.currentTarget.style.backgroundColor = PRIMARY_COLOR;
-        } catch { }
+        } catch (err) {
+      console.error("[checkout.jsx] Error:", err);
+    }
         if (props.onMouseLeave) props.onMouseLeave(e);
       }}
     >
@@ -155,7 +159,9 @@ export default function ShoppingCheckout() {
           if (user) {
             try {
               dispatch(fetchCartItems(user?.id || user?._id));
-            } catch (e) { }
+            } catch (e) {
+      console.error("[checkout.jsx] Error:", e);
+    }
           }
           if (res?.payload?.success) {
             toast({ title: "Item removed from cart" });
@@ -268,7 +274,9 @@ export default function ShoppingCheckout() {
         if (!currentSelectedAddress) {
           try {
             setCurrentSelectedAddressState(list[0]);
-          } catch (e) { }
+          } catch (e) {
+      console.error("[checkout.jsx] Error:", e);
+    }
         }
         return;
       }
@@ -284,7 +292,9 @@ export default function ShoppingCheckout() {
     try {
       const phone = addressForm?.phone || "";
       window.checkoutPhone = phone || "";
-    } catch (e) { }
+    } catch (e) {
+      console.error("[checkout.jsx] Error:", e);
+    }
   }, [addressForm]);
 
   const onCouponApplied = (data) => {
@@ -319,7 +329,9 @@ export default function ShoppingCheckout() {
         if (!hasSavedAddress) {
           setCouponError("Please select/save a delivery address before applying coupon.");
           setCouponErrorProducts([]);
-          if (couponInputRef.current) try { couponInputRef.current.focus(); } catch { }
+          if (couponInputRef.current) try { couponInputRef.current.focus(); } catch (err) {
+      console.error("[checkout.jsx] Error:", err);
+    }
           return;
         }
       } else {
@@ -334,7 +346,9 @@ export default function ShoppingCheckout() {
         if (!hasGuestBilling) {
           setCouponError("Please fill billing details before applying coupon.");
           setCouponErrorProducts([]);
-          if (couponInputRef.current) try { couponInputRef.current.focus(); } catch { }
+          if (couponInputRef.current) try { couponInputRef.current.focus(); } catch (err) {
+      console.error("[checkout.jsx] Error:", err);
+    }
           return;
         }
       }
@@ -514,7 +528,9 @@ export default function ShoppingCheckout() {
       if (!zoneName && typeof assignments.get === "function") {
         zoneName = assignments.get(stateName);
       }
-    } catch (e) { }
+    } catch (e) {
+      console.error("[checkout.jsx] Error:", e);
+    }
     return zoneName || null;
   }
 
@@ -726,7 +742,9 @@ export default function ShoppingCheckout() {
     return () => {
       try {
         mm.revert();
-      } catch (e) { }
+      } catch (e) {
+      console.error("[checkout.jsx] Error:", e);
+    }
     };
   }, []);
 
@@ -883,7 +901,9 @@ export default function ShoppingCheckout() {
                         if (couponInputRef.current) {
                           try {
                             couponInputRef.current.focus();
-                          } catch { }
+                          } catch (err) {
+      console.error("[checkout.jsx] Error:", err);
+    }
                         }
                       }}
                       className="px-3 py-1 rounded bg-white border text-sm hover:bg-slate-50"

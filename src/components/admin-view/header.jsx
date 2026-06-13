@@ -1,13 +1,13 @@
 import { AlignJustify, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
 import { useDispatch } from "react-redux";
-import { logoutUser } from "@/store/auth-slice";
+import { logoutAsync } from "@/store/auth-slice";
 
 function AdminHeader({ setOpen }) {
   const dispatch = useDispatch();
 
   function handleLogout() {
-    dispatch(logoutUser());
+    dispatch(logoutAsync());
   }
 
   return (

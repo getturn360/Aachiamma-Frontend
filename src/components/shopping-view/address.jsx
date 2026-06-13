@@ -83,8 +83,11 @@ function Address({ setCurrentSelectedAddress, selectedId, value, onChange }) {
    
         try {
           localStorage.setItem("guest_address_v1", JSON.stringify(formData));
-        } catch (e) { }
+        } catch (e) {
+      console.error("[address.jsx] Error:", e);
+    }
       } catch (e) {
+      console.error("[address.jsx] Error:", e);
         /* guest address persistence optional */
       }
     }
@@ -102,8 +105,8 @@ function Address({ setCurrentSelectedAddress, selectedId, value, onChange }) {
           if (!guestSaved) setGuestSaved(true);
         }
       } catch (e) {
-  
-      }
+      console.error("[address.jsx] Error:", e);
+    }
     }
  
   }, [formData]);
@@ -128,14 +131,18 @@ function Address({ setCurrentSelectedAddress, selectedId, value, onChange }) {
 
       try {
         localStorage.setItem("guest_address_v1", JSON.stringify(formData));
-      } catch (e) { }
+      } catch (e) {
+      console.error("[address.jsx] Error:", e);
+    }
 
   
       try {
         const snap = JSON.stringify(formData || {});
         setGuestSavedSnapshot(snap);
         setGuestSaved(true);
-      } catch (e) { }
+      } catch (e) {
+      console.error("[address.jsx] Error:", e);
+    }
 
       toast({ title: "Address saved for this order" });
       return;
@@ -211,13 +218,13 @@ function Address({ setCurrentSelectedAddress, selectedId, value, onChange }) {
               try {
                 setCurrentSelectedAddress(null);
               } catch (e) {
-           
-              }
+      console.error("[address.jsx] Error:", e);
+    }
             }
           }
         } catch (e) {
-     
-        }
+      console.error("[address.jsx] Error:", e);
+    }
       }
     });
   }

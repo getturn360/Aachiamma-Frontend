@@ -7,30 +7,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-export function setAuthToken(token) {
-  if (token) {
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
-  }
-}
-
-export function clearAuthToken() {
-  try {
-    delete api.defaults.headers.common.Authorization;
-  } catch {
-    // ignore
-  }
-}
-
-function readStoredToken() {
-  try {
-    const raw = localStorage.getItem("auth_token");
-    if (!raw) return null;
-    return raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
-  } catch {
-    return null;
-  }
-}
-
 let interceptorsAttached = false;
 
 /**
@@ -91,29 +67,6 @@ export function setupApiInterceptors(store, setLoadingAction) {
       return Promise.reject(error);
     }
   );
-}
-
-try {
-  const token = readStoredToken();
-  if (token) setAuthToken(token);
-
-  if (typeof window !== "undefined") {
-    window.addEventListener("storage", (ev) => {
-      if (ev.key === "auth_token") {
-        if (ev.newValue) {
-          const t =
-            ev.newValue.startsWith('"') && ev.newValue.endsWith('"')
-              ? ev.newValue.slice(1, -1)
-              : ev.newValue;
-          setAuthToken(t);
-        } else {
-          clearAuthToken();
-        }
-      }
-    });
-  }
-} catch {
-  // ignore localStorage errors
 }
 
 export default api;
