@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { evaluateSafeArithmetic } from "@/lib/safe-arithmetic";
 
 const colIndexToName = (n) => {
   let name = "";
@@ -200,9 +201,10 @@ function evaluateFormulaString(formula, getCellValue, cellKey = null, seen = new
     return "#ERR";
   }
   try {
- 
-    const fn = new Function(`return (${replaced})`);
-    const res = fn();
+    const numericExpr = replaced
+      .replace(/"([^"\\]|\\.)*"/g, "0")
+      .replace(/'([^'\\]|\\.)*'/g, "0");
+    const res = evaluateSafeArithmetic(numericExpr);
     if (res === Infinity || res === -Infinity) return "#DIV/0";
     if (Number.isNaN(res)) return "#ERR";
     return String(res);

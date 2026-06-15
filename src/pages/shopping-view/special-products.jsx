@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
 import { addProductToCart } from "@/lib/add-to-cart";
@@ -14,6 +14,7 @@ const ACCENT = "#08665F";
 export default function SpecialProductsPage() {
   const { type } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
 
@@ -65,7 +66,9 @@ export default function SpecialProductsPage() {
     if (!productList || !Array.isArray(productList)) return [];
     return productList.filter(
       (product) =>
-        Array.isArray(product.special) && product.special.includes(collectionInfo.tag)
+        product?.isAvailable !== false &&
+        Array.isArray(product.special) &&
+        product.special.includes(collectionInfo.tag)
     );
   }, [productList, collectionInfo.tag]);
 
@@ -77,10 +80,13 @@ export default function SpecialProductsPage() {
     addProductToCart({
       dispatch,
       user,
+      navigate,
       productId,
       quantity,
       productObj,
+      fromPath: location.pathname,
     }).then((data) => {
+      if (data?.redirectedToLogin) return;
       if (data?.payload?.success) {
         toast({ title: "Product added to cart" });
       } else {

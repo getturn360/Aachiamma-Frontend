@@ -88,7 +88,7 @@ export default function AdminNewsletter() {
   const { toast } = useToast();
 
 
-  const token = useSelector((s) => (s.auth ? s.auth.token : null));
+  const { isAuthenticated, user } = useSelector((s) => s.auth || {});
 
   const [subscribers, setSubscribers] = useState([]);
   const [total, setTotal] = useState(0);
@@ -133,7 +133,9 @@ export default function AdminNewsletter() {
 
 
   const ensureAuth = () => {
-    if (!token) {
+    const role = (user?.role || "").toLowerCase();
+    const isAdminOrSuper = role.includes("admin") || role.includes("super");
+    if (!isAuthenticated || !isAdminOrSuper) {
       setNotification({ type: "error", title: "Not authenticated", message: "Please login as admin/superadmin to access this page." });
       return false;
     }

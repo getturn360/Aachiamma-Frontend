@@ -19,8 +19,13 @@ export const ROUTES = {
   unauth: "/unauth-page",
 };
 
+export function isSuperAdminUser(user) {
+  const role = String(user?.role || "").toLowerCase();
+  return role === "superadmin" || role === "super-admin" || role === "super_admin";
+}
+
 export function isAdminUser(user) {
-  return user?.role === "admin" || user?.role === "superadmin";
+  return user?.role === "admin" || isSuperAdminUser(user);
 }
 
 /** Where to send the user right after a successful login. */

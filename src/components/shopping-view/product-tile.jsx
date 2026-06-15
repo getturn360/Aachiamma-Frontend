@@ -64,15 +64,9 @@ export default function ShoppingProductTile({
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(Number(value || 0));
 
 
-  const productHasVariations = Array.isArray(product?.variations) && product.variations.length > 0;
-  const availableStockForActions = selectedVariant
-    ? Number(selectedVariant.totalStock || 0)
-    : productHasVariations
-    ? 0
-    : Number(product?.totalStock || 0);
-
-  const inStock = availableStockForActions > 0;
-  const lowStock = inStock && availableStockForActions <= 5;
+  const isProductAvailable = product?.isAvailable !== false;
+  const canPurchase = isProductAvailable;
+  const disabledLabel = "Unavailable";
 
   const reviewCount =
     product?.reviewCount ?? (Array.isArray(product?.reviews) ? product.reviews.length : 0);
@@ -133,13 +127,13 @@ export default function ShoppingProductTile({
                 loading="lazy"
                 style={{
                  
-                  filter: !inStock ? "grayscale(100%) brightness(0.85) contrast(0.95)" : undefined,
+                  filter: !canPurchase ? "grayscale(100%) brightness(0.85) contrast(0.95)" : undefined,
                   transition: "all 300ms ease",
                 }}
               />
             </div>
 
-            {!inStock && (
+            {!canPurchase && (
               <div
                 aria-hidden="true"
                 className="absolute inset-0 pointer-events-none z-20"
@@ -150,20 +144,20 @@ export default function ShoppingProductTile({
               />
             )}
 
-            {!inStock && (
+            {!canPurchase && (
               <div
                 aria-hidden="true"
                 className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
               >
                 <div className="px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-red-700 text-white text-sm sm:text-lg font-bold tracking-wide shadow-lg transform -rotate-6">
-                  Out of stock
+                  {disabledLabel}
                 </div>
               </div>
             )}
           </div>
 
           <div className="absolute top-2 left-2 flex items-center gap-1 sm:gap-2 sm:top-3 sm:left-3 z-40">
-            {inStock && (
+            {canPurchase && (
               <>
       
                 {discountPercent > 0 ? (
@@ -179,19 +173,6 @@ export default function ShoppingProductTile({
                
                     <span className="select-none text-[10px] sm:text-[11px] md:text-xs">★</span>
                     <span className="font-semibold text-[10px] sm:text-[11px] md:text-xs">-{discountPercent}%</span>
-                  </Badge>
-                ) : null}
- 
-      
-                {lowStock ? (
-                  <Badge
-                    className={
-                      "rounded-full " +
-                      "px-2 py-[2px] text-[10px] sm:px-2 sm:py-0.5 sm:text-[11px] md:px-3 md:py-1 md:text-xs " +
-                      "bg-amber-600 text-black"
-                    }
-                  >
-                    <span className="text-[10px] sm:text-[11px] md:text-xs">Only {availableStockForActions} left</span>
                   </Badge>
                 ) : null}
               </>
@@ -258,7 +239,7 @@ export default function ShoppingProductTile({
 
         <CardFooter className="p-3">
           <div className="w-full">
-            {inStock ? (
+            {canPurchase ? (
               <BuyNowButton
                 label="Add to cart"
                 showIcon={true}
@@ -283,10 +264,10 @@ export default function ShoppingProductTile({
                 className="w-full px-3 py-2 rounded-lg text-sm font-medium transition-opacity duration-300 opacity-60 cursor-not-allowed bg-gray-200 text-gray-600"
                 aria-disabled="true"
                 onClick={(e) => e.stopPropagation()} 
-                title="Out of stock"
+                title={disabledLabel}
                 disabled
               >
-                Out of stock
+                {disabledLabel}
               </button>
             )}
           </div>

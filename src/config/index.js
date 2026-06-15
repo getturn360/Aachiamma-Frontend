@@ -92,7 +92,7 @@ export const addProductFormElements = [
     label: "Variations (weights) — REQUIRED",
     name: "variations",
     componentType: "variations",
-    placeholder: "Add weight rows (e.g. 100g). Each variation requires label & price & totalStock. Mark one default.",
+    placeholder: "Add weight rows (e.g. 100g). Each variation requires label & price. Mark one default.",
   },
 
   {

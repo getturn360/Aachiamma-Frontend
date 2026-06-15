@@ -69,7 +69,7 @@ export default function AdminReviewsView() {
       const params = {};
       if (opts.today) params.today = true;
       if (opts.date) params.date = opts.date;
-      const resp = await api.get("/api/admin/reviews/get", { params });
+      const resp = await api.get("/api/admin/reviews/get", { params, skipGlobalLoader: true });
       if (resp?.data?.success) {
         setReviews(resp.data.data || []);
       } else {

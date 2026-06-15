@@ -24,8 +24,6 @@ function CommonForm({
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [openVariationIndexes, setOpenVariationIndexes] = useState([]);
-  const [bulkStock, setBulkStock] = useState("");
-
 
   const [categoriesList, setCategoriesList] = useState([]);
 
@@ -82,17 +80,6 @@ function CommonForm({
       next[idx] = !next[idx];
       return next;
     });
-  }
-
-  function applyBulkStockToAll(name) {
-   
-    const nvRaw = bulkStock;
-    if (nvRaw === "" || nvRaw === null) return;
-    const nvNum = Math.max(0, Math.floor(Number(nvRaw || 0)));
-    const arr = Array.isArray(formData[name]) ? formData[name] : [];
-    const next = arr.map((x) => ({ ...(x || {}), totalStock: nvNum === 0 ? "" : nvNum }));
-    setField(name, next);
-    setBulkStock("");
   }
 
   function renderInputsByComponentType(getControlItem) {
@@ -245,7 +232,6 @@ function CommonForm({
                         salePrice: "",
                         isDefault: arr.length === 0,
                         descriptionItems: [],
-                        totalStock: "",
                       },
                     ];
                     setField(getControlItem.name, newArr);
@@ -267,9 +253,6 @@ function CommonForm({
                 }
                 if (it.salePrice !== undefined && it.salePrice !== "" && !Number.isNaN(Number(it.salePrice)) && Number(it.salePrice) !== 0) {
                   parts.push(`Offer: ₹${Number(it.salePrice).toLocaleString("en-IN")}`);
-                }
-                if (it.totalStock !== undefined && it.totalStock !== "" && !Number.isNaN(Number(it.totalStock)) && Number(it.totalStock) !== 0) {
-                  parts.push(`Stock: ${Number(it.totalStock)}`);
                 }
 
                 return (
@@ -331,7 +314,7 @@ function CommonForm({
 
                         {isOpen && (
                           <div className="mt-3 space-y-2">
-                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
                               <Input
                                 placeholder="Label (e.g. 100g) *"
                                 value={it.label || ""}
@@ -363,23 +346,6 @@ function CommonForm({
                                   setField(getControlItem.name, newArr);
                                 }}
                                 className="rounded-xl p-2"
-                              />
-
-          
-                              <Input
-                                placeholder="Stock (units)"
-                                type="number"
-                                min={0}
-                                step={1}
-                                value={it.totalStock ?? ""}
-                                onChange={(e) => {
-         
-                                  const nv = e.target.value === "" ? "" : Math.max(0, Math.floor(Number(e.target.value || 0)));
-                                  const newArr = [...arr];
-                                  newArr[idx] = { ...newArr[idx], totalStock: nv };
-                                  setField(getControlItem.name, newArr);
-                                }}
-                                className="rounded-xl p-2 bg-amber-50"
                               />
                             </div>
 
@@ -460,7 +426,7 @@ function CommonForm({
             </div>
 
             <div className="text-xs text-slate-500">
-              Each variation requires label & price. Default variation (radio) is the displayed rate on the product tile & product detail page. Stock is optional and may be left blank.
+              Each variation requires label & price. Default variation (radio) is the displayed rate on the product tile & product detail page.
             </div>
           </div>
         );
@@ -638,11 +604,16 @@ function CommonForm({
           }
 
           const normalized = vs.map((v) => {
-            const stock =
-              v.totalStock === "" || v.totalStock === undefined
-                ? ""
-                : Math.max(0, Math.floor(Number(v.totalStock || 0)));
-            return { ...(v || {}), totalStock: stock };
+            const entry = {
+              label: v.label,
+              price: v.price,
+              salePrice: v.salePrice ?? "",
+              isDefault: !!v.isDefault,
+              descriptionItems: Array.isArray(v.descriptionItems) ? v.descriptionItems : [],
+            };
+            if (v._id) entry._id = v._id;
+            else if (v.id) entry.id = v.id;
+            return entry;
           });
 
           setField(variationsControl.name, normalized);

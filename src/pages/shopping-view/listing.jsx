@@ -20,7 +20,7 @@ import {
 } from "@/store/shop/products-slice";
 import { ArrowUpDownIcon, Search, X, SlidersHorizontal } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import noProductsImg from "@/assets/amma-1.png";
 
 function createSearchParamsHelper(filterParams) {
@@ -65,6 +65,7 @@ function normalizeFilters(raw = {}) {
 export default function ShoppingListing() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { productList, productDetails, loading: productsLoading } = useSelector(
     (state) => state.shopProducts
   );
@@ -222,10 +223,13 @@ export default function ShoppingListing() {
     addProductToCart({
       dispatch,
       user,
+      navigate,
       productId,
       quantity: 1,
       productObj,
+      fromPath: location.pathname,
     }).then((data) => {
+      if (data?.redirectedToLogin) return;
       if (data?.payload?.success) {
         toast({ title: "Product added to cart" });
       } else {
@@ -235,17 +239,22 @@ export default function ShoppingListing() {
     });
   };
 
+  const visibleProducts = useMemo(
+    () => (productList || []).filter((p) => p?.isAvailable !== false),
+    [productList]
+  );
+
   const filteredList = useMemo(() => {
-    if (!productList) return [];
-    if (!query.trim()) return productList;
+    if (!visibleProducts.length) return [];
+    if (!query.trim()) return visibleProducts;
     const q = query.trim().toLowerCase();
-    return productList.filter(
+    return visibleProducts.filter(
       (p) =>
         p.title?.toLowerCase().includes(q) ||
         p.description?.toLowerCase()?.includes(q) ||
         p.brand?.toLowerCase()?.includes(q)
     );
-  }, [productList, query]);
+  }, [visibleProducts, query]);
 
   const selectedCategoryChips = (filters && Array.isArray(filters.category)) ? filters.category : [];
 
@@ -300,7 +309,7 @@ export default function ShoppingListing() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
               <div className="mr-2">
                 <h2 className="text-2xl font-extrabold text-gray-800">All Products</h2>
-                <p className="text-sm text-gray-500">{productList?.length ?? 0} products • curated just for you</p>
+                <p className="text-sm text-gray-500">{visibleProducts.length} products • curated just for you</p>
               </div>
 
               <div className="flex items-center gap-3 ml-0 sm:ml-4 w-full sm:w-auto">

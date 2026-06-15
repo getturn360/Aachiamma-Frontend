@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import DOMPurify from "dompurify";
 
 export default function PopupModal({ open, onClose, popup, onNext, showNextButton = false }) {
   const [btnFocused, setBtnFocused] = useState(false);
@@ -15,6 +16,7 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
   }, [open, onClose]);
 
   const ACCENT = "#08665F";
+  const sanitizedHtml = popup?.html ? DOMPurify.sanitize(popup.html) : "";
 
   const backdrop = {
     hidden: { opacity: 0 },
@@ -157,14 +159,14 @@ export default function PopupModal({ open, onClose, popup, onNext, showNextButto
                     exit={{ opacity: 0, transition: { duration: 0.22 } }}
                     draggable={false}
                   />
-                ) : popup.html ? (
+                ) : sanitizedHtml ? (
                   <motion.div
      
                     className="w-full max-h-[78vh] overflow-auto rounded-r-2xl"
                     initial={{ opacity: 0.92, scale: 0.997 }}
                     animate={{ opacity: 1, scale: 1, transition: { duration: 0.36 } }}
                     exit={{ opacity: 0, transition: { duration: 0.22 } }}
-                    dangerouslySetInnerHTML={{ __html: popup.html }}
+                    dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
                   />
                 ) : (
                   <motion.div

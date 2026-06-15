@@ -13,6 +13,7 @@ import {
   FileText, 
   MessageSquare, 
   MessageCircle, 
+  BarChart2,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -26,6 +27,12 @@ const adminSidebarMenuItems = [
     label: "Dashboard",
     path: "/admin/dashboard",
     icon: <LayoutDashboard size={18} />,
+  },
+  {
+    id: "analytics",
+    label: "Analytics",
+    path: "/admin/analytics",
+    icon: <BarChart2 size={18} />,
   },
   {
     id: "products",

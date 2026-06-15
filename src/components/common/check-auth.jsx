@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { ROUTES, isAdminUser } from "@/config/routes";
+import { PremiumLoader } from "@/components/common/Loader";
 
 function CheckAuth({ isAuthenticated, user, children, loading = false }) {
   const location = useLocation();
@@ -11,31 +12,32 @@ function CheckAuth({ isAuthenticated, user, children, loading = false }) {
   }
 
   if (pathname.startsWith("/admin")) {
+    if (loading) {
+      return <PremiumLoader message="Verifying access..." />;
+    }
+
     if (!isAuthenticated) {
-      if (loading) {
-        return <>{children}</>;
-      }
       return <Navigate to={ROUTES.login} state={{ from: location }} replace />;
     }
 
-    if (isAuthenticated && !user) {
-      return <>{children}</>;
+    if (!user) {
+      return <PremiumLoader message="Verifying access..." />;
     }
 
-    if (user && !isAdminUser(user)) {
+    if (!isAdminUser(user)) {
       return <Navigate to={ROUTES.unauth} replace />;
     }
   }
 
   if (
     isAuthenticated &&
+    user &&
     (pathname.includes("/login") || pathname.includes("/register")) &&
     !loading
   ) {
-    if (isAdminUser(user)) {
-      return <Navigate to={ROUTES.adminDashboard} replace />;
-    }
-    return <Navigate to={ROUTES.home} replace />;
+    // Login/register pages handle navigation after pending-cart merge.
+    // Redirect only when the user navigates here while already signed in.
+    return <>{children}</>;
   }
 
   return <>{children}</>;

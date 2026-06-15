@@ -17,15 +17,9 @@ export const registerUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async (credentials, { rejectWithValue, dispatch }) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const resp = await api.post("/api/auth/login", credentials);
-      const data = resp.data || {};
-      
-      if (data?.success) {
-        dispatch(checkAuth());
-      }
-
       return resp.data;
     } catch (err) {
       const payload =
@@ -39,7 +33,7 @@ export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
-      const resp = await api.get("/api/auth/check-auth");
+      const resp = await api.get("/api/auth/check-auth", { skipGlobalLoader: true });
       return resp.data;
     } catch (err) {
       const payload =
@@ -143,7 +137,7 @@ const authSlice = createSlice({
         const user =
           payload.user || payload?.data?.user || payload?.data || null;
         state.user = user;
-        state.isAuthenticated = true;
+        state.isAuthenticated = !!user;
         state.error = null;
       })
       .addCase(checkAuth.rejected, (state, action) => {

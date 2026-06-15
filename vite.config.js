@@ -16,6 +16,9 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
+    optimizeDeps: {
+      include: ["react-helmet-async"],
+    },
 
     server: {
       proxy: {

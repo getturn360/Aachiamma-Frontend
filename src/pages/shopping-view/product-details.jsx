@@ -230,7 +230,9 @@ export default function ProductDetailsPage() {
                             const resp = await api.get(`/api/shop/products/get?category=${category}`);
                             let items = resp?.data?.data ?? resp?.data ?? [];
                             if (!Array.isArray(items)) items = [];
-                            items = items.filter((p) => p?._id !== pd?._id);
+                            items = items.filter(
+                                (p) => p?._id !== pd?._id && p?.isAvailable !== false
+                            );
                             for (let i = items.length - 1; i > 0; i--) {
                                 const j = Math.floor(Math.random() * (i + 1));
                                 [items[i], items[j]] = [items[j], items[i]];
@@ -284,23 +286,14 @@ export default function ProductDetailsPage() {
         return { price: p, salePrice: s > 0 ? s : p };
     }, [selectedVariant, price, salePrice]);
 
-    const productLevelStock = Number(productDetails?.totalStock ?? 0);
-    const selectedVariantStock = selectedVariant ? Number(selectedVariant.totalStock || 0) : null;
-
-    const availableStockForActions = (() => {
-        if (selectedVariant !== null) return selectedVariantStock;
-        const vs = Array.isArray(productDetails?.variations) ? productDetails.variations : [];
-        if (!vs.length) return productLevelStock;
-        return 0;
-    })();
+    const isProductAvailable = productDetails?.isAvailable !== false;
+    const canPurchase = isProductAvailable;
+    const purchaseDisabledLabel = "Currently unavailable";
 
     const hasDiscount = effectivePrice.salePrice > 0 && effectivePrice.price > 0 && effectivePrice.salePrice < effectivePrice.price;
     const discountPercent = hasDiscount
         ? Math.round(((effectivePrice.price - effectivePrice.salePrice) / effectivePrice.price) * 100)
         : 0;
-
-    const inStock = (availableStockForActions || 0) > 0;
-    const lowStock = inStock && (availableStockForActions || 0) <= 5;
 
     const ratingDistribution = useMemo(() => {
         const dist = [0, 0, 0, 0, 0];
@@ -338,27 +331,14 @@ export default function ProductDetailsPage() {
     };
 
     const increment = () => {
-        const max = availableStockForActions || 99;
-        setQuantity((q) => Math.min(max, q + 1));
+        setQuantity((q) => Math.min(99, q + 1));
     };
     const decrement = () => setQuantity((q) => Math.max(1, q - 1));
 
     function handleAddToCart() {
         if (!productDetails) return;
-        const maxStock = availableStockForActions ?? 0;
-        const getCartItems = (cartItems && cartItems.items) || [];
-  
-        const existingIndex = getCartItems.findIndex(
-            (item) =>
-                item.productId === productDetails?._id &&
-                variantEqual(item.selectedVariant, selectedVariant)
-        );
-        const existingQty = existingIndex > -1 ? getCartItems[existingIndex].quantity : 0;
-        if (existingQty + quantity > maxStock) {
-            toast({
-                title: `Only ${Math.max(0, maxStock - existingQty)} more units can be added for this item`,
-                variant: "destructive",
-            });
+        if (!isProductAvailable) {
+            toast({ title: "This product is currently unavailable", variant: "destructive" });
             return;
         }
 
@@ -372,10 +352,13 @@ export default function ProductDetailsPage() {
         addProductToCart({
             dispatch,
             user,
+            navigate,
             productId: productDetails?._id,
             quantity,
             productObj: productForCart,
+            fromPath: `/product/${productDetails?._id}`,
         }).then((data) => {
+            if (data?.redirectedToLogin) return;
             const payload = data?.payload;
             if (payload?.success || payload?.data) {
                 toast({ title: "Added to cart" });
@@ -387,13 +370,8 @@ export default function ProductDetailsPage() {
 
     function handleBuyNow() {
         if (!productDetails) return;
-        const stockAvailable = availableStockForActions ?? 0;
-        if (stockAvailable === 0) {
-            toast({ title: "Product out of stock", variant: "destructive" });
-            return;
-        }
-        if (quantity > stockAvailable) {
-            toast({ title: "Requested quantity exceeds available stock", variant: "destructive" });
+        if (!isProductAvailable) {
+            toast({ title: "This product is currently unavailable", variant: "destructive" });
             return;
         }
 
@@ -579,9 +557,11 @@ export default function ProductDetailsPage() {
                             )}
                         </div>
 
-                        <div className="mt-2 text-xs text-slate-500">
-                            {inStock ? (lowStock ? `Only ${availableStockForActions} left` : `${availableStockForActions} in stock`) : "Out of stock"}
-                        </div>
+                        {!canPurchase && (
+                            <div className="mt-2 text-xs text-slate-500">
+                                {purchaseDisabledLabel}
+                            </div>
+                        )}
 
                         <div className="mt-3 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
@@ -661,9 +641,9 @@ export default function ProductDetailsPage() {
                             </div>
 
 
-                            {availableStockForActions === 0 ? (
+                            {!canPurchase ? (
                                 <Button className="w-full block opacity-60 cursor-not-allowed" disabled>
-                                    Out of Stock
+                                    {purchaseDisabledLabel}
                                 </Button>
                             ) : (
                                 <div className="flex flex-col gap-2 w-full">
@@ -704,7 +684,7 @@ export default function ProductDetailsPage() {
                         <img
                             src={selectedImage || productDetails?.image}
                             alt={productDetails?.title}
-                            className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${!inStock ? 'grayscale opacity-50' : ''}`}
+                            className={`w-full h-auto object-cover transition-transform duration-300 hover:scale-105 ${!canPurchase ? 'grayscale opacity-50' : ''}`}
                             style={{ objectPosition: "center", transition: "all 300ms ease" }}
                         />
 
@@ -737,7 +717,7 @@ export default function ProductDetailsPage() {
                             </>
                         )}
 
-                        {!inStock && (
+                        {!canPurchase && (
                             <div
                                 aria-hidden="true"
                                 className="absolute inset-0 pointer-events-none z-20"
@@ -748,38 +728,29 @@ export default function ProductDetailsPage() {
                             />
                         )}
 
-                        {!inStock && (
+                        {!canPurchase && (
                             <div
                                 aria-hidden="true"
                                 className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
                             >
                                 <div className="px-6 py-3 rounded-full bg-red-700 text-white text-lg md:text-2xl font-bold tracking-wide shadow-2xl transform -rotate-6">
-                                    Out of stock
+                                    {purchaseDisabledLabel}
                                 </div>
                             </div>
                         )}
 
                         <div className="absolute top-4 left-4 flex items-center gap-2 z-40">
-                            {inStock && (
+                            {canPurchase && (
                                 <>
-                              
                                     {discountPercent > 0 ? (
                                         <div className="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-semibold shadow">
                                             -{discountPercent}%
                                         </div>
-                                    ) : null}
-
-                                    {lowStock ? (
-                                        <div className="px-3 py-1 rounded-full bg-amber-600 text-black text-xs font-semibold shadow">
-                                            Only {availableStockForActions} left
-                                        </div>
-                                    ) : null}
-
-                                    {discountPercent === 0 && !lowStock ? (
+                                    ) : (
                                         <div className="px-3 py-1 rounded-full bg-white/80 text-slate-700 text-xs font-semibold shadow">
                                             {productDetails?.category || "Product"}
                                         </div>
-                                    ) : null}
+                                    )}
                                 </>
                             )}
                         </div>
@@ -947,10 +918,17 @@ export default function ProductDetailsPage() {
                                             addProductToCart({
                                                 dispatch,
                                                 user,
+                                                navigate,
                                                 productId: id,
                                                 quantity: qty,
                                                 productObj: prodObj,
-                                            }).then(() => toast({ title: "Added to cart" }));
+                                                fromPath: `/product/${r._id}`,
+                                            }).then((data) => {
+                                                if (data?.redirectedToLogin) return;
+                                                if (data?.payload?.success) {
+                                                    toast({ title: "Added to cart" });
+                                                }
+                                            });
                                         }}
                                     />
                                 </div>
@@ -971,10 +949,17 @@ export default function ProductDetailsPage() {
                                             addProductToCart({
                                                 dispatch,
                                                 user,
+                                                navigate,
                                                 productId: id,
                                                 quantity: qty,
                                                 productObj: prodObj,
-                                            }).then(() => toast({ title: "Added to cart" }));
+                                                fromPath: `/product/${r._id}`,
+                                            }).then((data) => {
+                                                if (data?.redirectedToLogin) return;
+                                                if (data?.payload?.success) {
+                                                    toast({ title: "Added to cart" });
+                                                }
+                                            });
                                         }}
                                     />
                                 </div>

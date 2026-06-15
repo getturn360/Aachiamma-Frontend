@@ -1,12 +1,12 @@
 import CommonForm from "@/components/common/form";
 import { useToast } from "@/components/ui/use-toast";
 import { loginFormControls } from "@/config";
-import { loginUser, checkAuth } from "@/store/auth-slice";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { loginUser } from "@/store/auth-slice";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { addToCart, fetchCartItems, clearGuestCart } from "@/store/shop/cart-slice";
 import { getPostLoginPath } from "@/config/routes";
+import { mergePendingCartItem } from "@/lib/post-auth-cart";
 
 import { setLoading, setLoadingMessage } from "@/store/common-slice";
 
@@ -21,11 +21,20 @@ function AuthLogin() {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const submittingRef = useRef(false);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const from = location.state?.from?.pathname || "/";
 
+  useEffect(() => {
+    if (isAuthenticated && user && !submittingRef.current) {
+      navigate(getPostLoginPath(user, from), { replace: true });
+    }
+  }, [isAuthenticated, user, from, navigate]);
+
   async function onSubmit(e) {
     e && e.preventDefault && e.preventDefault();
+    submittingRef.current = true;
 
     try {
       dispatch(setLoading(true));
@@ -42,43 +51,27 @@ function AuthLogin() {
       const loggedInUser =
         result?.user || result?.data?.user || result?.data || null;
 
-      try {
-        const pendingItemStr = sessionStorage.getItem("pendingCartItem");
-        if (pendingItemStr) {
-          const pendingItem = JSON.parse(pendingItemStr);
-          await dispatch(addToCart({
-            userId: loggedInUser?.id || loggedInUser?._id,
-            productId: pendingItem.productId,
-            quantity: pendingItem.quantity,
-            productObj: pendingItem.productObj
-          })).unwrap();
-          sessionStorage.removeItem("pendingCartItem");
-          toast?.toast?.({ title: "Welcome", description: "Logged in successfully. Pending item added to cart." });
-        } else {
-          toast?.toast?.({ title: "Welcome", description: "Logged in successfully" });
-        }
-      } catch (e) {
-        console.error("Error processing pending cart item:", e);
-        toast?.toast?.({ title: "Welcome", description: "Logged in successfully" });
-      }
+      const merged = await mergePendingCartItem(dispatch, loggedInUser);
 
-      try {
-        await dispatch(fetchCartItems(loggedInUser?.id || loggedInUser?._id));
-        try {
-          dispatch(clearGuestCart());
-        } catch (e) {}
-      } catch (e) {
-        /* cart merge optional */
+      if (merged) {
+        toast?.toast?.({
+          title: "Welcome",
+          description: "Logged in successfully. Pending item added to cart.",
+        });
+      } else {
+        toast?.toast?.({ title: "Welcome", description: "Logged in successfully" });
       }
 
       navigate(getPostLoginPath(loggedInUser, from), { replace: true });
     } catch (err) {
-   
-      const message = err?.message || err?.msg || (err?.message === undefined && JSON.stringify(err)) || "Login error";
-      toast?.toast?.({ title: "Login error", description: message });
+      const message =
+        err?.message ||
+        err?.payload?.message ||
+        "Login error";
+      toast?.toast?.({ title: "Login failed", description: message });
       console.error("Login error:", err);
     } finally {
-  
+      submittingRef.current = false;
       dispatch(setLoading(false));
       dispatch(setLoadingMessage(null));
     }

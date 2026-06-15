@@ -42,7 +42,8 @@ import {
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { logoutAsync } from "@/store/auth-slice";
 import UserCartWrapper from "./cart-wrapper";
-import { fetchCartItems } from "@/store/shop/cart-slice";
+import { fetchCartItems, clearGuestCart } from "@/store/shop/cart-slice";
+import { CART_UPDATED_EVENT } from "@/lib/post-auth-cart";
 import { fetchCategories } from "@/store/common-slice";
 import { Label } from "../ui/label";
 import api from "@/api/axios"; 
@@ -211,10 +212,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
       console.error("[header.jsx] Error:", e);
     }
 
-      navigate(ROUTES.listing);
-      setTimeout(() => {
-        navigate(ROUTES.special(anchorId));
-      }, 10);
+      navigate(ROUTES.special(anchorId));
 
       try {
         onItemClick && onItemClick();
@@ -446,6 +444,7 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
 
   function handleLogout() {
     dispatch(logoutAsync());
+    dispatch(clearGuestCart());
     navigate(ROUTES.home);
     setTimeout(() => {
       try {
@@ -457,12 +456,20 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
   }
 
   useEffect(() => {
-    if (loggedIn) {
-      dispatch(fetchCartItems(user.id || user._id || user.userId));
-    } else {
-      dispatch(fetchCartItems(null));
+    if (!loggedIn) return undefined;
+
+    const userId = user.id || user._id || user.userId;
+    if (!userId) return undefined;
+
+    dispatch(fetchCartItems(userId));
+
+    function refreshCart() {
+      dispatch(fetchCartItems(userId));
     }
-  }, [dispatch, loggedIn, user?.id, user?._id]);
+
+    window.addEventListener(CART_UPDATED_EVENT, refreshCart);
+    return () => window.removeEventListener(CART_UPDATED_EVENT, refreshCart);
+  }, [dispatch, loggedIn, user?.id, user?._id, user?.userId]);
 
   useEffect(() => {
     function onOpenCart() {
@@ -678,10 +685,7 @@ function MobileMenu({ navigateTo } = {}) {
       console.error("[header.jsx] Error:", e);
     }
 
-      navigate(ROUTES.listing);
-      setTimeout(() => {
-        navigate(ROUTES.special(anchorId));
-      }, 10);
+      navigate(ROUTES.special(anchorId));
     } catch (e) {
       console.error("[header.jsx] Error:", e);
     }

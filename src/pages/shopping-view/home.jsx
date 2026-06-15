@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllFilteredProducts,
@@ -8,19 +8,16 @@ import {
 } from "@/store/shop/products-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate, useLocation } from "react-router-dom";
-import { addProductToCart } from "@/lib/add-to-cart";
 import { useToast } from "@/components/ui/use-toast";
-import { getFeatureImages, fetchCategories } from "@/store/common-slice";
+import { fetchCategories, getFeatureImages } from "@/store/common-slice";
 import PopupModal from "@/components/common/PopupModal";
 import { fetchPopups } from "@/store/popup-slice";
 import SEO from "@/components/common/SEO";
 
+import { addProductToCart } from "@/lib/add-to-cart";
 
-import bannerImg from "@/assets/feature-hero.jpg";
 import hi1 from "@/assets/h-i1.png";
-import hi2 from "@/assets/h-i2.png";
 import hi3 from "@/assets/h-i3.png";
-
 
 import pickleImg from "@/assets/categories/demo-p.jpg";
 import snackImg from "@/assets/categories/demo-p.jpg";
@@ -30,112 +27,20 @@ import kondattamImg from "@/assets/categories/demo-p.jpg";
 import comboImg from "@/assets/categories/demo-p.jpg";
 import otherImg from "@/assets/categories/demo-p.jpg";
 
-import t1 from "@/assets/t1.jpg";
-import t2 from "@/assets/t2.jpg";
-import t3 from "@/assets/t3.jpg";
-import t4 from "@/assets/t4.jpg";
-import t5 from "@/assets/t5.jpg";
-import t6 from "@/assets/t6.jpg";
-
-import val1 from "@/assets/v-i1.png";
-import val2 from "@/assets/v-i2.png";
-import val3 from "@/assets/v-i3.png";
-import val4 from "@/assets/v-i4.png";
+// Extracted Components
+import SectionTitle from "@/components/shopping-view/home/SectionTitle";
+import ValuesSection from "@/components/shopping-view/home/ValuesSection";
+import FullWidthPromo from "@/components/shopping-view/home/FullWidthPromo";
+import TestimonialSlider from "@/components/shopping-view/home/TestimonialSlider";
+import PaginatedProducts from "@/components/shopping-view/home/PaginatedProducts";
 
 const ACCENT = "#08665F";
-const PROMO_BG = "#5b1f18";
-const PROMO_TAN = "#C28A4D";
-
-function PaginatedProducts({
-  products = [],
-  pageSize = 4,
-  renderProduct, 
-  sectionId = "paginated",
-}) {
-  const [page, setPage] = useState(0);
-
-  useEffect(() => {
-    
-    setPage(0);
-  }, [products]);
-
-  if (!products || products.length === 0) return null;
-
-  const totalPages = Math.ceil(products.length / pageSize);
-  const start = page * pageSize;
-  const end = start + pageSize;
-  const visible = products.slice(start, end);
-
-  const goPrev = () => setPage((p) => Math.max(0, p - 1));
-  const goNext = () => setPage((p) => Math.min(totalPages - 1, p + 1));
-
-  return (
-    <div id={sectionId}>
-     
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-        {visible.map((product) => (
-          <div key={product._id || product.id} className="transform hover:-translate-y-2 transition">
-            {renderProduct(product)}
-          </div>
-        ))}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="w-full mt-4 sm:mt-6 flex items-center justify-center gap-3 sm:gap-4">
-          <Button
-            onClick={goPrev}
-            disabled={page === 0}
-            className="px-4 py-2"
-            style={{
-              background: page === 0 ? "#F3F4F6" : ACCENT,
-              color: page === 0 ? "#9CA3AF" : "#fff",
-              border: `1px solid ${ACCENT}22`,
-            }}
-            aria-label="Previous products"
-          >
-            Prev
-          </Button>
-
-          <div className="text-sm font-semibold text-gray-600 self-center">
-            {page + 1} / {totalPages}
-          </div>
-
-          <Button
-            onClick={goNext}
-            disabled={page === totalPages - 1}
-            className="px-4 py-2"
-            style={{
-              background: page === totalPages - 1 ? "#F3F4F6" : ACCENT,
-              color: page === totalPages - 1 ? "#9CA3AF" : "#fff",
-              border: `1px solid ${ACCENT}22`,
-            }}
-            aria-label="Next products"
-          >
-            Next
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { productList } = useSelector((state) => state.shopProducts);
   const { featureImageList } = useSelector((state) => state.commonFeature);
   const { user } = useSelector((state) => state.auth);
-  const rawCategories = useSelector((state) => state.commonFeature?.categories || []);
-
-  const categories = useMemo(
-    () =>
-      rawCategories.map((c) => ({
-        _id: c._id,
-        name: c.name,
-        slug: c.slug,
-        image: c.image || c.img || null,
-      })),
-    [rawCategories]
-  );
 
   const { list: popups = [] } = useSelector((s) => s.popup || {});
   const [showPopup, setShowPopup] = useState(false);
@@ -154,6 +59,45 @@ export default function ShoppingHome() {
   const pointerStartX = useRef(null);
   const pointerActive = useRef(false);
   const [cartPulse, setCartPulse] = useState(false);
+
+  const reduxCategories = useSelector((state) => state.commonFeature?.categories || []);
+  const categories = useMemo(
+    () =>
+      reduxCategories.map((c) => ({
+        _id: c._id,
+        name: c.name,
+        slug: c.slug,
+        image: c.image || c.img || null,
+      })),
+    [reduxCategories]
+  );
+
+  const bestSelling = useMemo(
+    () =>
+      (productList || []).filter(
+        (p) =>
+          p?.isAvailable !== false &&
+          Array.isArray(p.special) &&
+          p.special.includes("best-selling")
+      ),
+    [productList]
+  );
+
+  const combosProducts = useMemo(
+    () =>
+      (productList || []).filter(
+        (p) =>
+          p?.isAvailable !== false &&
+          ((p.category && p.category.toLowerCase() === "combos") ||
+            (Array.isArray(p.special) && p.special.includes("combos")))
+      ),
+    [productList]
+  );
+
+  const featuredProducts = useMemo(
+    () => (productList || []).filter((p) => p?.isAvailable !== false),
+    [productList]
+  );
 
   const fallbackImageMap = {
     pickles: pickleImg,
@@ -187,12 +131,23 @@ export default function ShoppingHome() {
   }, [dispatch]);
 
   const STORAGE_SEQ = "popup_seq_idx";
+  const POPUP_SEEN_KEY = "popup_seen_this_session";
 
   useEffect(() => {
     if (!popups || popups.length === 0) {
       setShowPopup(false);
       setActivePopup(null);
       return;
+    }
+
+    try {
+      if (sessionStorage.getItem(POPUP_SEEN_KEY) === "1") {
+        setShowPopup(false);
+        setActivePopup(null);
+        return;
+      }
+    } catch (e) {
+      // ignore
     }
 
     let seqIdx = 0;
@@ -210,7 +165,6 @@ export default function ShoppingHome() {
     const candidateId = candidate ? (candidate._id || candidate.id) : null;
     if (candidateId && dismissedPopupRef.current && candidateId === dismissedPopupRef.current) {
       if (popups.length === 1) {
-
         setShowPopup(false);
         setActivePopup(null);
         return;
@@ -220,7 +174,6 @@ export default function ShoppingHome() {
       }
     }
 
-  
     const toShow = popups[seqIdx];
     if (toShow) {
       setActivePopup(toShow);
@@ -232,6 +185,12 @@ export default function ShoppingHome() {
   }, [popups]);
 
   const handleClosePopup = () => {
+    try {
+      sessionStorage.setItem(POPUP_SEEN_KEY, "1");
+    } catch (e) {
+      // ignore
+    }
+
     if (!activePopup) {
       setShowPopup(false);
       return;
@@ -252,14 +211,10 @@ export default function ShoppingHome() {
       if (found !== -1) idx = found;
     }
 
-
     const next = (idx + 1) % Math.max(1, (popups && popups.length) || 1);
     try {
       localStorage.setItem(STORAGE_SEQ, String(next));
-    } catch (e) {
-   
-    }
-
+    } catch (e) {}
 
     const dismissedId = activePopup ? (activePopup._id || activePopup.id) : null;
     if (dismissedId) dismissedPopupRef.current = dismissedId;
@@ -309,16 +264,12 @@ export default function ShoppingHome() {
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-      } catch (e) {
-     
-      }
+      } catch (e) {}
     }, 80);
   }, [location.hash]);
 
   function handleNavigateToListingPage(getCurrentItem, section) {
-
     sessionStorage.removeItem("filters");
-
     let value = null;
     if (!getCurrentItem) return;
 
@@ -331,7 +282,6 @@ export default function ShoppingHome() {
     } else if (getCurrentItem._id) {
       value = getCurrentItem._id;
     } else if (getCurrentItem.label) {
-
       value = String(getCurrentItem.label).toLowerCase().replace(/\s+/g, "-");
     }
 
@@ -341,7 +291,6 @@ export default function ShoppingHome() {
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
 
     navigate(`/listing?category=${encodeURIComponent(value)}`);
-    
     try {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -353,23 +302,40 @@ export default function ShoppingHome() {
     navigate(`/product/${getCurrentProductId}`);
   }
 
-  function handleAddtoCart(getCurrentProductId, getQuantity = 1, getProductObj = null) {
-    addProductToCart({
-      dispatch,
-      user,
-      productId: getCurrentProductId,
-      quantity: getQuantity,
-      productObj: getProductObj,
-    }).then((data) => {
-      if (data?.payload?.success) {
-        setCartPulse(true);
-        setTimeout(() => setCartPulse(false), 900);
-      } else {
-        const msg = data?.payload?.message || "Failed to add product to cart";
-        toast({ title: msg, variant: "destructive" });
-      }
-    });
-  }
+  const handleAddtoCart = useCallback(
+    (getCurrentProductId, getQuantity = 1, getProductObj = null) => {
+      addProductToCart({
+        dispatch,
+        user,
+        navigate,
+        productId: getCurrentProductId,
+        quantity: getQuantity,
+        productObj: getProductObj,
+        fromPath: location.pathname,
+      }).then((data) => {
+        if (data?.redirectedToLogin) return;
+        if (data?.payload?.success) {
+          setCartPulse(true);
+          setTimeout(() => setCartPulse(false), 900);
+        } else {
+          const msg = data?.payload?.message || "Failed to add product to cart";
+          toast({ title: msg, variant: "destructive" });
+        }
+      });
+    },
+    [dispatch, user, navigate, location.pathname, toast]
+  );
+
+  const renderProductTile = useCallback(
+    (product) => (
+      <ShoppingProductTile
+        product={product}
+        handleGetProductDetails={handleGetProductDetails}
+        handleAddtoCart={handleAddtoCart}
+      />
+    ),
+    [handleAddtoCart]
+  );
 
   const onHeroPointerDown = (e) => {
     pointerActive.current = true;
@@ -418,350 +384,6 @@ export default function ShoppingHome() {
       else setCurrentSlide((prev) => (prev + 1) % featureImageList.length);
     }
     touchStartX.current = null;
-  };
-
-  const SectionTitle = ({ text }) => (
-    <div className="flex items-center justify-center mb-8 px-2">
-      <div
-        className="flex-1 max-w-[50px] sm:max-w-[100px] md:max-w-[150px] h-[1px] sm:h-[2px] md:h-[2px] mr-3 sm:mr-6 rounded-full"
-        style={{ background: `${ACCENT}22` }}
-      />
-      <h2
-        className="uppercase font-extrabold text-center px-3 py-1.5 sm:px-5 sm:py-2 rounded-full bg-white/60 inline-block"
-        style={{ color: ACCENT }}
-      >
-        <span className="block tracking-[0.03em]" style={{ fontSize: "clamp(14px, 2.2vw, 28px)" }}>
-          {text}
-        </span>
-      </h2>
-      <div
-        className="flex-1 max-w-[50px] sm:max-w-[100px] md:max-w-[150px] h-[1px] sm:h-[2px] md:h-[2px] ml-3 sm:ml-6 rounded-full"
-        style={{ background: `${ACCENT}22` }}
-      />
-    </div>
-  );
-
-  const ValuesSection = () => {
-    const values = [
-      {
-        id: "authenticity",
-        title: "Handpicked at Source",
-        image: val1,
-        desc: "We begin at trusted local farms — selecting only the freshest produce and purest spices. Every ingredient is chosen for quality, taste, and authenticity.",
-      },
-      {
-        id: "experience",
-        title: "Prepared the Traditional Way",
-        image: val2,
-        desc: "In our Agraharam kitchen, each recipe is cooked in small batches — following simple, time-honoured methods passed down through generations.",
-      },
-      {
-        id: "sustainability",
-        title: "Packed Fresh, Same Day",
-        image: val3,
-        desc: "Each jar is sealed the very day it’s made to lock in natural aroma and flavour. No preservatives. No artificial colours or flavours.",
-      },
-      {
-        id: "purpose",
-        title: "Shared with Care",
-        image: val4,
-        desc: "From our kitchen to your table, we deliver food that’s truly homemade — wholesome, safe, and filled with love.",
-      },
-    ];
-
-    return (
-      <section aria-label="Our values" className="w-full bg-[linear-gradient(180deg,#08665F,#0a5d54)] py-12">
-        <div className="container mx-auto px-2 sm:px-4">
-          <h2 className="text-center font-extrabold text-white mb-8" style={{ fontSize: "clamp(20px,2.6vw,36px)" }}>The Honest Journey</h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((v) => (
-              <div key={v.id} className="rounded-lg p-4 flex flex-col items-center text-center" style={{ backdropFilter: "blur(4px)" }}>
-                <div className="w-full mb-4">
-                  <div className="aspect-[4/4] rounded-md overflow-hidden grid place-items-center">
-                    <img src={v.image} alt={v.title} className="w-full h-full object-contain" draggable={false} />
-                  </div>
-                </div>
-
-                <h3 className="font-extrabold text-white tracking-wide mb-2" style={{ fontSize: "clamp(14px,1.4vw,18px)" }}>{v.title}</h3>
-                <p className="text-white/90 text-sm leading-relaxed" style={{ fontSize: "clamp(12px,1.0vw,14px)" }}>{v.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  };
-
-  const FullWidthPromo = () => (
-    <section aria-label="Featured hero promo" className="w-full">
-      <div className="w-full grid grid-cols-1 min-[1512px]:grid-cols-2">
-        <div className="relative order-1 min-[1440px]:order-1">
-          <div className="w-full flex items-center justify-center" style={{ background: PROMO_TAN }}>
-            <img src={bannerImg} alt="hero product" className="object-contain select-none " draggable={false} />
-          </div>
-        </div>
-
-        <div className="order-2 min-[1440px]:order-2 flex items-center" style={{ background: PROMO_BG }}>
-          <div className="w-full px-4 sm:px-12 py-8 md:py-20 md:px-12 lg:px-20 text-white max-w-3xl mx-auto">
-            <h2 className="font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(20px, 3.2vw, 44px)" }}>
-              One Pinch. Total Punch!
-            </h2>
-            <p className="opacity-95 mb-6" style={{ fontSize: "clamp(14px, 1.6vw, 18px)" }}>
-              Bring your sambar to life with just a pinch! Aachiamma’s Sambar Powder is packed with the authentic flavours of hand-picked spices, roasted and blended to perfection — just like grandma’s secret recipe.
-            </p>
-            <ul className="mb-6 space-y-2" style={{ fontSize: "clamp(13px, 1.4vw, 16px)" }}>
-              <li className="font-semibold">✨ No shortcuts. Just tradition in every bite.</li>
-              <li className="font-semibold">✨ Pure spices. Big flavour. Happy hearts.</li>
-            </ul>
-            <p className="font-semibold mb-6" style={{ fontSize: "clamp(13px, 1.4vw, 16px)" }}>
-              Experience the taste of tradition, made with love just for you!
-            </p>
-            <div>
-              <Button className="uppercase px-6 py-2 shadow-md" style={{ background: ACCENT, color: "#fff" }} onClick={() => navigate("/about")}>
-                READ MORE
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  const TestimonialSlider = () => {
-    const testimonials = [
-      {
-        avatar: t1,
-        rating: 5,
-        quote:
-          "I never imagined I would enjoy bitter gourd this much until I tried this pickle! It strikes the perfect balance of traditional taste and unique flavor, turning an everyday meal into something special. Highly recommended for anyone looking to add a healthy twist to their meals!",
-        name: "Silpa S Nair, Manager, HP Inc, Chennai",
-      },
-      { avatar: t2, rating: 5, quote: "I ordered both the jackfruit chips and rice murukku, and I must say, they exceeded my expectations! The jackfruit chips were perfectly crisp with a natural sweetness, just the way I remember from childhood trips to Kerala. The rice murukku was equally delightful - crunchy, fresh, and full of authentic homemade flavor. LUV IT!", name: "Niyathi Saji – Bangalore" },
-      { avatar: t3, rating: 5, quote: "Kondattam and the Bitter Gourd Pickle have truly brought me wonder! It’s really nice and tasty.  It’s become a must-have on my dining table now. Highly recommend it to anyone who loves genuine, quality pickles.", name: "Aneesh Karunan, AVP -  iBus Networks, Kochi" },
-      { avatar: t4, rating: 5, quote: "These banana chips are just perfect ... super crispy, not too oily, and have that authentic Kerala flavor you don’t find everywhere. It’s become a must-have snack at our home!", name: "Shameer Ahammed Shaik, Calicut" },
-      { avatar: t5, rating: 5, quote: "The Kadumango Pickle from Aachi Amma Foods is simply amazing! Perfect balance of spices. It reminds me of what my grandmother used to make. A must-have with curd rice and meals!", name: "Nyjil Joseph, Alappuzha - Ritzee Bags" },
-    ];
-
-    const [index, setIndex] = useState(0);
-    const [testiGrab, setTestiGrab] = useState(false);
-    const [isWide, setIsWide] = useState(typeof window !== "undefined" ? window.innerWidth > 1200 : true);
-
-    const testiPointerStart = useRef(null);
-    const testiPointerActive = useRef(false);
-    const [dragDx, setDragDx] = useState(0);
-    const [isDragging, setIsDragging] = useState(false);
-    const animatingRef = useRef(false);
-
-    useEffect(() => {
-      const onResize = () => setIsWide(typeof window !== "undefined" ? window.innerWidth > 1200 : true);
-      window.addEventListener("resize", onResize);
-      return () => window.removeEventListener("resize", onResize);
-    }, []);
-
-    const startDrag = (clientX) => {
-      testiPointerActive.current = true;
-      testiPointerStart.current = clientX;
-      setTestiGrab(true);
-      setIsDragging(true);
-    };
-
-    const onPointerDown = (e) => {
-      if (animatingRef.current) return;
-      const clientX = e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX);
-      startDrag(clientX);
-      if (e.target && e.pointerId && e.target.setPointerCapture) {
-        try {
-          e.target.setPointerCapture(e.pointerId);
-        } catch (err) { }
-      }
-    };
-
-    const onPointerMove = (e) => {
-      if (!testiPointerActive.current || testiPointerStart.current == null) return;
-      const clientX = e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX);
-      const dx = clientX - testiPointerStart.current;
-      setDragDx(dx);
-    };
-
-    const finishSwipe = (endX) => {
-      if (!testiPointerActive.current || testiPointerStart.current == null) {
-        testiPointerActive.current = false;
-        testiPointerStart.current = null;
-        setIsDragging(false);
-        setDragDx(0);
-        setTestiGrab(false);
-        return;
-      }
-      const dx = endX - testiPointerStart.current;
-      const threshold = 80; 
-      if (Math.abs(dx) >= threshold) {
-        animatingRef.current = true;
-        if (dx > 0) {
-          setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-        } else {
-          setIndex((prev) => (prev + 1) % testimonials.length);
-        }
-    
-        setTimeout(() => {
-          setDragDx(0);
-          animatingRef.current = false;
-        }, 360);
-      } else {
-      
-        setDragDx(0);
-      }
-      testiPointerActive.current = false;
-      testiPointerStart.current = null;
-      setIsDragging(false);
-      setTestiGrab(false);
-    };
-
-    const onPointerUp = (e) => {
-      const endX = e.clientX ?? (e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientX);
-      finishSwipe(endX);
-      if (e.target && e.pointerId && e.target.releasePointerCapture) {
-        try {
-          e.target.releasePointerCapture(e.pointerId);
-        } catch (err) { }
-      }
-    };
-
-    const onTouchStartTesti = (e) => {
-      if (animatingRef.current) return;
-      startDrag(e.touches[0].clientX);
-    };
-
-    const onTouchMoveTesti = (e) => {
-      onPointerMove(e);
-    };
-
-    const onTouchEndTesti = (e) => {
-      const endX = e.changedTouches[0].clientX;
-      finishSwipe(endX);
-    };
-
-    const onPointerCancelOrLeave = () => {
-      testiPointerActive.current = false;
-      testiPointerStart.current = null;
-      setIsDragging(false);
-      setDragDx(0);
-      setTestiGrab(false);
-    };
-
-    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-    const rotateDeg = clamp(dragDx / 25, -8, 8); 
-    const scaleVal = isDragging ? 0.985 : 1;
-    const opacityVal = clamp(1 - Math.abs(dragDx) / 600, 0.18, 1); 
-
-    const wrapperStyle = {
-      transform: `translateX(${dragDx}px) rotate(${rotateDeg}deg) scale(${scaleVal})`,
-      transition: isDragging || animatingRef.current ? "none" : "transform 360ms cubic-bezier(.2,.9,.2,1), opacity 360ms ease",
-      opacity: opacityVal,
-      cursor: testiGrab ? "grabbing" : "grab",
-      willChange: "transform, opacity",
-    };
-
-    return (
-      <section aria-label="Customer testimonials" className="bg-[#F5F1E5]">
-        <div className="w-full mx-auto px-2 sm:px-4 py-8 md:py-12" style={{ paddingBottom: 0 }}>
-          <SectionTitle text="WHAT OUR CUSTOMERS ARE SAYING" />
-
-          <div
-            className="relative w-full text-center overflow-visible"
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerCancelOrLeave}
-            onTouchStart={onTouchStartTesti}
-            onTouchMove={onTouchMoveTesti}
-            onTouchEnd={onTouchEndTesti}
-            onMouseLeave={onPointerCancelOrLeave}
-            style={{ touchAction: "pan-y" }}
-            role="region"
-            aria-roledescription="carousel"
-            aria-label="Customer testimonials"
-          >
-            <div className="w-full min-h-[300px] sm:min-h-[340px] md:min-h-[380px] lg:min-h-[440px] relative bg-transparent flex flex-col items-center justify-center px-4">
-              
-              <div className="flex flex-col items-center justify-center px-3 sm:px-6" style={wrapperStyle}>
-                <div className="flex items-center justify-center -mt-8">
-                  <div className="w-20 sm:w-24 md:w-28 rounded-full overflow-hidden shadow-md bg-transparent transform transition-transform">
-                    <img src={testimonials[index].avatar} alt={`avatar-${index + 1}`} className="w-full h-full object-cover" draggable={false} />
-                  </div>
-                </div>
-
-                <div className="mt-3 flex justify-center gap-1" aria-hidden>
-                  {Array.from({ length: testimonials[index].rating }).map((_, i) => (
-                    <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill={ACCENT} xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.402 8.168L12 18.896l-7.336 3.856 1.402-8.168L.132 9.21l8.2-1.192L12 .587z" />
-                    </svg>
-                  ))}
-                </div>
-
-                <h3 className="mt-3 font-extrabold text-base md:text-lg lg:text-xl" style={{ color: ACCENT, fontSize: "clamp(16px, 2.2vw, 30px)" }}>
-                  {testimonials[index].title}
-                </h3>
-
-                <blockquote className="mt-3 leading-relaxed italic text-gray-600 text-sm md:text-base text-center max-w-[920px]">
-                  “{testimonials[index].quote}”
-                </blockquote>
-
-                <div className="mt-3 font-semibold text-sm text-gray-700">{testimonials[index].name}</div>
-
-                <div className="mt-4 flex items-center justify-center gap-3" role="tablist" aria-label="testimonial dots">
-                  {testimonials.map((_, i) => {
-                    const active = i === index;
-                    return (
-                      <button
-                        key={i}
-                        aria-label={`Go to testimonial ${i + 1}`}
-                        aria-selected={active}
-                        onClick={() => setIndex(i)}
-                        className={`rounded-full transition-transform ${active ? "scale-125" : "opacity-70"}`}
-                        style={{
-                          width: active ? 14 : 9,
-                          height: active ? 14 : 9,
-                          background: active ? ACCENT : "#D1D5DB",
-                          border: active ? `2px solid ${ACCENT}` : "1px solid rgba(0,0,0,0.05)",
-                          padding: 0,
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {isWide && (
-              <>
-                <button
-                  aria-label="Previous testimonial"
-                  onClick={() => setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-                  className="absolute left-20 sm:left-24 top-1/2 -translate-y-1/2 bg-white border rounded-full w-10 h-10 sm:w-12 sm:h-12 grid place-items-center shadow-md hover:scale-105 transition-transform"
-                  style={{ zIndex: 30 }}
-                >
-                  <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: ACCENT }} />
-                </button>
-
-                <button
-                  aria-label="Next testimonial"
-                  onClick={() => setIndex((prev) => (prev + 1) % testimonials.length)}
-                  className="absolute right-20 sm:right-24 top-1/2 -translate-y-1/2 bg-white border rounded-full w-10 h-10 sm:w-12 sm:h-12 grid place-items-center shadow-md hover:scale-105 transition-transform"
-                  style={{ zIndex: 30 }}
-                >
-                  <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: ACCENT }} />
-                </button>
-              </>
-            )}
-          </div>
-
-          <div className="w-full mt-[-20px]">
-            <img src={hi2} alt="testimonial decorative" className="w-full object-cover block" draggable={false} />
-          </div>
-        </div>
-      </section>
-    );
   };
 
   return (
@@ -915,51 +537,34 @@ export default function ShoppingHome() {
 
       <main className="container mx-auto px-2 sm:px-4 -mt-12 space-y-8 sm:space-y-12">
  
-        {productList && productList.length > 0 && (() => {
-          const bestSelling = productList.filter((p) => Array.isArray(p.special) && p.special.includes("best-selling"));
-          if (!bestSelling.length) return null;
-          return (
+        {bestSelling.length > 0 && (
             <section id="best-selling" className="bg-white rounded-2xl p-6 sm:p-12 md:py-16 mt-[60px] min-h-[550px] md:min-h-[700px]">
               <SectionTitle text="BEST SELLING" />
               <PaginatedProducts
                 products={bestSelling}
-                pageSize={8}
+                pageSize={4}
                 sectionId="best-selling-paginated"
-                renderProduct={(product) => (
-                  <ShoppingProductTile product={product} handleGetProductDetails={handleGetProductDetails} handleAddtoCart={handleAddtoCart} />
-                )}
+                renderProduct={renderProductTile}
               />
             </section>
-          );
-        })()}
+        )}
 
-        {productList && productList.length > 0 && (() => {
-          const combosProducts = productList.filter(
-            (p) =>
-              (p.category && p.category.toLowerCase() === "combos") ||
-              (Array.isArray(p.special) && p.special.includes("combos"))
-          );
-          if (!combosProducts.length) return null;
-          return (
+        {combosProducts.length > 0 && (
             <section id="combos" className="bg-white rounded-2xl p-4 sm:p-8 mt-[50px]">
               <SectionTitle text="COMBOS" />
               <PaginatedProducts
                 products={combosProducts}
                 pageSize={4}
                 sectionId="combos-paginated"
-                renderProduct={(product) => (
-                  <ShoppingProductTile product={product} handleGetProductDetails={handleGetProductDetails} handleAddtoCart={handleAddtoCart} />
-                )}
+                renderProduct={renderProductTile}
               />
             </section>
-          );
-        })()}
+        )}
 
-        
       </main>
 
       <div className="w-full overflow-hidden">
-        <img src={hi1} alt="feature-full-width" className="w-full object-cover block" draggable={false} />
+        <img src={hi1} alt="feature-full-width" className="w-full object-cover block" draggable={false} loading="lazy" />
       </div>
 
       <FullWidthPromo />
@@ -969,19 +574,17 @@ export default function ShoppingHome() {
       <ValuesSection />
 
       <section id="feature-products" className="container mx-auto px-2 sm:px-4 rounded-2xl p-4 sm:p-8">
-        <SectionTitle text="FEATURE PRODUCTS" />
+        <SectionTitle text="FEATURED PRODUCTS" />
         <PaginatedProducts
-          products={productList && productList.length > 0 ? productList : []}
+          products={featuredProducts}
           pageSize={4}
           sectionId="feature-products-paginated"
-          renderProduct={(product) => (
-            <ShoppingProductTile product={product} handleGetProductDetails={handleGetProductDetails} handleAddtoCart={handleAddtoCart} />
-          )}
+          renderProduct={renderProductTile}
         />
       </section>
 
       <div className="w-full mt-[-20px]">
-        <img src={hi3} alt="testimonial decorative" className="w-full object-cover block" draggable={false} />
+        <img src={hi3} alt="testimonial decorative" className="w-full object-cover block" draggable={false} loading="lazy" />
       </div>
 
       <PopupModal open={showPopup} onClose={handleClosePopup} popup={activePopup} />

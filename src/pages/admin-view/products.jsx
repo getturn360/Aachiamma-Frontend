@@ -46,7 +46,8 @@ const initialFormData = {
   ingredients: "",
   descriptionSections: [],
   faqList: [],
-  hsn: "", 
+  hsn: "",
+  isAvailable: true,
 };
 
 export default function AdminProducts() {
@@ -70,6 +71,7 @@ export default function AdminProducts() {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
   const [bulkDeleteLoading, setBulkDeleteLoading] = useState(false);
+  const [availabilityLoadingId, setAvailabilityLoadingId] = useState(null);
 
   const [categoriesList, setCategoriesList] = useState([]);
 
@@ -329,6 +331,33 @@ export default function AdminProducts() {
     }
   }
 
+  async function handleToggleAvailability(product) {
+    if (!product?._id) return;
+    const nextAvailable = product.isAvailable === false;
+    try {
+      setAvailabilityLoadingId(product._id);
+      const res = await api.patch(`/api/admin/products/${product._id}/availability`, {
+        isAvailable: nextAvailable,
+      });
+      if (res?.data?.success) {
+        dispatch(fetchAllProducts());
+        toast({
+          title: nextAvailable ? "Product marked available" : "Product marked unavailable",
+        });
+      } else {
+        toast({
+          title: res?.data?.message || "Could not update availability",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Failed to update availability", variant: "destructive" });
+    } finally {
+      setAvailabilityLoadingId(null);
+    }
+  }
+
   async function handleConfirmedBulkDelete() {
     if (!selectedIds || selectedIds.size === 0) return;
     try {
@@ -560,9 +589,8 @@ export default function AdminProducts() {
             <motion.div
               key={productItem._id}
               whileHover={{ scale: 1.02 }}
-              className="rounded-2xl bg-white shadow-sm border overflow-hidden transform-gpu transition hover:shadow-lg relative min-w-0"
+              className="rounded-2xl bg-white shadow-sm border overflow-hidden transform-gpu transition hover:shadow-lg relative min-w-0 flex flex-col h-full"
             >
-       
               <div className="absolute right-3 top-3 z-10">
                 <Checkbox
                   checked={selectedIds.has(productItem._id)}
@@ -571,27 +599,27 @@ export default function AdminProducts() {
                 />
               </div>
 
-
-              <div className="p-4 flex items-stretch gap-4 min-w-0">
-                <div className="flex-1 min-w-0">
+              <div className="p-4 flex flex-col flex-grow gap-3 min-w-0 h-full justify-between">
+                <div className="min-w-0">
                   <div className="flex items-start justify-between w-full min-w-0">
                     <div className="flex-1 min-w-0 pr-8">
-                      <div className="font-semibold truncate">{productItem.title}</div>
+                      <div className="font-semibold truncate text-slate-800">{productItem.title}</div>
                       <div className="text-xs text-slate-500 mt-1 line-clamp-2">{productItem.shortDescription || productItem.subtitle}</div>
-              
                     </div>
                   </div>
+                </div>
 
-                  <div className="mt-4">
-                    <AdminProductTile
-                      setFormData={setFormData}
-                      setOpenCreateProductsDialog={setOpenCreateProductsDialog}
-                      setCurrentEditedId={setCurrentEditedId}
-                      product={productItem}
-                      handleDelete={requestDelete}
-                      compact
-                    />
-                  </div>
+                <div className="mt-2 flex-grow flex flex-col justify-end">
+                  <AdminProductTile
+                    setFormData={setFormData}
+                    setOpenCreateProductsDialog={setOpenCreateProductsDialog}
+                    setCurrentEditedId={setCurrentEditedId}
+                    product={productItem}
+                    handleDelete={requestDelete}
+                    handleToggleAvailability={handleToggleAvailability}
+                    availabilityLoading={availabilityLoadingId === productItem._id}
+                    compact
+                  />
                 </div>
               </div>
             </motion.div>

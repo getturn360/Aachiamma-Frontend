@@ -1,12 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import { Route, Routes, useLocation, useNavigationType } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { checkAuth } from "./store/auth-slice";
+import { checkAuth, setUser } from "./store/auth-slice";
+import api from "./api/axios";
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
 import AdminLayout from "./components/admin-view/layout";
 import AdminDashboard from "./pages/admin-view/dashboard";
+import AdminAnalytics from "./pages/admin-view/analytics";
 import AdminProducts from "./pages/admin-view/products";
 import AdminOrders from "./components/admin-view/orders";
 import AdminFeatures from "./pages/admin-view/features";
@@ -140,6 +142,8 @@ function ScrollManager() {
 function App() {
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   useEffect(() => {
     dispatch(checkAuth());
@@ -151,13 +155,34 @@ function App() {
     }
   }, [isAuthenticated, user, dispatch]);
 
+  // Refresh access token before the 15-minute expiry while the user is active.
+  useEffect(() => {
+    if (!isAuthenticated) return undefined;
+
+    const REFRESH_INTERVAL_MS = 12 * 60 * 1000;
+
+    const refreshSession = async () => {
+      try {
+        const resp = await api.post("/api/auth/refresh", {}, { skipGlobalLoader: true });
+        if (resp?.data?.user) {
+          dispatch(setUser(resp.data.user));
+        }
+      } catch {
+        // Expired refresh token — checkAuth / route guards handle logout.
+      }
+    };
+
+    const intervalId = setInterval(refreshSession, REFRESH_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, [isAuthenticated, dispatch]);
+
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       <GoogleAnalytics />
       <Analytics />
       <SpeedInsights/>
       <ScrollManager />
-      <ConnectedLoader />
+      {!isAdminRoute && <ConnectedLoader />}
 
       <Routes>
         <Route
@@ -205,6 +230,7 @@ function App() {
           }
         >
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="features" element={<AdminFeatures />} />

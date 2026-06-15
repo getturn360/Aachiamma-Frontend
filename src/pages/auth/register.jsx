@@ -1,11 +1,12 @@
 import CommonForm from "@/components/common/form";
 import { useToast } from "@/components/ui/use-toast";
 import { registerFormControls } from "@/config";
-import { registerUser } from "@/store/auth-slice";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { registerUser, loginUser } from "@/store/auth-slice";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { getPostLoginPath } from "@/config/routes";
+import { mergePendingCartItem } from "@/lib/post-auth-cart";
 
 const initialState = {
   userName: "",
@@ -18,46 +19,64 @@ function AuthRegister() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const submittingRef = useRef(false);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-  function onSubmit(event) {
+  useEffect(() => {
+    if (isAuthenticated && user && !submittingRef.current) {
+      navigate(getPostLoginPath(user, "/"), { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  async function onSubmit(event) {
     event.preventDefault();
-    dispatch(registerUser(formData)).then((data) => {
-      if (data?.payload?.success) {
+    submittingRef.current = true;
+
+    try {
+      const regResult = await dispatch(registerUser(formData)).unwrap();
+      if (!regResult?.success) {
         toast({
-          title: data?.payload?.message,
-        });
-        
-        const loggedInUser = data?.payload?.user || data?.payload?.data?.user || data?.payload?.data || null;
-        const pendingItemStr = sessionStorage.getItem("pendingCartItem");
-        
-        if (pendingItemStr && loggedInUser) {
-          try {
-            const pendingItem = JSON.parse(pendingItemStr);
-            dispatch(addToCart({
-              userId: loggedInUser.id || loggedInUser._id,
-              productId: pendingItem.productId,
-              quantity: pendingItem.quantity,
-              productObj: pendingItem.productObj
-            })).then(() => {
-              sessionStorage.removeItem("pendingCartItem");
-              dispatch(fetchCartItems(loggedInUser.id || loggedInUser._id));
-              toast({ title: "Pending item added to your new cart!" });
-              navigate("/shop/cart");
-            });
-          } catch (e) {
-            console.error(e);
-            navigate("/auth/login");
-          }
-        } else {
-          navigate("/auth/login");
-        }
-      } else {
-        toast({
-          title: data?.payload?.message,
+          title: regResult?.message || "Registration failed",
           variant: "destructive",
         });
+        return;
       }
-    });
+
+      toast({ title: regResult?.message || "Account created. Signing you in..." });
+
+      const loginResult = await dispatch(
+        loginUser({ email: formData.email, password: formData.password })
+      ).unwrap();
+
+      if (!loginResult?.success) {
+        toast({
+          title: "Account created. Please sign in.",
+          description: loginResult?.message,
+        });
+        navigate("/auth/login");
+        return;
+      }
+
+      const loggedInUser =
+        loginResult?.user || loginResult?.data?.user || loginResult?.data || null;
+
+      const merged = await mergePendingCartItem(dispatch, loggedInUser);
+
+      if (merged) {
+        toast({
+          title: "Welcome",
+          description: "Account created and pending item added to your cart.",
+        });
+      }
+
+      navigate(getPostLoginPath(loggedInUser, "/"), { replace: true });
+    } catch (err) {
+      const message = err?.message || err?.msg || "Registration error";
+      toast({ title: "Registration error", description: message, variant: "destructive" });
+      console.error("Register error:", err);
+    } finally {
+      submittingRef.current = false;
+    }
   }
 
   return (
