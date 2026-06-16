@@ -13,11 +13,31 @@ function getProductImages(product) {
 }
 
 function getProductDescription(product) {
-  const short = String(product?.shortDescription || "").trim();
-  if (short) return short;
+  const sections = Array.isArray(product?.descriptionSections)
+    ? product.descriptionSections
+    : [];
+  if (sections.length > 0) {
+    const fromSections = sections
+      .map((sec) => {
+        const title = String(sec?.title || "").trim();
+        const content = String(sec?.content || "").trim();
+        return [title, content].filter(Boolean).join("\n");
+      })
+      .filter(Boolean)
+      .join("\n\n")
+      .trim();
+    if (fromSections) {
+      return fromSections.length > 5000 ? `${fromSections.slice(0, 4997)}...` : fromSections;
+    }
+  }
+
   const long = String(product?.description || "").trim();
-  if (!long) return "";
-  return long.length > 5000 ? `${long.slice(0, 4997)}...` : long;
+  if (long) return long.length > 5000 ? `${long.slice(0, 4997)}...` : long;
+
+  const short = String(product?.shortDescription || "").trim();
+  if (short) return short.length > 5000 ? `${short.slice(0, 4997)}...` : short;
+
+  return "";
 }
 
 function buildProductSchema(product) {
