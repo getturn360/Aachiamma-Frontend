@@ -24,6 +24,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { setProductDetails, updateProductInList } from "@/store/shop/products-slice";
 import { addReview, getReviews } from "@/store/shop/review-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
+import ProductSchemaMarkup from "@/components/shopping-view/ProductSchemaMarkup";
 
 const ACCENT = "#08665F";
 
@@ -526,6 +527,8 @@ export default function ProductDetailsPage() {
     }
 
     return (
+        <>
+        <ProductSchemaMarkup product={productDetails} />
         <div
             className="w-full mx-auto p-4 sm:p-6 mt-[40px] pb-12 container"
     
@@ -969,5 +972,6 @@ export default function ProductDetailsPage() {
                 </div>
             )}
         </div>
+        </>
     );
 }

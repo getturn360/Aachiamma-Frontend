@@ -42,6 +42,15 @@ export default function TestimonialSlider() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isDragging && !animatingRef.current) {
+        setIndex((prev) => (prev + 1) % testimonials.length);
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [index, isDragging, testimonials.length]);
+
   const startDrag = (clientX) => {
     testiPointerActive.current = true;
     testiPointerStart.current = clientX;

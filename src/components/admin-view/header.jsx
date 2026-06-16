@@ -2,12 +2,15 @@ import { AlignJustify, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
 import { useDispatch } from "react-redux";
 import { logoutAsync } from "@/store/auth-slice";
+import { useNavigate } from "react-router-dom";
 
 function AdminHeader({ setOpen }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   function handleLogout() {
     dispatch(logoutAsync());
+    navigate("/");
   }
 
   return (

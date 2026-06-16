@@ -34,14 +34,14 @@ const formatCurrency = (value) => {
 
 const CHANNEL_COLORS = {
   confirmed: "#059669",
-  inProcess: "#3b82f6",
-  shipped: "#6366f1",
+  inProcess: "#f59e0b",
+  shipped: "#3b82f6",
 };
 
 const CHANNEL_ICONS = {
   confirmed: <CheckCircle className="w-4 h-4 text-teal-500" />,
-  inProcess: <Clock className="w-4 h-4 text-blue-500" />,
-  shipped: <Truck className="w-4 h-4 text-indigo-500" />,
+  inProcess: <Clock className="w-4 h-4 text-amber-500" />,
+  shipped: <Truck className="w-4 h-4 text-blue-500" />,
 };
 
 function ChangeBadge({ value, label }) {
@@ -98,7 +98,7 @@ export default function AdminAnalytics() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-  const [timeFrame, setTimeFrame] = useState("30days");
+  const [timeFrame, setTimeFrame] = useState("7days");
   const [hoveredPoint, setHoveredPoint] = useState(null);
   const [chartWidth, setChartWidth] = useState(500);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -870,18 +870,9 @@ export default function AdminAnalytics() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-bold text-slate-700 truncate">{p.title}</div>
-                      <div className="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
-                        <span>{p.quantity} units sold</span>
-                        <span>•</span>
-                        <span
-                          className={`inline-flex items-center gap-0.5 ${p.stock <= 5 ? "text-rose-500 font-semibold" : ""}`}
-                        >
-                          <Package className="w-2.5 h-2.5" /> {p.stock} in stock
-                        </span>
+                      <div className="text-[10px] text-slate-400 mt-0.5">
+                        {p.quantity} units sold
                       </div>
-                    </div>
-                    <div className="text-right text-xs font-black text-slate-800 shrink-0">
-                      {formatCurrency(p.revenue)}
                     </div>
                   </div>
                 ))}
