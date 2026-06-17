@@ -489,15 +489,14 @@ export default function ShoppingHome() {
         <div id="categories-bar" className="sticky top-6 z-10 mt-[15px]">
          
           <div
-            className="w-full overflow-x-auto no-scrollbar"
+            className="w-full overflow-x-hidden md:overflow-x-auto no-scrollbar"
             style={{ WebkitOverflowScrolling: "touch" }}
             aria-label="Categories"
             role="navigation"
           >
          
             <div
-              className="flex items-center justify-center gap-2 px-2 py-2"
-              style={{ minWidth: "max-content", flexWrap: "nowrap", scrollSnapType: "x mandatory" }}
+              className="flex flex-wrap md:flex-nowrap items-center justify-center gap-2 md:gap-3 px-2 py-2 md:px-3 md:py-3 w-full md:min-w-max"
               role="tablist"
             >
               {(categories && categories.length > 0
@@ -515,19 +514,20 @@ export default function ShoppingHome() {
                   <button
                     key={c._id || c.slug}
                     onClick={() => handleNavigateToListingPage(c, "category")}
-                    className="flex-shrink-0 inline-flex items-center justify-center gap-3 px-3 py-2 rounded-2xl hover:shadow-md transition-all duration-300 ease-in-out bg-white text-center"
+                    className="flex-shrink-0 w-[30%] md:w-44 p-2 md:p-4 rounded-xl md:rounded-2xl border border-slate-200/80 bg-white/95 text-[#08665F] shadow-sm backdrop-blur-sm transition-all duration-300 ease-in-out hover:bg-[#08665F] hover:text-white hover:border-[#08665F] hover:shadow-md hover:scale-105 active:scale-95 flex flex-col items-center justify-center text-center group"
                     role="tab"
                     aria-label={c.name || c.label}
                     title={c.name || c.label}
                     style={{ scrollSnapAlign: "start" }}
                   >
-                    <img src={imgSrc} alt={c.name || c.label} className="w-8 h-8 rounded-md object-cover" />
-                    <div className="flex flex-col text-left">
-                      <span className="uppercase text-sm font-semibold" style={{ color: ACCENT }}>
-                        {c.name || c.label}
-                      </span>
-                      <span className="text-xs text-gray-500">Explore</span>
-                    </div>
+                    <img
+                      src={imgSrc}
+                      alt={c.name || c.label}
+                      className="w-10 h-10 md:w-14 md:h-14 rounded-full object-cover border-2 border-[#08665F]/20 group-hover:border-white/40 mb-1 md:mb-3 flex-shrink-0 shadow-sm transition-colors duration-300"
+                      draggable={false}
+                    />
+                    <span className="font-bold text-[10px] md:text-xs tracking-wide uppercase block w-full truncate">{c.name || c.label}</span>
+                    <span className="text-[8px] md:text-[10px] font-semibold text-slate-400 group-hover:text-white/85 tracking-widest uppercase mt-0.5 md:mt-1 block">Explore</span>
                   </button>
                 );
               })}

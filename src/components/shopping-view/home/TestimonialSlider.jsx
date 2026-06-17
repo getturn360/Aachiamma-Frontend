@@ -244,9 +244,10 @@ export default function TestimonialSlider() {
           )}
         </div>
 
-        <div className="w-full mt-[-20px]">
-          <img src={testimonialBanner} alt="testimonial decorative" className="w-full object-cover block" draggable={false} loading="lazy" />
-        </div>
+      </div>
+
+      <div className="w-full mt-[-20px]">
+        <img src={testimonialBanner} alt="testimonial decorative" className="w-full object-cover block" draggable={false} loading="lazy" />
       </div>
     </section>  
   );
