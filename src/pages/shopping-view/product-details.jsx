@@ -426,9 +426,17 @@ export default function ProductDetailsPage() {
     };
 
     const increment = () => {
-        setQuantity((q) => Math.min(99, q + 1));
+        setQuantity((q) => {
+            const val = q === "" ? 0 : Number(q);
+            return Math.min(99, val + 1);
+        });
     };
-    const decrement = () => setQuantity((q) => Math.max(1, q - 1));
+    const decrement = () => {
+        setQuantity((q) => {
+            const val = q === "" ? 2 : Number(q);
+            return Math.max(1, val - 1);
+        });
+    };
 
     function handleAddToCart() {
         if (!productDetails) return;
@@ -939,13 +947,32 @@ export default function ProductDetailsPage() {
                                     <Minus className="w-4 h-4 text-slate-700 transition-colors hover:text-slate-900" />
                                 </button>
 
-                                <div
-                                    className="px-3 font-medium text-sm min-w-[2.25rem] text-center text-slate-800"
-                                    aria-live="polite"
-                                    aria-atomic="true"
-                                >
-                                    {quantity}
-                                </div>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="99"
+                                    value={quantity}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val === "") {
+                                            setQuantity("");
+                                        } else {
+                                            const num = parseInt(val, 10);
+                                            if (!isNaN(num)) {
+                                                setQuantity(Math.max(1, Math.min(99, num)));
+                                            }
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        if (quantity === "" || isNaN(Number(quantity)) || Number(quantity) < 1) {
+                                            setQuantity(1);
+                                        } else {
+                                            setQuantity(Math.min(99, Math.max(1, Math.round(Number(quantity)))));
+                                        }
+                                    }}
+                                    className="w-12 text-center font-medium text-sm text-slate-800 bg-transparent focus:outline-none border-none py-0.5 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    aria-label="Quantity"
+                                />
 
                                 <button
                                     onClick={increment}

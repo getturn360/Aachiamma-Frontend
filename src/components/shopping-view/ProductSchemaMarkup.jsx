@@ -7,7 +7,7 @@ function getProductImages(product) {
   const fromArray = Array.isArray(product?.images)
     ? product.images.filter(Boolean)
     : [];
-  if (fromArray.length > 0) return fromArray;
+  if (fromArray.length > 0) return [fromArray[0]];
   if (product?.image) return [product.image];
   return [];
 }
@@ -58,6 +58,8 @@ function buildProductSchema(product) {
       "@type": "Offer",
       url: productUrl,
       priceCurrency: "INR",
+      price: product.salePrice && Number(product.salePrice) > 0 ? Number(product.salePrice) : Number(product.price || 0),
+      availability: product.isAvailable !== false ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
     },
   };

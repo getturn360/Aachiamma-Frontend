@@ -18,12 +18,13 @@ import { addProductToCart } from "@/lib/add-to-cart";
 
 import hi1 from "@/assets/h-i1.png";
 import hi3 from "@/assets/h-i3.png";
+import testimonialbannerimg from "@/assets/Testimonial-Banner.jpeg";
 
 import pickleImg from "@/assets/categories/demo-p.jpg";
 import snackImg from "@/assets/categories/demo-p.jpg";
 import powderImg from "@/assets/categories/demo-p.jpg";
 import spiceImg from "@/assets/categories/demo-p.jpg";
-import kondattamImg from "@/assets/categories/demo-p.jpg";
+import kondattamImg from "@/assets/categories/demo-p.jpg";   
 import comboImg from "@/assets/categories/demo-p.jpg";
 import otherImg from "@/assets/categories/demo-p.jpg";
 
@@ -404,7 +405,7 @@ export default function ShoppingHome() {
           }}
           onTouchStart={onHeroTouchStart}
           onTouchEnd={onHeroTouchEnd}
-          className="relative w-full aspect-[15/6] overflow-hidden"
+          className="relative w-full aspect-[15/6] md:aspect-auto md:h-[calc(100vh-110px)] overflow-hidden"
           style={{ zIndex: 10 }}
         >
           {featureImageList && featureImageList.length > 0 ? (
@@ -587,7 +588,7 @@ export default function ShoppingHome() {
         <img src={hi3} alt="testimonial decorative" className="w-full object-cover block" draggable={false} loading="lazy" />
       </div>
 
-      <PopupModal open={showPopup} onClose={handleClosePopup} popup={activePopup} />
+      <PopupModal open={showPopup} onClose={handleClosePopup} popup={activePopup} popups={popups} />
     </div>
   );
 }

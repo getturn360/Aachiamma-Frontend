@@ -7,7 +7,7 @@ import t2 from "@/assets/t2.jpg";
 import t3 from "@/assets/t3.jpg";
 import t4 from "@/assets/t4.jpg";
 import t5 from "@/assets/t5.jpg";
-import hi2 from "@/assets/h-i2.png";
+import testimonialBanner from "@/assets/Testimonial-Banner.jpeg";
 
 const ACCENT = "#08665F";
 
@@ -245,9 +245,9 @@ export default function TestimonialSlider() {
         </div>
 
         <div className="w-full mt-[-20px]">
-          <img src={hi2} alt="testimonial decorative" className="w-full object-cover block" draggable={false} loading="lazy" />
+          <img src={testimonialBanner} alt="testimonial decorative" className="w-full object-cover block" draggable={false} loading="lazy" />
         </div>
       </div>
-    </section>
+    </section>  
   );
 }
