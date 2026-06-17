@@ -10,6 +10,7 @@ export default function PaginatedProducts({
   sectionId = "paginated",
 }) {
   const [page, setPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const productIdsKey = useMemo(
     () => products.map((p) => p._id || p.id).join("|"),
@@ -20,12 +21,21 @@ export default function PaginatedProducts({
     setPage(0);
   }, [productIdsKey]);
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   if (!products || products.length === 0) return null;
 
   const totalPages = Math.ceil(products.length / pageSize);
   const start = page * pageSize;
   const end = start + pageSize;
-  const visible = products.slice(start, end);
+  const visible = isMobile ? products : products.slice(start, end);
 
   const goPrev = () => setPage((p) => Math.max(0, p - 1));
   const goNext = () => setPage((p) => Math.min(totalPages - 1, p + 1));
@@ -40,7 +50,7 @@ export default function PaginatedProducts({
         ))}
       </div>
 
-      {totalPages > 1 && (
+      {!isMobile && totalPages > 1 && (
         <div className="w-full mt-4 sm:mt-6 flex items-center justify-center gap-3 sm:gap-4">
           <Button
             onClick={goPrev}

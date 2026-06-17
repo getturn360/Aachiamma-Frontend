@@ -228,113 +228,116 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
               </div>
             </div>
 
-            {/* Shop Links */}
-            <nav aria-label="Shop links" className="space-y-2">
-              <h4 className="text-sm font-medium">Shop</h4>
-              <ul className="space-y-2 text-slate-300 text-sm">
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => {
-                      setCategoryFilterForListing("pickle");
-                      navigateTo(`${ROUTES.listing}?category=pickle`);
-                    }}
-                  >
-                    Pickles
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => {
-                      setCategoryFilterForListing("snacks");
-                      navigateTo(`${ROUTES.listing}?category=snacks`);
-                    }}
-                  >
-                    Snacks
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => {
-                      setCategoryFilterForListing("spices-and-powders");
-                      navigateTo(`${ROUTES.listing}?category=spices-and-powders`);
-                    }}
-                  >
-                    Spices & Powders
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => {
-                      setCategoryFilterForListing("kondattam");
-                      navigateTo(`${ROUTES.listing}?category=kondattam`);
-                    }}
-                  >
-                    Kondattam
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => {
-                      setCategoryFilterForListing("combos");
-                      navigateTo(`${ROUTES.listing}?category=combos`);
-                    }}
-                  >
-                    Combos
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            {/* Wrapper for Shop Links and Useful Links to display side-by-side on mobile */}
+            <div className="grid grid-cols-2 gap-4 col-span-1 sm:col-span-1 md:col-span-2">
+              {/* Shop Links */}
+              <nav aria-label="Shop links" className="space-y-2">
+                <h4 className="text-sm font-medium">Shop</h4>
+                <ul className="space-y-2 text-slate-300 text-sm">
+                  <li>
+                    <button
+                      className="block hover:text-white transition text-left w-full"
+                      onClick={() => {
+                        setCategoryFilterForListing("pickle");
+                        navigateTo(`${ROUTES.listing}?category=pickle`);
+                      }}
+                    >
+                      Pickles
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="block hover:text-white transition text-left w-full"
+                      onClick={() => {
+                        setCategoryFilterForListing("snacks");
+                        navigateTo(`${ROUTES.listing}?category=snacks`);
+                      }}
+                    >
+                      Snacks
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="block hover:text-white transition text-left w-full"
+                      onClick={() => {
+                        setCategoryFilterForListing("spices-and-powders");
+                        navigateTo(`${ROUTES.listing}?category=spices-and-powders`);
+                      }}
+                    >
+                      Spices & Powders
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="block hover:text-white transition text-left w-full"
+                      onClick={() => {
+                        setCategoryFilterForListing("kondattam");
+                        navigateTo(`${ROUTES.listing}?category=kondattam`);
+                      }}
+                    >
+                      Kondattam
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="block hover:text-white transition text-left w-full"
+                      onClick={() => {
+                        setCategoryFilterForListing("combos");
+                        navigateTo(`${ROUTES.listing}?category=combos`);
+                      }}
+                    >
+                      Combos
+                    </button>
+                  </li>
+                </ul>
+              </nav>
 
-            {/* Useful Links */}
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Useful Links</h4>
-              <ul className="space-y-2 text-slate-300 text-sm">
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => navigateTo(ROUTES.about)}
-                  >
-                    About
-                  </button>
-                </li>
-                <li>
-                  {/* Blog is "coming soon" — show premium alert and prevent navigation */}
-                  <Link
-                    className="block hover:text-white transition cursor-pointer text-sm"
-                    to="/blog"
-                    onClick={handleBlogClick}
-                    aria-haspopup="dialog"
-                    aria-expanded={showPremiumAlert}
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => navigateTo(ROUTES.contact)}
-                  >
-                    Contact
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="block hover:text-white transition text-left w-full"
-                    onClick={() => navigateTo(ROUTES.faq)}
-                  >
-                    FAQ
-                  </button>
-                </li>
-              </ul>
+              {/* Useful Links */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Useful Links</h4>
+                <ul className="space-y-2 text-slate-300 text-sm">
+                  <li>
+                    <button
+                      className="block hover:text-white transition text-left w-full"
+                      onClick={() => navigateTo(ROUTES.about)}
+                    >
+                      About
+                    </button>
+                  </li>
+                  <li>
+                    {/* Blog is "coming soon" — show premium alert and prevent navigation */}
+                    <Link
+                      className="block hover:text-white transition cursor-pointer text-sm"
+                      to="/blog"
+                      onClick={handleBlogClick}
+                      aria-haspopup="dialog"
+                      aria-expanded={showPremiumAlert}
+                    >
+                      Blog
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      className="block hover:text-white transition text-left w-full"
+                      onClick={() => navigateTo(ROUTES.contact)}
+                    >
+                      Contact
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="block hover:text-white transition text-left w-full"
+                      onClick={() => navigateTo(ROUTES.faq)}
+                    >
+                      FAQ
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </div>
 
             {/* Newsletter + Contact CTA */}
-            <div className="space-y-3">
+            <div className="space-y-3 col-span-1 sm:col-span-2 md:col-span-1">
               <h4 className="text-sm font-medium">Newsletter</h4>
               <p className="text-slate-300 text-sm">
                 Get tasty updates, offers and recipes — once a month. No spam.

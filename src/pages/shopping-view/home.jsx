@@ -563,8 +563,8 @@ export default function ShoppingHome() {
 
       </main>
 
-      <div className="w-full overflow-hidden">
-        <img src={hi1} alt="feature-full-width" className="w-full object-cover block" draggable={false} loading="lazy" />
+      <div className="w-full overflow-hidden hidden sm:block">
+        <img src={hi1} alt="feature-full-width" className="w-full object-cover block h-48 sm:h-72 md:h-[350px] lg:h-auto" draggable={false} loading="lazy" />
       </div>
 
       <FullWidthPromo />

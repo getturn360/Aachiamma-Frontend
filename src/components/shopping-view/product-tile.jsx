@@ -119,11 +119,11 @@ export default function ShoppingProductTile({
         >
 
           <div className="w-full overflow-hidden rounded-t-md md:rounded-t-2xl relative">
-            <div className="aspect-square w-full overflow-hidden">
+            <div className="aspect-square w-full overflow-hidden bg-white">
               <img
                 src={product?.image}
                 alt={product?.title}
-                className="w-full h-full object-cover transition-all duration-300 ease-in-out hover:scale-105"
+                className="w-full h-full object-cover transition-all duration-300 ease-in-out md:hover:scale-105"
                 loading="lazy"
                 style={{
                  
@@ -156,28 +156,6 @@ export default function ShoppingProductTile({
             )}
           </div>
 
-          <div className="absolute top-2 left-2 flex items-center gap-1 sm:gap-2 sm:top-3 sm:left-3 z-40">
-            {canPurchase && (
-              <>
-      
-                {discountPercent > 0 ? (
-                  <Badge
-                    className={
-                      "flex items-center gap-1 rounded-full " +
-                  
-                      "px-2 py-[2px] text-[10px] sm:px-2 sm:py-0.5 sm:text-[11px] md:px-3 md:py-1 md:text-xs " +
-                     
-                      "bg-red-600 text-white"
-                    }
-                  >
-               
-                    <span className="select-none text-[10px] sm:text-[11px] md:text-xs">★</span>
-                    <span className="font-semibold text-[10px] sm:text-[11px] md:text-xs">-{discountPercent}%</span>
-                  </Badge>
-                ) : null}
-              </>
-            )}
-          </div>
 
           <div className="absolute right-3 top-3 flex flex-col gap-2 z-40">
             <button
@@ -194,23 +172,52 @@ export default function ShoppingProductTile({
           </div>
         </div>
 
-        <CardContent className="p-3 pt-2 flex-grow flex flex-col justify-between">
+        <CardContent className="p-3 pt-2 flex-grow flex flex-col justify-between gap-2">
           <div>
-            <h3 className="text-xs sm:text-sm md:text-base font-semibold leading-tight line-clamp-2">{product?.title}</h3>
+            <h3 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 leading-tight line-clamp-2 hover:text-amber-600 transition-colors">
+              {product?.title}
+            </h3>
 
-            <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground line-clamp-2">{product?.shortDescription || product?.subtitle}</p>
+            {(product?.shortDescription || product?.subtitle) && (
+              <p className="mt-1 text-[11px] sm:text-xs text-slate-500 line-clamp-1 leading-normal">
+                {product?.shortDescription || product?.subtitle}
+              </p>
+            )}
+          </div>
 
+          <div className="flex items-center justify-between gap-2 mt-auto pt-2 border-t border-slate-100/60">
+            {/* Price block */}
+            <div className="flex flex-col items-start justify-center">
+              {showOriginalStrike && (
+                <div className="flex items-center gap-1.5 mb-1 leading-none">
+                  <span className="text-[10px] sm:text-xs text-slate-400 line-through">
+                    {formatINR(effective.price)}
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 text-[9px] sm:text-[10px] font-bold">
+                    {discountPercent}% OFF
+                  </span>
+                </div>
+              )}
+              <span className="text-sm sm:text-base md:text-lg font-extrabold text-[#08665F] leading-none">
+                {formatINR(displayPrice)}
+              </span>
+            </div>
+
+            {/* Weight variation selector */}
             {product?.variations?.length > 0 && (
-              <div className="mt-2 flex gap-2">
-                {product.variations.slice(0, 3).map((v, idx) => {
+              <div className="flex gap-1.5 flex-wrap justify-end">
+                {product.variations.slice(0, 2).map((v, idx) => {
                   const isActive = selectedVariant?.label === v.label;
                   return (
                     <button
                       key={idx}
-                      onClick={() => setSelectedVariant(v)}
-                      className={`px-2 py-1 rounded-md text-xs transition-all duration-150 focus:outline-none ${isActive
-                        ? "bg-amber-600 text-white ring-1 ring-amber-300 shadow-sm"
-                        : "bg-white text-gray-700 border border-gray-200 shadow-sm hover:shadow-md"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedVariant(v);
+                      }}
+                      className={`px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium transition-all duration-150 focus:outline-none ${isActive
+                        ? "bg-amber-500 text-white shadow-sm font-semibold"
+                        : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
                       }`}
                       title={v.label}
                     >
@@ -220,20 +227,6 @@ export default function ShoppingProductTile({
                 })}
               </div>
             )}
-          </div>
-
-          <div className="mt-3 flex items-center justify-start md:justify-between">
-            <div /> 
-            <div className="flex items-baseline gap-2">
-              {showOriginalStrike ? (
-                <>
-                  <span className="text-[10px] md:text-sm text-muted-foreground line-through">{formatINR(effective.price)}</span>
-                  <span className="text-sm md:text-lg lg:text-xl font-semibold text-primary">{formatINR(displayPrice)}</span>
-                </>
-              ) : (
-                <span className="text-sm md:text-lg lg:text-xl font-medium text-primary">{formatINR(displayPrice)}</span>
-              )}
-            </div>
           </div>
         </CardContent>
 
