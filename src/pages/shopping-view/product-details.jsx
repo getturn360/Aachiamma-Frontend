@@ -618,6 +618,10 @@ export default function ProductDetailsPage() {
         { key: 'ingredients', label: 'Ingredients' },
     ];
 
+    if (howToParagraph) {
+        tabList.push({ key: 'howTo', label: 'How to use' });
+    }
+
     const renderReviews = () => {
         const totalCount = reviews?.length ?? 0;
         const starLevels = [5, 4, 3, 2, 1];
@@ -816,30 +820,11 @@ export default function ProductDetailsPage() {
 
     const renderHowTo = () => {
         if (!howToParagraph) return null;
-        const steps = parseHowToSteps(howToParagraph);
         return (
             <div className="text-left py-2">
-                <div className="grid grid-cols-1 gap-4">
-                    {steps.length > 1 ? (
-                        <div className="space-y-4">
-                            {steps.map((step, idx) => (
-                                <div key={idx} className="flex items-start gap-3.5">
-                                    <div className="w-2 h-2 rounded-full bg-amber-500 mt-2.5 shrink-0" />
-                                    <p className="text-base sm:text-lg text-slate-700 font-medium leading-relaxed">
-                                        {step}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="flex gap-3.5 items-start">
-                            <div className="w-2 h-2 rounded-full bg-amber-500 mt-2.5 shrink-0" />
-                            <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-medium whitespace-pre-line">
-                                {howToParagraph}
-                            </p>
-                        </div>
-                    )}
-                </div>
+                <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-medium whitespace-pre-line">
+                    {howToParagraph}
+                </p>
             </div>
         );
     };
@@ -1153,15 +1138,13 @@ export default function ProductDetailsPage() {
                             </div>
                         </div>
                     )}
-                </div>
 
-                {howToParagraph && (
-                    <>
-                        <Separator className="my-8 bg-slate-100" />
-                        <SectionTitle text="How to use" />
-                        {renderHowTo()}
-                    </>
-                )}
+                    {activeSection === 'howTo' && howToParagraph && (
+                        <div className="animate-fadeIn text-left">
+                            {renderHowTo()}
+                        </div>
+                    )}
+                </div>
 
                 <>
                     <Separator className="my-8 bg-slate-100" />
