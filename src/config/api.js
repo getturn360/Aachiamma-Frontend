@@ -4,7 +4,7 @@
  * Vite: VITE_API_BASE or VITE_API_URL (e.g. http://localhost:5000)
  * Runtime override: window.REACT_APP_API_BASE_URL
  * Production build without env: Fly backend (see PRODUCTION_API_DEFAULT)
- * Dev fallback: "/api" (Vite dev proxy)
+ * Dev fallback: "" (same-origin /api/... via Vite proxy)
  */
 
 /** Used when VITE_API_BASE is not set at build time (e.g. Vercel env missing). */
@@ -51,10 +51,10 @@ export function getApiHost() {
   return "";
 }
 
-/** Axios instance baseURL */
+/** Axios instance baseURL — empty in dev uses same-origin /api/... paths (Vite proxy). */
 export function getAxiosBaseURL() {
   const host = getApiHost();
-  return host || "/api";
+  return host || "";
 }
 
 /** Normalize path to start with /api */

@@ -11,6 +11,7 @@ import { mergePendingCartItem } from "@/lib/post-auth-cart";
 const initialState = {
   userName: "",
   email: "",
+  phone: "",
   password: "",
 };
 
@@ -44,9 +45,13 @@ function AuthRegister() {
 
       toast({ title: regResult?.message || "Account created. Signing you in..." });
 
-      const loginResult = await dispatch(
-        loginUser({ email: formData.email, password: formData.password })
-      ).unwrap();
+      const loginCredentials = { password: formData.password };
+      const email = (formData.email || "").trim();
+      const phone = (formData.phone || "").trim();
+      if (email) loginCredentials.email = email;
+      else if (phone) loginCredentials.phone = phone;
+
+      const loginResult = await dispatch(loginUser(loginCredentials)).unwrap();
 
       if (!loginResult?.success) {
         toast({
@@ -85,11 +90,12 @@ function AuthRegister() {
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           Create new account
         </h1>
-        <p className="mt-2">
-          Already have an account
+        <p className="mt-2 flex flex-wrap items-center justify-center gap-2">
+          <span>Already have an account?</span>
           <Link
-            className="font-medium ml-2 text-primary hover:underline"
             to="/auth/login"
+            className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#08665F]"
+            style={{ backgroundColor: "#08665F" }}
           >
             Login
           </Link>

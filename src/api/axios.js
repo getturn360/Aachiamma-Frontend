@@ -3,8 +3,12 @@ import axios from "axios";
 import { getAxiosBaseURL } from "../config/api";
 
 const api = axios.create({
-  baseURL: getAxiosBaseURL(),
   withCredentials: true,
+});
+
+api.interceptors.request.use((config) => {
+  config.baseURL = getAxiosBaseURL();
+  return config;
 });
 
 let interceptorsAttached = false;

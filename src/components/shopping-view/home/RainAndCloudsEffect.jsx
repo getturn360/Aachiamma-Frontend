@@ -46,19 +46,19 @@ export default function RainAndCloudsEffect() {
         case 0: // Back layer (small, slow, light)
           speed = 6 + Math.random() * 3;
           length = 10 + Math.random() * 5;
-          width = 1.0 + Math.random() * 0.4;
+          width = 0.5 + Math.random() * 0.2;
           alpha = 0.10 + Math.random() * 0.12;
           break;
         case 1: // Mid layer (standard)
           speed = 10 + Math.random() * 4;
           length = 16 + Math.random() * 7;
-          width = 1.6 + Math.random() * 0.6;
+          width = 0.9 + Math.random() * 0.3;
           alpha = 0.22 + Math.random() * 0.18;
           break;
         case 2: // Front layer (thick, fast, close)
           speed = 15 + Math.random() * 5;
           length = 24 + Math.random() * 9;
-          width = 2.4 + Math.random() * 0.8;
+          width = 1.3 + Math.random() * 0.4;
           alpha = 0.35 + Math.random() * 0.2;
           break;
       }
@@ -122,15 +122,15 @@ export default function RainAndCloudsEffect() {
         
         // Left curve
         ctx.bezierCurveTo(
-          -p.width * 1.5, -p.length / 4,
-          -p.width * 1.5, p.length / 2,
+          -p.width * 0.8, -p.length / 4,
+          -p.width * 0.8, p.length / 2,
           0, p.length / 2
         );
         
         // Right curve
         ctx.bezierCurveTo(
-          p.width * 1.5, p.length / 2,
-          p.width * 1.5, -p.length / 4,
+          p.width * 0.8, p.length / 2,
+          p.width * 0.8, -p.length / 4,
           0, -p.length / 2
         );
         ctx.closePath();

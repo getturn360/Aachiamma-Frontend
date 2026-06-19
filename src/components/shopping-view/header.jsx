@@ -575,46 +575,9 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
   );
 }
 
-function TopBar({ hidden = false }) {
-  const [items, setItems] = useState(null);
-
-  const fallback = [
-    { text: "Free shipping on orders over ₹999", key: "ship", icon: "Truck" },
-    { text: "10% off sitewide with code SAVE10", key: "10", icon: "Percent" },
-    { text: "Buy 2 get 1 free on select items", key: "b2g1", icon: "Tag" },
-    { text: "New arrivals: 20% off for first-time buyers", key: "new", icon: "Star" },
-    { text: "Limited time: Free gift on orders above ₹1499", key: "gift", icon: "Gift" },
-  ];
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const res = await api.get("/api/common/topitems/get");
-        if (!cancelled && res && res.data && res.data.success) {
-          const data = (res.data.data || []).map((d) => ({
-            text: d.text,
-            key: d._id || d.key || d.text,
-            icon: d.icon || "Star",
-          }));
-          if (data.length) {
-            setItems(data);
-            return;
-          }
-        }
-      } catch (e) {
-      console.error("[header.jsx] Error:", e);
-    }
-      if (!cancelled) setItems(fallback);
-    }
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const topItems = items || fallback;
-  const content = [...topItems, ...topItems];
+function TopBar({ items = [], hidden = false }) {
+  if (!items || items.length === 0) return null;
+  const content = [...items, ...items];
 
   return (
     <div
@@ -794,11 +757,43 @@ function MobileMenu({ navigateTo } = {}) {
 function ShoppingHeader() {
   const [rotated, setRotated] = useState(false);
   const [showTopBar, setShowTopBar] = useState(true);
+  const [topBarItems, setTopBarItems] = useState([]);
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
 
   const [frontUrl, setFrontUrl] = useState(null);
   const [backUrl, setBackUrl] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadTopBar() {
+      try {
+        const res = await api.get("/api/common/topitems/get");
+        if (mounted && res && res.data && res.data.success) {
+          const data = (res.data.data || []).map((d) => ({
+            text: d.text,
+            key: d._id || d.key || d.text,
+            icon: d.icon || "Star",
+          }));
+          setTopBarItems(data);
+        }
+      } catch (e) {
+        console.error("[header.jsx] Error loading top bar:", e);
+      }
+    }
+    loadTopBar();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const height = topBarItems.length > 0 ? "108px" : "80px";
+    document.documentElement.style.setProperty("--header-height", height);
+    return () => {
+      document.documentElement.style.removeProperty("--header-height");
+    };
+  }, [topBarItems]);
 
   const reactNavigate = useNavigate();
 
@@ -873,7 +868,7 @@ function ShoppingHeader() {
     };
   }, [showTopBar]);
 
-  const headerTop = showTopBar ? 28 : 0;
+  const headerTop = showTopBar && topBarItems.length > 0 ? 28 : 0;
 
   useEffect(() => {
     if (window.animateToCart) return;
@@ -946,7 +941,7 @@ function ShoppingHeader() {
 
   return (
     <>
-      <TopBar hidden={!showTopBar} />
+      {topBarItems.length > 0 && <TopBar items={topBarItems} hidden={!showTopBar} />}
 
       <header
         className="fixed left-0 right-0 z-50 border-b bg-white/95 backdrop-blur-sm"

@@ -104,7 +104,7 @@ export default function AuthLayout({
             <Outlet />
           </div>
           <p className="mt-6 text-center text-sm text-neutral-500">
-            © {new Date().getFullYear()} Aachiamm Foods — All rights reserved
+            © {new Date().getFullYear()} Aachiammafoods — All rights reserved
           </p>
         </div>
       </div>

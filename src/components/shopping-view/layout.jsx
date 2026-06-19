@@ -10,7 +10,7 @@ function ShoppingLayout() {
       <ShoppingHeader />
 
 
-      <main className="flex-1 flex flex-col w-full pt-20">
+      <main className="flex-1 flex flex-col w-full" style={{ paddingTop: "var(--header-height, 80px)" }}>
         <Outlet />
       </main>
 

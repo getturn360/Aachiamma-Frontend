@@ -391,7 +391,7 @@ export default function ShoppingHome() {
     <div className="min-h-screen bg-gray-50" style={{ paddingBottom: 0 }}>
       <SEO />
    
-      <header id="hero-banner" className="relative w-full mt-[25px]">
+      <header id="hero-banner" className="relative w-full mt-0">
         <div
           ref={carouselRef}
           onMouseEnter={() => (hoverRef.current = true)}
@@ -405,9 +405,16 @@ export default function ShoppingHome() {
           }}
           onTouchStart={onHeroTouchStart}
           onTouchEnd={onHeroTouchEnd}
-          className="relative w-full aspect-[15/6] md:aspect-auto md:h-[calc(100vh-110px)] overflow-hidden"
+          className="relative w-full aspect-[15/6] md:aspect-auto overflow-hidden hero-carousel-container"
           style={{ zIndex: 10 }}
         >
+          <style>{`
+            @media (min-width: 768px) {
+              .hero-carousel-container {
+                height: calc(100vh - var(--header-height, 80px)) !important;
+              }
+            }
+          `}</style>
           {featureImageList && featureImageList.length > 0 ? (
             featureImageList.map((slide, idx) => (
               <figure

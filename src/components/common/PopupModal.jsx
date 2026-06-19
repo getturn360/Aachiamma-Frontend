@@ -8,13 +8,13 @@ import RainAndCloudsEffect from "@/components/shopping-view/home/RainAndCloudsEf
  * PopupModal Component
  * Shows standard popups, and handles split-screen animations if multiple popups are provided.
  */
-export default function PopupModal({ 
-  open, 
-  onClose, 
-  popup, 
-  popups = [], 
-  onNext, 
-  showNextButton = false 
+export default function PopupModal({
+  open,
+  onClose,
+  popup,
+  popups = [],
+  onNext,
+  showNextButton = false
 }) {
   const [btnFocused, setBtnFocused] = useState(false);
   const [isSplit, setIsSplit] = useState(false);
@@ -200,7 +200,7 @@ export default function PopupModal({
               animate="visible"
               exit="exit"
               onClick={(e) => e.stopPropagation()}
-              style={{ 
+              style={{
                 willChange: "transform",
                 filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.4))"
               }}
@@ -251,7 +251,7 @@ export default function PopupModal({
                   exit={{ opacity: 0, scale: 0.85, x: -80, transition: { duration: 0.2 } }}
                   className="relative flex-1 w-full bg-transparent flex flex-col items-center justify-center rounded-2xl"
                   onClick={(e) => e.stopPropagation()}
-                  style={{ 
+                  style={{
                     willChange: "transform",
                     filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.4))"
                   }}

@@ -9,9 +9,16 @@ export const registerFormControls = [
   {
     name: "email",
     label: "Email",
-    placeholder: "Enter your email",
+    placeholder: "Enter your email (or use phone below)",
     componentType: "input",
     type: "email",
+  },
+  {
+    name: "phone",
+    label: "Phone number",
+    placeholder: "Enter your phone (or use email above)",
+    componentType: "input",
+    type: "tel",
   },
   {
     name: "password",
@@ -25,10 +32,10 @@ export const registerFormControls = [
 export const loginFormControls = [
   {
     name: "email",
-    label: "Email",
-    placeholder: "Enter your email",
+    label: "Email or phone number",
+    placeholder: "Enter email or phone number",
     componentType: "input",
-    type: "email",
+    type: "text",
   },
   {
     name: "password",
