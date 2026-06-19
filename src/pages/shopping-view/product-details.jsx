@@ -593,6 +593,11 @@ export default function ProductDetailsPage() {
     };
 
     const howToParagraph = productDetails?.howTo ?? null;
+    const ingredientsText =
+        typeof productDetails?.ingredients === "string"
+            ? productDetails.ingredients.trim()
+            : "";
+    const hasIngredients = Boolean(ingredientsText);
 
     if (loading) {
         return (
@@ -613,13 +618,14 @@ export default function ProductDetailsPage() {
         return <div className="p-6 w-full">Product not found.</div>;
     }
 
-    const tabList = [
-        { key: 'specs', label: 'Specifications' },
-        { key: 'ingredients', label: 'Ingredients' },
-    ];
+    const tabList = [{ key: "specs", label: "Specifications" }];
+
+    if (hasIngredients) {
+        tabList.push({ key: "ingredients", label: "Ingredients" });
+    }
 
     if (howToParagraph) {
-        tabList.push({ key: 'howTo', label: 'How to use' });
+        tabList.push({ key: "howTo", label: "How to use" });
     }
 
     const renderReviews = () => {
@@ -1117,12 +1123,12 @@ export default function ProductDetailsPage() {
                         </div>
                     )}
 
-                    {activeSection === 'ingredients' && productDetails?.ingredients && (
+                    {activeSection === "ingredients" && hasIngredients && (
                         <div className="animate-fadeIn text-left">
                             <div className="space-y-3 py-1">
-                                {(productDetails.ingredients.includes(",") 
-                                    ? productDetails.ingredients.split(",")
-                                    : productDetails.ingredients.split(/\r?\n/)
+                                {(ingredientsText.includes(",")
+                                    ? ingredientsText.split(",")
+                                    : ingredientsText.split(/\r?\n/)
                                 )
                                 .map(ing => ing.trim())
                                 .map(ing => ing.replace(/^(?:[◆●•*\-■▪▫◦])\s*/g, "").trim())
