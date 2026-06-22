@@ -16,7 +16,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 import api from "@/api/axios";
 import { ROUTES } from "@/config/routes";
-import { GUEST_CART_MESSAGE } from "@/lib/add-to-cart";
 
 const GUEST_COUPON_MESSAGE =
   "Please login or create an account to avail coupon offers.";
@@ -85,7 +84,7 @@ function RazorpayLogo({ imgSrc }) {
 
 export default function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart || {});
-  const { user, loading: authLoading } = useSelector((state) => state.auth || {});
+  const { user } = useSelector((state) => state.auth || {});
   const [currentSelectedAddress, setCurrentSelectedAddressState] = useState(null);
   const [addressForm, setAddressForm] = useState({});
   const [isPaymentStart, setIsPaymemntStart] = useState(false);
@@ -99,21 +98,6 @@ export default function ShoppingCheckout() {
     !!(location.state?.buyNow && Array.isArray(buyNowItems) && buyNowItems.length > 0);
 
   const [chosenItems, setChosenItems] = useState([]);
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!user && !isBuyNow) {
-      toast({
-        title: "Login required",
-        description: GUEST_CART_MESSAGE,
-        variant: "destructive",
-      });
-      navigate(ROUTES.login, {
-        state: { from: { pathname: ROUTES.checkout } },
-        replace: true,
-      });
-    }
-  }, [user, authLoading, isBuyNow, navigate, toast]);
 
   useEffect(() => {
     if (isBuyNow) {

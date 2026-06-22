@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DOMPurify from "dompurify";
 import RainAndCloudsEffect from "@/components/shopping-view/home/RainAndCloudsEffect";
+import CloudsEffect from "@/components/shopping-view/home/CloudsEffect";
 
 /**
  * PopupModal Component
@@ -150,6 +151,7 @@ export default function PopupModal({
 
           {/* Fullscreen Rain Background */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+            <CloudsEffect />
             <RainAndCloudsEffect />
           </div>
 

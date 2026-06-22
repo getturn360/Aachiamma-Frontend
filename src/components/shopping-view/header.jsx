@@ -470,8 +470,14 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
       return () => window.removeEventListener(CART_UPDATED_EVENT, refreshCart);
     }
 
-    dispatch(clearGuestCart());
-    return undefined;
+    dispatch(fetchCartItems(null));
+
+    function refreshGuestCart() {
+      dispatch(fetchCartItems(null));
+    }
+
+    window.addEventListener(CART_UPDATED_EVENT, refreshGuestCart);
+    return () => window.removeEventListener(CART_UPDATED_EVENT, refreshGuestCart);
   }, [dispatch, loggedIn, user?.id, user?._id, user?.userId]);
 
   useEffect(() => {

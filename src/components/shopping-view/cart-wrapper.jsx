@@ -1,20 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { Button } from "../ui/button";
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserCartItemsContent from "./cart-items-content";
-import { useToast } from "@/components/ui/use-toast";
-import { ROUTES } from "@/config/routes";
-import { GUEST_CART_MESSAGE } from "@/lib/add-to-cart";
 
 const ACCENT = "#08665F";
 
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user } = useSelector((state) => state.auth || {});
 
-  
   const items = Array.isArray(cartItems) ? cartItems : cartItems?.items || [];
 
   const totalCartAmount =
@@ -39,14 +32,12 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       className="sm:max-w-md w-full max-w-full px-4 sm:px-6 md:px-8 flex flex-col h-full"
       style={{ zIndex: 99999 }}
     >
-  
       <SheetHeader className="relative flex items-center justify-center">
         <SheetTitle className="font-semibold tracking-tight text-lg sm:text-xl md:text-2xl">
           Your Cart
         </SheetTitle>
       </SheetHeader>
 
-      
       <div className="mt-6 sm:mt-8 flex-1 overflow-y-auto space-y-4 pr-2">
         {items && items.length > 0 ? (
           items.map((item) => (
@@ -59,7 +50,6 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         )}
       </div>
 
-    
       <div className="mt-4 sm:mt-6 border-t pt-4 flex flex-col gap-4">
         <div className="flex justify-between text-base sm:text-lg">
           <span className="font-semibold">Total</span>
@@ -71,19 +61,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         <Button
           onClick={() => {
             if (isCartEmpty) return;
-            if (!user) {
-              toast({
-                title: "Login required",
-                description: GUEST_CART_MESSAGE,
-                variant: "destructive",
-              });
-              setOpenCartSheet(false);
-              navigate(ROUTES.login, {
-                state: { from: { pathname: ROUTES.checkout } },
-              });
-              return;
-            }
-            navigate(ROUTES.checkout);
+            navigate("/checkout");
             setOpenCartSheet(false);
           }}
           disabled={isCartEmpty}

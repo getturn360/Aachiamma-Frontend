@@ -1,6 +1,6 @@
 /**
  * Generates public/sitemap.xml and public/robots.txt using the `sitemap` package.
- * Static storefront pages only (no per-product URLs).
+ * Includes static storefront pages and every shop-visible product URL.
  * Run: npm run sitemap (or automatically before build)
  */
 import {
@@ -21,6 +21,7 @@ const clientRoot = join(__dirname, "..");
 const publicDir = join(clientRoot, "public");
 
 const DEFAULT_HOSTNAME = "https://aachiammafoods.com";
+const DEFAULT_API_BASE = "https://aachiamma-backend.fly.dev";
 
 function loadEnvFile(filename) {
   const path = join(clientRoot, filename);
@@ -49,7 +50,14 @@ const env = { ...loadEnvFile(".env"), ...process.env };
 const hostname = (env.VITE_SITE_URL || env.SITEMAP_HOSTNAME || DEFAULT_HOSTNAME)
   .replace(/\/+$/, "");
 
-/** Public storefront routes only (no auth/admin/checkout/product detail pages). */
+const apiBase = (
+  env.SITEMAP_API_BASE ||
+  env.VITE_API_BASE ||
+  env.VITE_API_URL ||
+  DEFAULT_API_BASE
+).replace(/\/+$/, "");
+
+/** Public storefront routes. */
 const staticRoutes = [
   { url: "/", changefreq: "daily", priority: 1.0 },
   { url: "/listing", changefreq: "daily", priority: 0.9 },
@@ -61,6 +69,37 @@ const staticRoutes = [
   { url: "/refunds", changefreq: "yearly", priority: 0.4 },
   { url: "/shipping", changefreq: "yearly", priority: 0.4 },
 ];
+
+async function fetchProductRoutes() {
+  try {
+    const url = `${apiBase}/api/shop/products/get?sortBy=title-atoz`;
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    }
+
+    const json = await res.json();
+    const products = Array.isArray(json?.data) ? json.data : [];
+
+    return products
+      .filter((p) => p?._id)
+      .map((p) => ({
+        url: `/product/${p._id}`,
+        changefreq: "weekly",
+        priority: 0.8,
+        lastmod: p.updatedAt ? new Date(p.updatedAt).toISOString() : undefined,
+      }));
+  } catch (err) {
+    console.warn(
+      `[sitemap] Could not fetch products from ${apiBase}:`,
+      err?.message || err
+    );
+    return [];
+  }
+}
 
 async function writeSitemap(links) {
   mkdirSync(publicDir, { recursive: true });
@@ -84,11 +123,16 @@ Sitemap: ${hostname}/sitemap.xml
 }
 
 async function main() {
-  const sitemapPath = await writeSitemap(staticRoutes);
+  const productRoutes = await fetchProductRoutes();
+  const allRoutes = [...staticRoutes, ...productRoutes];
+  const sitemapPath = await writeSitemap(allRoutes);
   const robotsPath = writeRobots();
 
   console.log(`[sitemap] Host: ${hostname}`);
-  console.log(`[sitemap] URLs: ${staticRoutes.length} (static pages only)`);
+  console.log(`[sitemap] API: ${apiBase}`);
+  console.log(
+    `[sitemap] URLs: ${allRoutes.length} (${staticRoutes.length} static + ${productRoutes.length} products)`
+  );
   console.log(`[sitemap] Wrote ${sitemapPath}`);
   console.log(`[sitemap] Wrote ${robotsPath}`);
 }
