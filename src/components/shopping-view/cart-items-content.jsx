@@ -11,6 +11,7 @@ function UserCartItemsContent({
   disableQuantity = false,
 }) {
   const { user } = useSelector((state) => state.auth);
+  const userId = user?.id || user?._id || null;
   const { cartItems } = useSelector((state) => state.shopCart || {});
   const { productList } = useSelector((state) => state.shopProducts || {});
   const dispatch = useDispatch();
@@ -53,7 +54,7 @@ function UserCartItemsContent({
 
     dispatch(
       updateCartQuantity({
-        userId: user?.id,
+        userId,
         productId: cartItem?.productId,
         quantity: (cartItem?.quantity || 1) + 1,
         selectedVariant: selectedVariantForDispatch,
@@ -70,7 +71,7 @@ function UserCartItemsContent({
 
     dispatch(
       updateCartQuantity({
-        userId: user?.id,
+        userId,
         productId: cartItem?.productId,
         quantity: newQty,
         selectedVariant: selectedVariantForDispatch,
@@ -83,7 +84,7 @@ function UserCartItemsContent({
 
     dispatch(
       deleteCartItem({
-        userId: user?.id,
+        userId,
         productId: cartItem?.productId,
         selectedVariant: selectedVariantForDispatch,
       })

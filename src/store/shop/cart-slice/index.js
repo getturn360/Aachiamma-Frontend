@@ -1,8 +1,13 @@
 // src/store/shop/cart-slice/index.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/api/axios";
-
-const GUEST_CART_KEY = "guest_cart_v1";
+import {
+  addGuestCartItem,
+  clearGuestCartStorage,
+  deleteGuestCartItem,
+  loadGuestCart,
+  updateGuestCartQuantity,
+} from "@/lib/guest-cart";
 
 const initialState = {
   cartItems: { items: [] },
@@ -13,7 +18,8 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ userId = null, productId, quantity = 1, productObj = null }) => {
     if (!userId) {
-      return { success: false, message: "Login required to add items to cart" };
+      const data = addGuestCartItem({ productId, quantity, productObj });
+      return { success: true, data };
     }
 
     const response = await api.post("/api/shop/cart/add", {
@@ -30,7 +36,8 @@ export const fetchCartItems = createAsyncThunk(
   "cart/fetchCartItems",
   async (userId = null) => {
     if (!userId) {
-      return { success: true, data: { items: [] } };
+      const data = loadGuestCart();
+      return { success: true, data };
     }
     const response = await api.get(`/api/shop/cart/get/${userId}`);
     return response.data;
@@ -41,7 +48,8 @@ export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
   async ({ userId = null, productId, selectedVariant = null }) => {
     if (!userId) {
-      return { success: false, message: "Login required" };
+      const data = deleteGuestCartItem({ productId, selectedVariant });
+      return { success: data.success, data: { items: data.items, grandTotal: data.grandTotal } };
     }
     const response = await api.delete(`/api/shop/cart/${userId}/${productId}`, {
       data: { selectedVariant },
@@ -54,7 +62,11 @@ export const updateCartQuantity = createAsyncThunk(
   "cart/updateCartQuantity",
   async ({ userId = null, productId, quantity, selectedVariant = null }) => {
     if (!userId) {
-      return { success: false, message: "Login required" };
+      const data = updateGuestCartQuantity({ productId, quantity, selectedVariant });
+      return {
+        success: data.success,
+        data: { items: data.items, grandTotal: data.grandTotal },
+      };
     }
     const response = await api.put("/api/shop/cart/update-cart", {
       userId,
@@ -72,11 +84,7 @@ const shoppingCartSlice = createSlice({
   reducers: {
     clearGuestCart(state) {
       state.cartItems = { items: [] };
-      try {
-        localStorage.removeItem(GUEST_CART_KEY);
-      } catch {
-        // ignore
-      }
+      clearGuestCartStorage();
     },
     replaceCart(state, action) {
       const payload = action.payload;

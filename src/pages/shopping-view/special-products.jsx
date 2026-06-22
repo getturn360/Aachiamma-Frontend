@@ -85,6 +85,7 @@ export default function SpecialProductsPage() {
       quantity,
       productObj,
       fromPath: location.pathname,
+      toast,
     }).then((data) => {
       if (data?.redirectedToLogin) return;
       if (data?.payload?.success) {

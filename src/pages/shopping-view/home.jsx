@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, Crown, Gift } from "lucide-react";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -313,6 +313,7 @@ export default function ShoppingHome() {
         quantity: getQuantity,
         productObj: getProductObj,
         fromPath: location.pathname,
+        toast,
       }).then((data) => {
         if (data?.redirectedToLogin) return;
         if (data?.payload?.success) {
@@ -530,7 +531,7 @@ export default function ShoppingHome() {
                     <img
                       src={imgSrc}
                       alt={c.name || c.label}
-                      className="w-10 h-10 md:w-14 md:h-14 rounded-full object-cover border-2 border-[#08665F]/20 group-hover:border-white/40 mb-1 md:mb-3 flex-shrink-0 shadow-sm transition-colors duration-300"
+                      className="w-10 h-10 md:w-14 md:h-14 rounded-full object-cover mb-1 md:mb-3 flex-shrink-0 transition-colors duration-300"
                       draggable={false}
                     />
                     <span className="font-bold text-[10px] md:text-xs tracking-wide uppercase block w-full truncate">{c.name || c.label}</span>
@@ -547,7 +548,7 @@ export default function ShoppingHome() {
  
         {bestSelling.length > 0 && (
             <section id="best-selling" className="bg-white rounded-2xl p-6 sm:p-12 md:py-16 mt-[60px] min-h-[550px] md:min-h-[700px]">
-              <SectionTitle text="BEST SELLING" />
+              <SectionTitle text="BEST SELLING" icon={Crown} iconTone="gold" />
               <PaginatedProducts
                 products={bestSelling}
                 pageSize={4}
@@ -559,7 +560,7 @@ export default function ShoppingHome() {
 
         {combosProducts.length > 0 && (
             <section id="combos" className="bg-white rounded-2xl p-4 sm:p-8 mt-[50px]">
-              <SectionTitle text="COMBOS" />
+              <SectionTitle text="COMBOS" icon={Gift} iconTone="teal" />
               <PaginatedProducts
                 products={combosProducts}
                 pageSize={4}

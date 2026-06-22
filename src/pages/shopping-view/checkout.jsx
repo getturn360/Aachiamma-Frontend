@@ -1,5 +1,4 @@
 import Address from "@/components/shopping-view/address";
-import img from "../../assets/account.jpg";
 import razorpayLogo from "@/assets/razorpay-icon.png";
 import { useDispatch, useSelector } from "react-redux";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
@@ -7,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { createNewOrder, capturePayment } from "@/store/shop/order-slice";
 import { useToast } from "@/components/ui/use-toast";
-import { useLocation, useNavigate } from "react-router-dom";
-import { deleteCartItem, fetchCartItems } from "@/store/shop/cart-slice";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { deleteCartItem, fetchCartItems, clearGuestCart } from "@/store/shop/cart-slice";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 
 import gsap from "gsap";
@@ -16,6 +15,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 import api from "@/api/axios";
+import { ROUTES } from "@/config/routes";
+import { GUEST_CART_MESSAGE } from "@/lib/add-to-cart";
+
+const GUEST_COUPON_MESSAGE =
+  "Please login or create an account to avail coupon offers.";
 
 const PRIMARY_COLOR = "#08665F";
 const PRIMARY_HOVER = "#064e4a";
@@ -81,7 +85,7 @@ function RazorpayLogo({ imgSrc }) {
 
 export default function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart || {});
-  const { user } = useSelector((state) => state.auth || {});
+  const { user, loading: authLoading } = useSelector((state) => state.auth || {});
   const [currentSelectedAddress, setCurrentSelectedAddressState] = useState(null);
   const [addressForm, setAddressForm] = useState({});
   const [isPaymentStart, setIsPaymemntStart] = useState(false);
@@ -95,6 +99,21 @@ export default function ShoppingCheckout() {
     !!(location.state?.buyNow && Array.isArray(buyNowItems) && buyNowItems.length > 0);
 
   const [chosenItems, setChosenItems] = useState([]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user && !isBuyNow) {
+      toast({
+        title: "Login required",
+        description: GUEST_CART_MESSAGE,
+        variant: "destructive",
+      });
+      navigate(ROUTES.login, {
+        state: { from: { pathname: ROUTES.checkout } },
+        replace: true,
+      });
+    }
+  }, [user, authLoading, isBuyNow, navigate, toast]);
 
   useEffect(() => {
     if (isBuyNow) {
@@ -249,6 +268,16 @@ export default function ShoppingCheckout() {
   const couponInputRef = useRef(null);
 
   useEffect(() => {
+    if (!user && (couponApplied || couponDiscount > 0)) {
+      setCouponApplied(null);
+      setCouponDiscount(0);
+      setInlineCouponCode("");
+      setCouponError(null);
+      setCouponErrorProducts([]);
+    }
+  }, [user, couponApplied, couponDiscount]);
+
+  useEffect(() => {
    
     if (currentSelectedAddress && typeof currentSelectedAddress === "object" && Object.keys(currentSelectedAddress).length > 0) {
       setAddressForm(currentSelectedAddress);
@@ -322,35 +351,26 @@ export default function ShoppingCheckout() {
       return;
     }
 
-    try {
-      if (user) {
- 
-        const hasSavedAddress = addressForm && (addressForm._id || addressForm.id);
-        if (!hasSavedAddress) {
-          setCouponError("Please select/save a delivery address before applying coupon.");
-          setCouponErrorProducts([]);
-          if (couponInputRef.current) try { couponInputRef.current.focus(); } catch (err) {
-      console.error("[checkout.jsx] Error:", err);
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: GUEST_COUPON_MESSAGE,
+        variant: "destructive",
+      });
+      setCouponError(GUEST_COUPON_MESSAGE);
+      setCouponErrorProducts([]);
+      return;
     }
-          return;
-        }
-      } else {
 
-        const hasGuestBilling =
-          addressForm &&
-          (addressForm.firstName || addressForm.name) &&
-          (addressForm.phone || addressForm.whatsapp) &&
-          (addressForm.streetAddress || addressForm.address) &&
-          addressForm.city &&
-          (addressForm.postcode || addressForm.pincode);
-        if (!hasGuestBilling) {
-          setCouponError("Please fill billing details before applying coupon.");
-          setCouponErrorProducts([]);
-          if (couponInputRef.current) try { couponInputRef.current.focus(); } catch (err) {
+    try {
+      const hasSavedAddress = addressForm && (addressForm._id || addressForm.id);
+      if (!hasSavedAddress) {
+        setCouponError("Please select/save a delivery address before applying coupon.");
+        setCouponErrorProducts([]);
+        if (couponInputRef.current) try { couponInputRef.current.focus(); } catch (err) {
       console.error("[checkout.jsx] Error:", err);
     }
-          return;
-        }
+        return;
       }
     } catch (e) {
       console.error("address-check-before-coupon error", e);
@@ -622,7 +642,7 @@ export default function ShoppingCheckout() {
       paymentStatus: "pending",
       subtotal: Number(adjustedTotal.subtotal || 0),   
       shippingAmount: Number(shippingFee || 0),        
-      discountAmount: Number(couponDiscount || 0),      
+      discountAmount: user ? Number(couponDiscount || 0) : 0,      
       totalAmount: Number(payableTotal || 0),
       orderDate: new Date(),
       orderUpdateDate: new Date(),
@@ -631,9 +651,9 @@ export default function ShoppingCheckout() {
       meta: {
         fromBuyNow: isBuyNow,
       
-        coupon: couponApplied ? { id: couponApplied.id || couponApplied._id, code: couponApplied.code, discount: couponDiscount } : null,
-        couponCode: couponApplied ? (couponApplied.code || couponApplied.id || couponApplied._id) : null,
-        couponDiscount: Number(couponDiscount || 0),
+        coupon: user && couponApplied ? { id: couponApplied.id || couponApplied._id, code: couponApplied.code, discount: couponDiscount } : null,
+        couponCode: user && couponApplied ? (couponApplied.code || couponApplied.id || couponApplied._id) : null,
+        couponDiscount: user ? Number(couponDiscount || 0) : 0,
       },
     };
 
@@ -679,7 +699,7 @@ export default function ShoppingCheckout() {
 
               if (!user) {
                 localStorage.removeItem("guest_cart_v1");
-                dispatch(fetchCartItems(null));
+                dispatch(clearGuestCart());
               } else {
                 dispatch(fetchCartItems(user?.id || user?._id));
               }
@@ -776,10 +796,6 @@ export default function ShoppingCheckout() {
       />
 
 
-      <div className="relative h-[300px] w-full overflow-hidden">
-        <img src={img} className="h-full w-full object-cover object-center" alt="banner" />
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-5">
         <div>
           <div className="rounded billing-form bg-white">
@@ -862,6 +878,27 @@ export default function ShoppingCheckout() {
 
           <div className="bg-white p-3 rounded shadow-sm w-full">
             <div className="text-sm font-medium mb-2">Have a coupon? (optional)</div>
+            {!user && (
+              <p className="text-xs text-slate-500 mb-2">
+                Coupons are available for registered users.{" "}
+                <Link
+                  to={ROUTES.login}
+                  state={{ from: { pathname: ROUTES.checkout } }}
+                  className="font-medium text-[#08665F] hover:underline"
+                >
+                  Login
+                </Link>
+                {" or "}
+                <Link
+                  to={ROUTES.register}
+                  state={{ from: { pathname: ROUTES.checkout } }}
+                  className="font-medium text-[#08665F] hover:underline"
+                >
+                  create an account
+                </Link>
+                .
+              </p>
+            )}
             <div className="flex gap-2">
               <input
                 ref={couponInputRef}
@@ -1009,7 +1046,7 @@ export default function ShoppingCheckout() {
                 <div className="flex-1">
                   <div className="font-semibold">Pay by Razorpay</div>
                   <div className="text-xs text-slate-500 mt-1">
-                    Pay securely by Credit / Debit card or Internet Banking through Razorpay.
+                    Pay securely by UPI, Credit / Debit card or Internet Banking through Razorpay.
                   </div>
                 </div>
               </div>

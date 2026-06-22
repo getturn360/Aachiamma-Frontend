@@ -228,6 +228,7 @@ export default function ShoppingListing() {
       quantity: 1,
       productObj,
       fromPath: location.pathname,
+      toast,
     }).then((data) => {
       if (data?.redirectedToLogin) return;
       if (data?.payload?.success) {

@@ -1,9 +1,12 @@
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { ROUTES } from "@/config/routes";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { notifyCartUpdated } from "@/lib/post-auth-cart";
+
+export const GUEST_CART_MESSAGE =
+  "Please login or create an account to add items to cart and purchase multiple products.";
 
 /**
- * Login-only add to cart. Guests are redirected to sign in with the item stored
- * as pendingCartItem in sessionStorage for post-login merge.
+ * Add to cart — logged-in users only. Guests should use Buy Now for single-item checkout.
  */
 export function addProductToCart({
   dispatch,
@@ -12,29 +15,26 @@ export function addProductToCart({
   productId,
   quantity = 1,
   productObj = null,
-  fromPath,
+  fromPath = "/",
+  toast,
 }) {
-  const userId = user?.id || user?._id || null;
-
-  if (!userId) {
-    try {
-      sessionStorage.setItem(
-        "pendingCartItem",
-        JSON.stringify({ productId, quantity, productObj })
-      );
-    } catch (e) {
-      console.error("pendingCartItem storage error", e);
+  if (!user) {
+    if (toast) {
+      toast({
+        title: "Login required",
+        description: GUEST_CART_MESSAGE,
+        variant: "destructive",
+      });
     }
-
     if (navigate) {
-      const pathname =
-        fromPath ||
-        (typeof window !== "undefined" ? window.location.pathname : ROUTES.home);
-      navigate(ROUTES.login, { state: { from: { pathname } } });
+      navigate(ROUTES.login, {
+        state: { from: { pathname: fromPath || ROUTES.home } },
+      });
     }
-
     return Promise.resolve({ redirectedToLogin: true });
   }
+
+  const userId = user?.id || user?._id || null;
 
   return dispatch(addToCart({ userId, productId, quantity, productObj })).then(
     (data) => {

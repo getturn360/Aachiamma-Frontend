@@ -460,6 +460,7 @@ export default function ProductDetailsPage() {
             quantity,
             productObj: productForCart,
             fromPath: `/product/${productDetails?._id}`,
+            toast,
         }).then((data) => {
             if (data?.redirectedToLogin) return;
             const payload = data?.payload;
@@ -1180,6 +1181,7 @@ export default function ProductDetailsPage() {
                                             quantity: qty,
                                             productObj: prodObj,
                                             fromPath: `/product/${r._id}`,
+                                            toast,
                                         }).then((data) => {
                                             if (data?.redirectedToLogin) return;
                                             if (data?.payload?.success) {

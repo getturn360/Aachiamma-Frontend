@@ -1,4 +1,5 @@
 import { addToCart, fetchCartItems, clearGuestCart } from "@/store/shop/cart-slice";
+import { loadGuestCart } from "@/lib/guest-cart";
 
 export const CART_UPDATED_EVENT = "cart:updated";
 
@@ -11,14 +12,38 @@ export function notifyCartUpdated() {
 }
 
 /**
- * Merges pendingCartItem after login/register, refreshes cart in Redux, and
- * notifies the header to re-fetch without a full page reload.
+ * Merges guest cart + pendingCartItem after login/register, then refreshes server cart.
  */
 export async function mergePendingCartItem(dispatch, loggedInUser) {
   const userId = loggedInUser?.id || loggedInUser?._id;
   if (!userId) return false;
 
   let merged = false;
+
+  try {
+    const guest = loadGuestCart();
+    if (guest.items?.length) {
+      for (const item of guest.items) {
+        await dispatch(
+          addToCart({
+            userId,
+            productId: item.productId,
+            quantity: item.quantity || 1,
+            productObj: {
+              title: item.title,
+              image: item.image,
+              price: item.price,
+              salePrice: item.salePrice,
+              selectedVariant: item.selectedVariant,
+            },
+          })
+        ).unwrap();
+        merged = true;
+      }
+    }
+  } catch (e) {
+    console.error("Error merging guest cart:", e);
+  }
 
   try {
     const pendingItemStr = sessionStorage.getItem("pendingCartItem");

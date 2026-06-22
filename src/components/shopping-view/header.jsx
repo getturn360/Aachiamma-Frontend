@@ -456,19 +456,22 @@ function HeaderRightContent({ cartOnly, avatarOnly, navigateTo } = {}) {
   }
 
   useEffect(() => {
-    if (!loggedIn) return undefined;
+    if (loggedIn) {
+      const userId = user.id || user._id || user.userId;
+      if (!userId) return undefined;
 
-    const userId = user.id || user._id || user.userId;
-    if (!userId) return undefined;
-
-    dispatch(fetchCartItems(userId));
-
-    function refreshCart() {
       dispatch(fetchCartItems(userId));
+
+      function refreshCart() {
+        dispatch(fetchCartItems(userId));
+      }
+
+      window.addEventListener(CART_UPDATED_EVENT, refreshCart);
+      return () => window.removeEventListener(CART_UPDATED_EVENT, refreshCart);
     }
 
-    window.addEventListener(CART_UPDATED_EVENT, refreshCart);
-    return () => window.removeEventListener(CART_UPDATED_EVENT, refreshCart);
+    dispatch(clearGuestCart());
+    return undefined;
   }, [dispatch, loggedIn, user?.id, user?._id, user?.userId]);
 
   useEffect(() => {

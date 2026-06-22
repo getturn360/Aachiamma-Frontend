@@ -1,13 +1,18 @@
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Button } from "../ui/button";
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserCartItemsContent from "./cart-items-content";
-import { ArrowLeft } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { ROUTES } from "@/config/routes";
+import { GUEST_CART_MESSAGE } from "@/lib/add-to-cart";
 
 const ACCENT = "#08665F";
 
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useSelector((state) => state.auth || {});
 
   
   const items = Array.isArray(cartItems) ? cartItems : cartItems?.items || [];
@@ -65,8 +70,20 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
 
         <Button
           onClick={() => {
-            if (isCartEmpty) return; 
-            navigate("/checkout");
+            if (isCartEmpty) return;
+            if (!user) {
+              toast({
+                title: "Login required",
+                description: GUEST_CART_MESSAGE,
+                variant: "destructive",
+              });
+              setOpenCartSheet(false);
+              navigate(ROUTES.login, {
+                state: { from: { pathname: ROUTES.checkout } },
+              });
+              return;
+            }
+            navigate(ROUTES.checkout);
             setOpenCartSheet(false);
           }}
           disabled={isCartEmpty}

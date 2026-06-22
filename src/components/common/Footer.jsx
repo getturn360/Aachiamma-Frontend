@@ -165,10 +165,10 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
       <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-10">
         <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 sm:p-6">
           {/* top grid */}
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-4 md:items-start">
             {/* Brand / Logo / Address */}
-            <div className="flex flex-col space-y-3">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col md:pt-6">
+              <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-3 items-start">
                 <img
                   src={Logo}
                   alt="Aachiamma Foods"
@@ -180,17 +180,16 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   </div>
                   <div className="text-xs sm:text-sm text-slate-300">Timeless Memories</div>
                 </div>
-              </div>
 
-              <address className="not-italic text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Aachiammafoods,
-                <br />
-                20/617-5, Mankavu, Palakkad
-                <br />
-                Kerala, India. PIN - 678001
-              </address>
+                <address className="col-start-2 not-italic text-slate-300 text-xs sm:text-sm leading-relaxed">
+                  Aachiammafoods,
+                  <br />
+                  20/617-5, Mankavu, Palakkad
+                  <br />
+                  Kerala, India. PIN - 678001
+                </address>
 
-              <div className="flex gap-2 mt-2">
+                <div className="col-start-2 flex gap-2">
                 <a
                   className="p-2 rounded-lg bg-white/5 hover:-translate-y-1 transition-transform"
                   href="https://www.facebook.com/aachiammafoods"
@@ -225,18 +224,19 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                 >
                   <MessageCircle size={16} />
                 </a>
+                </div>
               </div>
             </div>
 
             {/* Wrapper for Shop Links and Useful Links to display side-by-side on mobile */}
-            <div className="grid grid-cols-2 gap-4 col-span-1 sm:col-span-1 md:col-span-2">
+            <div className="grid grid-cols-2 gap-6 col-span-1 sm:col-span-1 md:col-span-2 md:contents">
               {/* Shop Links */}
-              <nav aria-label="Shop links" className="space-y-2">
+              <nav aria-label="Shop links" className="space-y-2 md:justify-self-center">
                 <h4 className="text-sm font-medium">Shop</h4>
-                <ul className="space-y-2 text-slate-300 text-sm">
+                <ul className="space-y-2 text-slate-300">
                   <li>
                     <button
-                      className="block hover:text-white transition text-left w-full"
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
                       onClick={() => {
                         setCategoryFilterForListing("pickle");
                         navigateTo(`${ROUTES.listing}?category=pickle`);
@@ -247,7 +247,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   </li>
                   <li>
                     <button
-                      className="block hover:text-white transition text-left w-full"
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
                       onClick={() => {
                         setCategoryFilterForListing("snacks");
                         navigateTo(`${ROUTES.listing}?category=snacks`);
@@ -258,7 +258,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   </li>
                   <li>
                     <button
-                      className="block hover:text-white transition text-left w-full"
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
                       onClick={() => {
                         setCategoryFilterForListing("spices-and-powders");
                         navigateTo(`${ROUTES.listing}?category=spices-and-powders`);
@@ -269,7 +269,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   </li>
                   <li>
                     <button
-                      className="block hover:text-white transition text-left w-full"
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
                       onClick={() => {
                         setCategoryFilterForListing("kondattam");
                         navigateTo(`${ROUTES.listing}?category=kondattam`);
@@ -280,7 +280,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   </li>
                   <li>
                     <button
-                      className="block hover:text-white transition text-left w-full"
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
                       onClick={() => {
                         setCategoryFilterForListing("combos");
                         navigateTo(`${ROUTES.listing}?category=combos`);
@@ -293,12 +293,12 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
               </nav>
 
               {/* Useful Links */}
-              <div className="space-y-2">
+              <nav aria-label="Useful links" className="space-y-2 md:justify-self-center">
                 <h4 className="text-sm font-medium">Useful Links</h4>
-                <ul className="space-y-2 text-slate-300 text-sm">
+                <ul className="space-y-2 text-slate-300">
                   <li>
                     <button
-                      className="block hover:text-white transition text-left w-full"
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
                       onClick={() => navigateTo(ROUTES.about)}
                     >
                       About
@@ -307,7 +307,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   <li>
                     {/* Blog is "coming soon" — show premium alert and prevent navigation */}
                     <Link
-                      className="block hover:text-white transition cursor-pointer text-sm"
+                      className="block hover:text-white transition cursor-pointer text-sm py-1 w-full text-left"
                       to="/blog"
                       onClick={handleBlogClick}
                       aria-haspopup="dialog"
@@ -318,7 +318,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   </li>
                   <li>
                     <button
-                      className="block hover:text-white transition text-left w-full"
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
                       onClick={() => navigateTo(ROUTES.contact)}
                     >
                       Contact
@@ -326,14 +326,14 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                   </li>
                   <li>
                     <button
-                      className="block hover:text-white transition text-left w-full"
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
                       onClick={() => navigateTo(ROUTES.faq)}
                     >
                       FAQ
                     </button>
                   </li>
                 </ul>
-              </div>
+              </nav>
             </div>
 
             {/* Newsletter + Contact CTA */}
