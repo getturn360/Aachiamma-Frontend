@@ -455,20 +455,10 @@ export default function ProductDetailsPage() {
         addProductToCart({
             dispatch,
             user,
-            navigate,
             productId: productDetails?._id,
             quantity,
             productObj: productForCart,
-            fromPath: `/product/${productDetails?._id}`,
             toast,
-        }).then((data) => {
-            if (data?.redirectedToLogin) return;
-            const payload = data?.payload;
-            if (payload?.success || payload?.data) {
-                toast({ title: "Added to cart" });
-            } else {
-                toast({ title: payload?.message || "Failed to add", variant: "destructive" });
-            }
         });
     }
 
@@ -1176,17 +1166,10 @@ export default function ProductDetailsPage() {
                                         addProductToCart({
                                             dispatch,
                                             user,
-                                            navigate,
                                             productId: id,
                                             quantity: qty,
                                             productObj: prodObj,
-                                            fromPath: `/product/${r._id}`,
                                             toast,
-                                        }).then((data) => {
-                                            if (data?.redirectedToLogin) return;
-                                            if (data?.payload?.success) {
-                                                toast({ title: "Added to cart" });
-                                            }
                                         });
                                     }}
                                 />

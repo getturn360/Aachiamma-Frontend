@@ -308,24 +308,18 @@ export default function ShoppingHome() {
       addProductToCart({
         dispatch,
         user,
-        navigate,
         productId: getCurrentProductId,
         quantity: getQuantity,
         productObj: getProductObj,
-        fromPath: location.pathname,
         toast,
       }).then((data) => {
-        if (data?.redirectedToLogin) return;
-        if (data?.payload?.success) {
+        if (data?.payload?.success || data?.payload?.data) {
           setCartPulse(true);
           setTimeout(() => setCartPulse(false), 900);
-        } else {
-          const msg = data?.payload?.message || "Failed to add product to cart";
-          toast({ title: msg, variant: "destructive" });
         }
       });
     },
-    [dispatch, user, navigate, location.pathname, toast]
+    [dispatch, user, toast]
   );
 
   const renderProductTile = useCallback(

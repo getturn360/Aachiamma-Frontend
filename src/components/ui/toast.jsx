@@ -40,11 +40,11 @@ const toastVariants = cva(
   }
 );
 
-const Toast = React.forwardRef(({ className, variant, ...props }, ref) => {
+const Toast = React.forwardRef(({ className, variant, duration = 5000, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
       ref={ref}
-      duration={2000} // visible for 2s
+      duration={duration}
       // style for smoother compositing (transform + opacity)
       style={{ willChange: "transform, opacity" }}
       className={cn(

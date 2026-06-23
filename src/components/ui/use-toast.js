@@ -2,7 +2,7 @@
 import * as React from "react"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_REMOVE_DELAY = 5000
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
@@ -101,6 +101,7 @@ function dispatch(action) {
 }
 
 function toast({
+  duration = 5000,
   ...props
 }) {
   const id = genId()
@@ -116,6 +117,7 @@ function toast({
     type: "ADD_TOAST",
     toast: {
       ...props,
+      duration,
       id,
       open: true,
       onOpenChange: (open) => {

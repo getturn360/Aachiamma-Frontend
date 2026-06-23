@@ -223,20 +223,10 @@ export default function ShoppingListing() {
     addProductToCart({
       dispatch,
       user,
-      navigate,
       productId,
       quantity: 1,
       productObj,
-      fromPath: location.pathname,
       toast,
-    }).then((data) => {
-      if (data?.redirectedToLogin) return;
-      if (data?.payload?.success) {
-        toast({ title: "Product added to cart" });
-      } else {
-        const msg = data?.payload?.message || "Failed to add product to cart";
-        toast({ title: msg, variant: "destructive" });
-      }
     });
   };
 

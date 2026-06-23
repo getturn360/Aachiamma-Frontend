@@ -10,18 +10,37 @@ export function addProductToCart({
   productId,
   quantity = 1,
   productObj = null,
+  toast,
 }) {
   const userId = user?.id || user?._id || null;
 
   return dispatch(addToCart({ userId, productId, quantity, productObj })).then(
     (data) => {
-      if (data?.payload?.success) {
+      const payload = data?.payload;
+      const success = Boolean(payload?.success || payload?.data);
+
+      if (success) {
         if (userId) {
           dispatch(fetchCartItems(userId));
         } else {
           notifyCartUpdated();
         }
+
+        if (toast) {
+          const name = productObj?.title || productObj?.name || "Item";
+          const qty = Number(quantity) || 1;
+          toast({
+            title: "Added to cart",
+            description: qty > 1 ? `${name} (×${qty})` : name,
+          });
+        }
+      } else if (toast) {
+        toast({
+          title: payload?.message || "Failed to add to cart",
+          variant: "destructive",
+        });
       }
+
       return data;
     }
   );
