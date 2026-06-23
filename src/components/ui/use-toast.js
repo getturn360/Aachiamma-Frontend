@@ -2,7 +2,7 @@
 import * as React from "react"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 5000
+const TOAST_REMOVE_DELAY = 350
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
@@ -125,6 +125,12 @@ function toast({
       },
     },
   })
+
+  if (Number.isFinite(duration) && duration > 0) {
+    setTimeout(() => {
+      dismiss()
+    }, duration)
+  }
 
   return {
     id: id,

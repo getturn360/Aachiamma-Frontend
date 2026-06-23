@@ -66,10 +66,20 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "toast-slide-up": {
+          from: { opacity: "0", transform: "translateY(18px) scale(0.96)" },
+          to: { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "toast-slide-down": {
+          from: { opacity: "1", transform: "translateY(0) scale(1)" },
+          to: { opacity: "0", transform: "translateY(14px) scale(0.96)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "toast-slide-up": "toast-slide-up 0.38s cubic-bezier(0.21, 1, 0.36, 1)",
+        "toast-slide-down": "toast-slide-down 0.28s ease-in",
       },
     },
   },
