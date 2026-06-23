@@ -22,12 +22,16 @@ export const addToCart = createAsyncThunk(
       return { success: true, data };
     }
 
-    const response = await api.post("/api/shop/cart/add", {
-      userId,
-      productId,
-      quantity,
-      productObj,
-    });
+    const response = await api.post(
+      "/api/shop/cart/add",
+      {
+        userId,
+        productId,
+        quantity,
+        productObj,
+      },
+      { skipGlobalLoader: true }
+    );
     return response.data;
   }
 );
@@ -39,7 +43,9 @@ export const fetchCartItems = createAsyncThunk(
       const data = loadGuestCart();
       return { success: true, data };
     }
-    const response = await api.get(`/api/shop/cart/get/${userId}`);
+    const response = await api.get(`/api/shop/cart/get/${userId}`, {
+      skipGlobalLoader: true,
+    });
     return response.data;
   }
 );
@@ -53,6 +59,7 @@ export const deleteCartItem = createAsyncThunk(
     }
     const response = await api.delete(`/api/shop/cart/${userId}/${productId}`, {
       data: { selectedVariant },
+      skipGlobalLoader: true,
     });
     return response.data;
   }
@@ -68,12 +75,16 @@ export const updateCartQuantity = createAsyncThunk(
         data: { items: data.items, grandTotal: data.grandTotal },
       };
     }
-    const response = await api.put("/api/shop/cart/update-cart", {
-      userId,
-      productId,
-      quantity,
-      selectedVariant,
-    });
+    const response = await api.put(
+      "/api/shop/cart/update-cart",
+      {
+        userId,
+        productId,
+        quantity,
+        selectedVariant,
+      },
+      { skipGlobalLoader: true }
+    );
     return response.data;
   }
 );

@@ -1,4 +1,4 @@
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { addToCart } from "@/store/shop/cart-slice";
 import { notifyCartUpdated } from "@/lib/post-auth-cart";
 
 /**
@@ -20,9 +20,7 @@ export function addProductToCart({
       const success = Boolean(payload?.success || payload?.data);
 
       if (success) {
-        if (userId) {
-          dispatch(fetchCartItems(userId));
-        } else {
+        if (!userId) {
           notifyCartUpdated();
         }
 
