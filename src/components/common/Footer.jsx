@@ -22,6 +22,7 @@ import Logo from "../../assets/logo-1.png";
 
 export default function Footer() {
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
 
   const [showTop, setShowTop] = useState(false);
   const [rotateDeg, setRotateDeg] = useState(0);
@@ -388,7 +389,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
           <div className="mt-6 border-t border-white/5 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             {/* reduced contrast for copyright text */}
             <div className="text-slate-400 text-[11px] sm:text-sm text-center sm:text-left">
-              © 2025 Aachiammafoods — All rights reserved.
+              © {currentYear} Aachiammafoods — All rights reserved.
             </div>
 
             <div className="flex flex-wrap justify-center sm:justify-start gap-3">
