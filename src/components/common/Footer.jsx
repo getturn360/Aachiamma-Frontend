@@ -388,17 +388,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
           <div className="mt-6 border-t border-white/5 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             {/* reduced contrast for copyright text */}
             <div className="text-slate-400 text-[11px] sm:text-sm text-center sm:text-left">
-              © 2025 Aachiammafoods by{' '}
-              <a
-                href="https://turn360.in/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white font-semibold relative group inline-block"
-              >
-                Turn360
-                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white transition-all group-hover:w-full"></span>
-              </a>
-              <span className="block sm:inline mt-1 sm:mt-0"> — All rights reserved.</span>
+              © 2025 Aachiammafoods — All rights reserved.
             </div>
 
             <div className="flex flex-wrap justify-center sm:justify-start gap-3">
