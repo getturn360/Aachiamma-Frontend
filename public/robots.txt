@@ -1,4 +1,56 @@
 User-agent: *
+Disallow: /wp-admin/
+Disallow: /wp-login.php
+Disallow: /cart/
+Disallow: /my-account/
+Disallow: /?add-to-cart=*
+Disallow: /*?orderby=
+Disallow: /*?filter_*
+Allow: /wp-content/uploads/
+
+# --- Google (search + AI Overviews) ---
+User-agent: Googlebot
+Allow: /
+User-agent: Google-Extended
 Allow: /
 
+# --- Bing (search + Copilot) ---
+User-agent: Bingbot
+Allow: /
+
+# --- OpenAI (training + ChatGPT Search) ---
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+
+# --- Anthropic (Claude crawling + live search) ---
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+
+# --- Perplexity ---
+User-agent: PerplexityBot
+Allow: /
+
+# --- Apple (Siri / Apple Intelligence) ---
+User-agent: Applebot
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
+# --- Common Crawl (powers many AI models, incl. open-source) ---
+User-agent: CCBot
+Allow: /
+
+# --- Amazon (Alexa) ---
+User-agent: Amazonbot
+Allow: /
+
+# --- Sitemaps for discovery ---
 Sitemap: https://aachiammafoods.com/sitemap.xml
