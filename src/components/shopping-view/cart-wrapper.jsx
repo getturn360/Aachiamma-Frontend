@@ -1,14 +1,21 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Button } from "../ui/button";
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserCartItemsContent from "./cart-items-content";
+import AvailableCouponsList from "./coupons/AvailableCouponsList";
+import { useAvailableCoupons } from "@/hooks/useAvailableCoupons";
 
 const ACCENT = "#08665F";
 
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth || {});
 
   const items = Array.isArray(cartItems) ? cartItems : cartItems?.items || [];
+  const { coupons, loading: couponsLoading } = useAvailableCoupons(items);
+  const [selectedCouponCode, setSelectedCouponCode] = useState("");
 
   const totalCartAmount =
     items && items.length > 0
@@ -51,6 +58,23 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       </div>
 
       <div className="mt-4 sm:mt-6 border-t pt-4 flex flex-col gap-4">
+        {!isCartEmpty && coupons.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-sm font-semibold text-slate-800">Available offers</div>
+            {!user && (
+              <p className="text-xs text-slate-500">Login to apply offers at checkout.</p>
+            )}
+            <AvailableCouponsList
+              coupons={coupons}
+              mode="cart"
+              selectedCode={selectedCouponCode}
+              isLoggedIn={Boolean(user)}
+              loading={couponsLoading}
+              onSelect={(code) => setSelectedCouponCode(code)}
+            />
+          </div>
+        )}
+
         <div className="flex justify-between text-base sm:text-lg">
           <span className="font-semibold">Total</span>
           <span className="font-bold text-[var(--accent)] text-base sm:text-lg">

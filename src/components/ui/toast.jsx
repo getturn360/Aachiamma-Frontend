@@ -29,6 +29,7 @@ const toastVariants = cva(
     "max-sm:w-auto max-sm:rounded-full max-sm:border max-sm:border-slate-200/90 max-sm:bg-white max-sm:backdrop-blur-md",
     "max-sm:px-3.5 max-sm:py-2.5 max-sm:gap-2.5 max-sm:pr-3.5 max-sm:shadow-[0_8px_24px_rgba(15,23,42,0.12)]",
     "sm:items-start sm:gap-4 sm:rounded-2xl sm:border sm:p-4 sm:pr-10 sm:bg-white sm:border-gray-200",
+    "sm:[&.cart-add-toast]:min-w-[320px] sm:[&.cart-add-toast]:border-l-4 sm:[&.cart-add-toast]:border-l-[#08665F] sm:[&.cart-add-toast]:shadow-[0_12px_40px_rgba(8,102,95,0.18)] sm:[&.cart-add-toast]:pr-4 sm:[&.cart-add-toast]:gap-3",
   ].join(" "),
   {
     variants: {

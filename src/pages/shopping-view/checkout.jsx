@@ -16,6 +16,11 @@ gsap.registerPlugin(ScrollTrigger);
 
 import api from "@/api/axios";
 import { ROUTES } from "@/config/routes";
+import AvailableCouponsList from "@/components/shopping-view/coupons/AvailableCouponsList";
+import AppliedCouponBanner from "@/components/shopping-view/coupons/AppliedCouponBanner";
+import OrderDiscountSummary from "@/components/shopping-view/coupons/OrderDiscountSummary";
+import { useAvailableCoupons } from "@/hooks/useAvailableCoupons";
+import { readPendingCouponCode, clearPendingCouponCode } from "@/lib/coupon-utils";
 
 const GUEST_COUPON_MESSAGE =
   "Please login or create an account to avail coupon offers.";
@@ -250,6 +255,10 @@ export default function ShoppingCheckout() {
   const [couponError, setCouponError] = useState(null);
   const [couponErrorProducts, setCouponErrorProducts] = useState([]);
   const couponInputRef = useRef(null);
+  const pendingCouponAppliedRef = useRef(false);
+  const [selectedCouponCode, setSelectedCouponCode] = useState("");
+
+  const { coupons, loading: couponsLoading } = useAvailableCoupons(chosenItems);
 
   useEffect(() => {
     if (!user && (couponApplied || couponDiscount > 0)) {
@@ -325,7 +334,48 @@ export default function ShoppingCheckout() {
     toast({ title: "Coupon applied", description: `Discount ₹${Number(discountFromResponse || 0)}` });
     setCouponError(null);
     setCouponErrorProducts([]);
+    clearPendingCouponCode();
   };
+
+  const removeCoupon = () => {
+    setCouponApplied(null);
+    setCouponDiscount(0);
+    setInlineCouponCode("");
+    setSelectedCouponCode("");
+    setCouponError(null);
+    setCouponErrorProducts([]);
+    clearPendingCouponCode();
+  };
+
+  const handleCouponSelect = (code) => {
+    setSelectedCouponCode(code);
+    setInlineCouponCode(code);
+    if (couponError) setCouponError(null);
+    if (couponErrorProducts.length) setCouponErrorProducts([]);
+    if (user) {
+      applyCouponInline(code);
+    }
+  };
+
+  useEffect(() => {
+    const pending = readPendingCouponCode();
+    if (pending && !inlineCouponCode) {
+      setInlineCouponCode(pending);
+      setSelectedCouponCode(pending);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user || pendingCouponAppliedRef.current || couponApplied) return;
+    const pending = readPendingCouponCode();
+    if (!pending) return;
+
+    const hasSavedAddress = addressForm && (addressForm._id || addressForm.id);
+    if (hasSavedAddress) {
+      pendingCouponAppliedRef.current = true;
+      applyCouponInline(pending);
+    }
+  }, [user, addressForm, couponApplied]);
 
   const applyCouponInline = async (code) => {
     if (!code) {
@@ -883,12 +933,29 @@ export default function ShoppingCheckout() {
                 .
               </p>
             )}
+
+            {coupons.length > 0 && (
+              <div className="mb-3">
+                <div className="text-xs font-medium text-slate-600 mb-2">Available offers</div>
+                <AvailableCouponsList
+                  coupons={coupons}
+                  mode="checkout"
+                  selectedCode={selectedCouponCode}
+                  appliedCode={couponApplied?.code || ""}
+                  isLoggedIn={Boolean(user)}
+                  loading={couponsLoading}
+                  onSelect={handleCouponSelect}
+                />
+              </div>
+            )}
+
             <div className="flex gap-2">
               <input
                 ref={couponInputRef}
                 value={inlineCouponCode}
                 onChange={(e) => {
                   setInlineCouponCode(e.target.value);
+                  setSelectedCouponCode(e.target.value.trim().toUpperCase());
                   if (couponError) setCouponError(null);
                   if (couponErrorProducts && couponErrorProducts.length) setCouponErrorProducts([]);
                 }}
@@ -949,9 +1016,11 @@ export default function ShoppingCheckout() {
             )}
 
             {couponApplied && (
-              <div className="mt-2 text-sm text-green-700">
-                Applied: {couponApplied.code || couponApplied.id || "coupon"} — ₹{couponDiscount}
-              </div>
+              <AppliedCouponBanner
+                coupon={couponApplied}
+                discount={couponDiscount}
+                onRemove={removeCoupon}
+              />
             )}
           </div>
 
@@ -977,47 +1046,17 @@ export default function ShoppingCheckout() {
                 })}
               </div>
 
-              <div className="pt-3">
-                <div className="flex items-center justify-between py-2">
-                  <div className="text-sm text-slate-600">Subtotal</div>
-                  <div className="text-sm">₹{adjustedTotal.subtotal.toFixed(2)}</div>
-                </div>
-
-                <div className="flex flex-col py-2">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-slate-600">Shipping</div>
-                    <div className="text-sm">
-                      {shippingLoading ? (
-                        "calculating..."
-                      ) : isFreeByThreshold ? (
-                        <span className="text-green-600 font-semibold">Free shipping</span>
-                      ) : (
-                        `₹${Number(shippingFee || 0).toFixed(2)}`
-                      )}
-                    </div>
-                  </div>
-
-                  {freeThreshold > 0 && !isFreeByThreshold && (
-                    <div className="mt-1 text-xs">
-                      <span className="text-green-600 font-medium">
-                        Add ₹{remainingForFree.toFixed(2)} more to get free shipping over ₹{freeThreshold}.
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {couponDiscount > 0 && (
-                  <div className="flex items-center justify-between py-2">
-                    <div className="text-sm text-slate-600">Coupon discount</div>
-                    <div className="text-sm text-green-600">- ₹{adjustedTotal.discount.toFixed(2)}</div>
-                  </div>
-                )}
-
-                <div className="border-t mt-3 pt-3 flex items-center justify-between font-semibold text-lg">
-                  <div>Total</div>
-                  <div>₹{payableTotal.toFixed(2)}</div>
-                </div>
-              </div>
+              <OrderDiscountSummary
+                subtotal={adjustedTotal.subtotal}
+                coupon={couponApplied}
+                couponDiscount={couponDiscount}
+                shippingFee={shippingFee}
+                shippingLoading={shippingLoading}
+                isFreeByThreshold={isFreeByThreshold}
+                freeThreshold={freeThreshold}
+                remainingForFree={remainingForFree}
+                total={payableTotal}
+              />
             </div>
 
             <div className="mt-4">

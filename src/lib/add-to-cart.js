@@ -1,6 +1,8 @@
 import { addToCart } from "@/store/shop/cart-slice";
 import { notifyCartUpdated } from "@/lib/post-auth-cart";
 
+const DESKTOP_CART_TOAST_DURATION = 6000;
+
 /**
  * Add to cart for logged-in users (server cart) or guests (localStorage cart).
  */
@@ -30,6 +32,8 @@ export function addProductToCart({
           toast({
             title: "Added to cart",
             description: qty > 1 ? `${name} (×${qty})` : name,
+            duration: DESKTOP_CART_TOAST_DURATION,
+            variant: "cart",
           });
         }
       } else if (toast) {
