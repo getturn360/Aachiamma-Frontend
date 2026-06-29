@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeftIcon, ChevronRightIcon, Crown, Gift } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,6 +19,8 @@ import { addProductToCart } from "@/lib/add-to-cart";
 import hi1 from "@/assets/h-i1.png";
 import hi3 from "@/assets/h-i3.png";
 import testimonialbannerimg from "@/assets/Testimonial-Banner.jpeg";
+import bestSellingImg from "@/assets/Best Selling.jpg";
+import comboIconImg from "@/assets/Combo Icon.jpg";
 
 import pickleImg from "@/assets/categories/demo-p.jpg";
 import snackImg from "@/assets/categories/demo-p.jpg";
@@ -542,7 +544,7 @@ export default function ShoppingHome() {
  
         {bestSelling.length > 0 && (
             <section id="best-selling" className="bg-white rounded-2xl p-6 sm:p-12 md:py-16 mt-[60px] min-h-[550px] md:min-h-[700px]">
-              <SectionTitle text="BEST SELLING" icon={Crown} iconTone="gold" />
+              <SectionTitle text="BEST SELLING" image={bestSellingImg} />
               <PaginatedProducts
                 products={bestSelling}
                 pageSize={4}
@@ -554,7 +556,7 @@ export default function ShoppingHome() {
 
         {combosProducts.length > 0 && (
             <section id="combos" className="bg-white rounded-2xl p-4 sm:p-8 mt-[50px]">
-              <SectionTitle text="COMBOS" icon={Gift} iconTone="teal" />
+              <SectionTitle text="COMBOS" image={comboIconImg} />
               <PaginatedProducts
                 products={combosProducts}
                 pageSize={4}

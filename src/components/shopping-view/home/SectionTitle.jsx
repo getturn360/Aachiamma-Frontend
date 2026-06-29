@@ -7,20 +7,28 @@ export default function SectionTitle({
   text,
   accentColor = "#08665F",
   icon: Icon,
+  image,
   iconTone = "teal",
 }) {
   const toneClass = ICON_TONES[iconTone] || ICON_TONES.teal;
 
   return (
     <div className="flex flex-col items-center mb-8 px-2">
-      {Icon && (
+      {image ? (
+        <img
+          src={image}
+          alt=""
+          className="mb-4 w-16 h-16 sm:w-20 sm:h-20 object-contain"
+          aria-hidden
+        />
+      ) : Icon ? (
         <div
           className={`mb-4 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl border shadow-md rotate-3 ${toneClass}`}
           aria-hidden
         >
           <Icon className="w-6 h-6 sm:w-8 sm:h-8 -rotate-3" strokeWidth={2.25} />
         </div>
-      )}
+      ) : null}
       <div className="flex items-center justify-center w-full">
         <div
           className="flex-1 max-w-[50px] sm:max-w-[100px] md:max-w-[150px] h-[1px] sm:h-[2px] md:h-[2px] mr-3 sm:mr-6 rounded-full"
