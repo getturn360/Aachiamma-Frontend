@@ -353,6 +353,7 @@ function MenuItems({ onItemClick, navigateTo, excludeIds = [], mobile = false } 
                   <button onClick={() => navigateToAnchor("trending")} className="text-sm font-medium px-2 py-1 rounded-md hover:bg-[rgba(8,102,95,0.06)] whitespace-nowrap">Trending</button>
                   <button onClick={() => navigateToAnchor("best-selling")} className="text-sm font-medium px-2 py-1 rounded-md hover:bg-[rgba(8,102,95,0.06)] whitespace-nowrap">Best Selling</button>
                   <button onClick={() => navigateToAnchor("new-arrival")} className="text-sm font-medium px-2 py-1 rounded-md hover:bg-[rgba(8,102,95,0.06)] whitespace-nowrap">New Arrival</button>
+                  <button onClick={() => navigateToAnchor("coming-soon")} className="text-sm font-medium px-2 py-1 rounded-md hover:bg-[rgba(8,102,95,0.06)] whitespace-nowrap">Coming Soon</button>
                 </div>
               )}
             </div>
@@ -703,9 +704,9 @@ function MobileMenu({ navigateTo } = {}) {
     } },60); }} excludeIds={['about','faq','contact']} mobile />
           </div>
 
-          <div className="mt-2 grid grid-cols-3 gap-3">
+          <div className="mt-2 grid grid-cols-2 gap-3">
             <button
-              className="py-3 rounded-lg font-medium shadow-sm border"
+              className="py-3 rounded-lg font-medium shadow-sm border text-sm"
               onClick={() => { setOpen(false); navigate(ROUTES.about); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
       console.error("[header.jsx] Error:", err);
     } },60); }}
@@ -713,7 +714,15 @@ function MobileMenu({ navigateTo } = {}) {
             >About</button>
 
             <button
-              className="py-3 rounded-lg font-medium shadow-sm border"
+              className="py-3 rounded-lg font-medium shadow-sm border text-sm"
+              onClick={() => { setOpen(false); navigate(ROUTES.blog); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
+      console.error("[header.jsx] Error:", err);
+    } },60); }}
+              style={{ borderColor: "rgba(8,102,95,0.06)" }}
+            >Blog</button>
+
+            <button
+              className="py-3 rounded-lg font-medium shadow-sm border text-sm"
               onClick={() => { setOpen(false); navigate(ROUTES.faq); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
       console.error("[header.jsx] Error:", err);
     } },60); }}
@@ -721,7 +730,7 @@ function MobileMenu({ navigateTo } = {}) {
             >FAQ</button>
 
             <button
-              className="py-3 rounded-lg font-medium shadow-sm border"
+              className="py-3 rounded-lg font-medium shadow-sm border text-sm"
               onClick={() => { setOpen(false); navigate(ROUTES.contact); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
       console.error("[header.jsx] Error:", err);
     } },60); }}
@@ -731,10 +740,11 @@ function MobileMenu({ navigateTo } = {}) {
 
           <div className="pt-4 border-t border-gray-100">
             <div className="text-sm font-medium mb-2">Explore</div>
-            <div className="flex gap-3">
-              <button className="flex-1 py-3 rounded-lg font-medium shadow-sm border" onClick={() => mobileNavigateToAnchor("trending")} style={{ borderColor: "rgba(8,102,95,0.06)" }}>Trending</button>
-              <button className="flex-1 py-3 rounded-lg font-medium shadow-sm border" onClick={() => mobileNavigateToAnchor("best-selling")} style={{ borderColor: "rgba(8,102,95,0.06)" }}>Best</button>
-              <button className="flex-1 py-3 rounded-lg font-medium shadow-sm border" onClick={() => mobileNavigateToAnchor("new-arrival")} style={{ borderColor: "rgba(8,102,95,0.06)" }}>New</button>
+            <div className="grid grid-cols-2 gap-3">
+              <button className="py-2 rounded-lg font-medium shadow-sm border text-sm" onClick={() => mobileNavigateToAnchor("trending")} style={{ borderColor: "rgba(8,102,95,0.06)" }}>Trending</button>
+              <button className="py-2 rounded-lg font-medium shadow-sm border text-sm" onClick={() => mobileNavigateToAnchor("best-selling")} style={{ borderColor: "rgba(8,102,95,0.06)" }}>Best Selling</button>
+              <button className="py-2 rounded-lg font-medium shadow-sm border text-sm" onClick={() => mobileNavigateToAnchor("new-arrival")} style={{ borderColor: "rgba(8,102,95,0.06)" }}>New Arrival</button>
+              <button className="py-2 rounded-lg font-medium shadow-sm border text-sm" onClick={() => mobileNavigateToAnchor("coming-soon")} style={{ borderColor: "rgba(8,102,95,0.06)" }}>Coming Soon</button>
             </div>
           </div>
         </div>
@@ -1006,6 +1016,9 @@ function ShoppingHeader() {
             <div className="hidden md:flex items-center gap-4 mr-4">
               <button onClick={() => { navigateTo(ROUTES.about); }} className="text-sm font-medium" style={{ color: ACCENT }}>
                 About
+              </button>
+              <button onClick={() => { navigateTo(ROUTES.blog); }} className="text-sm font-medium" style={{ color: ACCENT }}>
+                Blog
               </button>
               <button onClick={() => { navigateTo(ROUTES.faq); }} className="text-sm font-medium" style={{ color: ACCENT }}>
                 FAQ

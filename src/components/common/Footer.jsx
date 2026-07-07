@@ -30,12 +30,6 @@ export default function Footer() {
   const [status, setStatus] = useState("idle"); // idle, loading, success, error
   const [errorMsg, setErrorMsg] = useState("");
 
-  // premium alert state for "Blog - Coming soon"
-  const [showPremiumAlert, setShowPremiumAlert] = useState(false);
-  // if you want to navigate to the blog after the user closes the alert,
-  // set this to a path (e.g. '/blog') when opening the alert. Otherwise null.
-  const [navigateToAfterClose, setNavigateToAfterClose] = useState(null);
-
   useEffect(() => {
     const onScroll = () => {
       const scrollTop = window.scrollY;
@@ -139,25 +133,6 @@ export default function Footer() {
       console.error("[Footer.jsx] Error:", e);
     }
     }, 60);
-  };
-
-  // --- Blog "Coming soon" handler ---
-  const BLOG_ALERT_MESSAGE = `Blog coming soon — we're preparing tasty articles, recipes
-and behind-the-scenes stories. Want early access? Join our newsletter!`;
-
-  const handleBlogClick = (e) => {
-    // prevent navigation and show premium alert immediately
-    if (e && typeof e.preventDefault === "function") e.preventDefault();
-    setNavigateToAfterClose(null); // change to '/blog' to navigate after close
-    setShowPremiumAlert(true);
-  };
-
-  const closePremiumAlert = () => {
-    setShowPremiumAlert(false);
-    if (navigateToAfterClose) {
-      navigateTo(navigateToAfterClose);
-      setNavigateToAfterClose(null);
-    }
   };
 
   return (
@@ -306,16 +281,12 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
                     </button>
                   </li>
                   <li>
-                    {/* Blog is "coming soon" — show premium alert and prevent navigation */}
-                    <Link
-                      className="block hover:text-white transition cursor-pointer text-sm py-1 w-full text-left"
-                      to="/blog"
-                      onClick={handleBlogClick}
-                      aria-haspopup="dialog"
-                      aria-expanded={showPremiumAlert}
+                    <button
+                      className="block hover:text-white transition text-left w-full text-sm py-1"
+                      onClick={() => navigateTo(ROUTES.blog)}
                     >
                       Blog
-                    </Link>
+                    </button>
                   </li>
                   <li>
                     <button
@@ -389,7 +360,7 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
           <div className="mt-6 border-t border-white/5 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             {/* reduced contrast for copyright text */}
             <div className="text-slate-400 text-[11px] sm:text-sm text-center sm:text-left">
-              © {currentYear} Aachiammafoods — All rights reserved.
+              © {currentYear} Aachiammafoods by <a href="https://turn360.in" target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline transition-colors">Turn360</a> — All rights reserved.
             </div>
 
             <div className="flex flex-wrap justify-center sm:justify-start gap-3">
@@ -414,32 +385,6 @@ and behind-the-scenes stories. Want early access? Join our newsletter!`;
         ></span>
         <ArrowUp size={16} className="relative z-10" />
       </button>
-
-      {/* Premium "Coming soon" modal */}
-      {showPremiumAlert && (
-        <div
-          className="fixed inset-0 z-60 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="premium-alert-title"
-        >
-          <div className="absolute inset-0 bg-black/50" onClick={closePremiumAlert} />
-
-          <div className="relative max-w-lg w-full bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md text-slate-100 z-10">
-            <h3 id="premium-alert-title" className="text-lg font-semibold">Coming soon — Blog</h3>
-            <p className="mt-2 text-sm whitespace-pre-line">{BLOG_ALERT_MESSAGE}</p>
-
-            <div className="mt-4 flex gap-2 justify-end">
-              <button
-                onClick={closePremiumAlert}
-                className="px-4 py-2 rounded-md bg-amber-400 text-slate-900 font-semibold"
-              >
-                Okay
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </footer>
   );
 }

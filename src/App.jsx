@@ -40,6 +40,7 @@ import RefundPolicy from "./pages/shopping-view/RefundPolicy";
 import ShippingPolicy from "./pages/shopping-view/ShippingPolicy";
 import ProductDetailsPage from "./pages/shopping-view/product-details";
 import SpecialProductsPage from "./pages/shopping-view/special-products";
+import BlogPage from "./pages/shopping-view/blog";
 import { ConnectedLoader } from "@/components/common/Loader";
 import GoogleAnalytics from "@/components/common/GoogleAnalytics";
 import { Analytics } from "@vercel/analytics/react";
@@ -207,6 +208,7 @@ function App() {
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="refunds" element={<RefundPolicy />} />
           <Route path="shipping" element={<ShippingPolicy />} />
+          <Route path="blog" element={<BlogPage />} />
         </Route>
 
         <Route

@@ -52,6 +52,12 @@ export default function SpecialProductsPage() {
           tag: "new-arrival",
           gradient: "from-teal-600/10 via-emerald-500/5 to-transparent",
         };
+      case "coming-soon":
+        return {
+          title: "Coming Soon",
+          tag: "coming-soon",
+          gradient: "from-amber-500/10 via-orange-500/5 to-transparent",
+        };
       default:
         return {
           title: "Special Collection",
@@ -118,7 +124,37 @@ export default function SpecialProductsPage() {
 
       {/* Product Grid */}
       <div className="max-w-6xl mx-auto px-4 mt-8 md:mt-12">
-        {filteredProducts.length === 0 ? (
+        {type === "coming-soon" ? (
+          <div>
+            <div className="mb-6 flex justify-between items-center text-sm text-gray-500 font-medium">
+              <span>Exciting new products arriving shortly</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {/* Static Demo Tile */}
+              <div className="relative group rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm opacity-90 pointer-events-none flex flex-col h-full">
+                {/* Coming soon badge */}
+                <div className="absolute top-3 left-3 z-20">
+                  <span className="bg-amber-400 text-slate-900 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wide shadow-sm">Coming Soon</span>
+                </div>
+                <div className="aspect-square bg-slate-50 flex items-center justify-center p-6 border-b border-gray-50 relative overflow-hidden">
+                   {/* Placeholder visual */}
+                   <div className="absolute inset-0 bg-gradient-to-tr from-slate-100 to-slate-50"></div>
+                   <div className="relative z-10 flex flex-col items-center gap-3 opacity-40">
+                     <svg className="w-12 h-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                     </svg>
+                     <span className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Secret Recipe</span>
+                   </div>
+                </div>
+                <div className="p-4 flex flex-col gap-2 flex-grow bg-white">
+                  <h3 className="font-bold text-gray-800 text-sm md:text-base line-clamp-1">Mystery Product</h3>
+                  <div className="text-xs text-gray-500 mb-2 flex-grow">Something delicious is brewing in our kitchen...</div>
+                  <div className="font-bold text-gray-300">₹ ???</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm px-6">
             <p className="text-gray-500 text-lg font-medium">
               No products found in the {collectionInfo.title}.

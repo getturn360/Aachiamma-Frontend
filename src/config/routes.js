@@ -7,6 +7,7 @@ export const ROUTES = {
   account: "/account",
   paymentSuccess: "/payment-success",
   about: "/about",
+  blog: "/blog",
   contact: "/contact",
   faq: "/faq",
   terms: "/terms",
