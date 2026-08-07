@@ -35,7 +35,7 @@ import AboutInner from "./pages/shopping-view/about";
 import ContactPage from "./pages/shopping-view/contact";
 import FAQsPage from "./pages/shopping-view/faqs";
 import TermsPage from "./pages/shopping-view/TermsPage";
-import PrivacyPolicy from "./pages/shopping-view/PrivacyPolicy";
+import PrivacyPolicy from "./pages/shopping-view/legal";
 import RefundPolicy from "./pages/shopping-view/RefundPolicy";
 import ShippingPolicy from "./pages/shopping-view/ShippingPolicy";
 import ProductDetailsPage from "./pages/shopping-view/product-details";
@@ -45,7 +45,7 @@ import BlogDetailsPage from "./pages/shopping-view/blog-details";
 import { ConnectedLoader } from "@/components/common/Loader";
 import GoogleAnalytics from "@/components/common/GoogleAnalytics";
 import { Analytics } from "@vercel/analytics/react";
-import {SpeedInsights} from "@vercel/speed-insights/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function ScrollManager() {
   const location = useLocation();
@@ -182,7 +182,7 @@ function App() {
     <div className="flex flex-col overflow-hidden bg-white">
       <GoogleAnalytics />
       <Analytics />
-      <SpeedInsights/>
+      <SpeedInsights />
       <ScrollManager />
       {!isAdminRoute && <ConnectedLoader />}
 

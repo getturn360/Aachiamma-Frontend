@@ -148,30 +148,108 @@ function AdminOrderDetailsView({ orderDetails }) {
 
           <Separator />
 
-          <div className="grid gap-3">
-            <h3 className="text-md font-semibold text-slate-900">Order Details</h3>
-            <ul className="grid gap-2">
-              {orderDetails?.cartItems && orderDetails.cartItems.length > 0 ? (
-                orderDetails.cartItems.map((item) => (
-                  <li
-                    key={item.productId || item._id}
-                    className="flex justify-between items-center px-3 py-2 rounded-lg bg-slate-50 shadow-sm"
-                  >
-                    <div className="flex-1">
-                      <span className="text-sm font-medium truncate">{item.title}</span>
-                      {item.variantTitle && <div className="text-xs text-slate-500">{item.variantTitle}</div>}
-                    </div>
-                    <div className="flex items-center gap-4 ml-4">
-                      <span className="text-sm text-slate-700">Qty: {item.quantity}</span>
-                      <span className="text-sm text-slate-900 font-medium">₹{item.price}</span>
-                    </div>
-                  </li>
-                ))
-              ) : (
-                <li className="text-sm text-slate-500">No items found in this order.</li>
-              )}
-            </ul>
+         <div className="grid gap-6">
+  <h3 className="text-lg font-semibold text-slate-900">
+    Order Details
+  </h3>
+
+  {orderDetails?.cartItems?.map((item) => {
+    const productTotal = Number(item.price || 0) * Number(item.quantity || 0);
+
+    return (
+      <div
+        key={item.productId || item._id}
+        className="rounded-xl border bg-white p-5 shadow-sm"
+      >
+        <div className="flex gap-4">
+
+          {item.image && (
+            <img
+              src={item.image}
+              alt={item.title}
+              className="w-20 h-20 rounded-lg object-cover border"
+            />
+          )}
+
+          <div className="flex-1">
+
+            <h4 className="font-semibold text-base">
+              {item.title}
+            </h4>
+
+            <div className="mt-4 space-y-2 text-sm">
+
+              <div className="flex justify-between">
+                <span>Unit Price</span>
+                <span>₹{item.price}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Quantity</span>
+                <span>{item.quantity}</span>
+              </div>
+
+              <div className="flex justify-between font-semibold">
+                <span>Product Total</span>
+                <span>₹{productTotal}</span>
+              </div>
+
+            </div>
+
           </div>
+        </div>
+      </div>
+    );
+  })}
+
+  <Separator />
+
+  <div className="rounded-xl bg-slate-50 p-5 space-y-3">
+
+    <h3 className="font-semibold text-base">
+      Order Summary
+    </h3>
+
+    <div className="flex justify-between">
+      <span>Subtotal</span>
+      <span>₹{orderDetails?.subtotal ?? 0}</span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Coupon Code</span>
+      <span>
+        {orderDetails?.meta?.couponCode || "NIL"}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Discount</span>
+      <span>
+        -₹{orderDetails?.discountAmount ?? 0}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Shipping Charge</span>
+      <span>
+        ₹{orderDetails?.shippingAmount ?? 0}
+      </span>
+    </div>
+
+    <Separator />
+
+    <div className="flex justify-between text-lg font-bold">
+
+      <span>Grand Total</span>
+
+      <span>
+        ₹{orderDetails?.totalAmount ?? 0}
+      </span>
+
+    </div>
+
+  </div>
+</div>
 
           <Separator />
 
