@@ -714,3 +714,5 @@ api.get('/api/...', { skipGlobalLoader: true })
 - **Backend:** [`../server/README.md`](../server/README.md) — API routes, models, env vars, deployment on Fly.io
 - **Route constants:** always import from `@/config/routes` — never hardcode paths
 - **Scroll behaviour:** `ScrollManager` in `App.jsx` handles hash anchors and `prefers-reduced-motion`
+
+trying to push again to vercel deploy
