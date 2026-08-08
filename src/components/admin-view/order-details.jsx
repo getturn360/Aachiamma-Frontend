@@ -5,6 +5,7 @@ import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import { useDispatch, useSelector } from "react-redux";
+import api from "@/api/axios";
 import {
   getAllOrdersForAdmin,
   getOrderDetailsForAdmin,
@@ -51,42 +52,59 @@ function AdminOrderDetailsView({ orderDetails }) {
     });
   }
 
-  async function handleDownloadInvoice() {
-    try {
-      const resp = await fetch(
-        `/api/admin/invoice/download/${orderDetails?._id}`,
-        { method: "GET" }
-      );
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => null);
-        toast({
-          title: "Download failed",
-          description:
-            err && err.message ? err.message : "Server error",
-          variant: "destructive",
-        });
-        return;
+async function handleDownloadInvoice() {
+  try {
+    const response = await api.get(
+      `/api/admin/invoice/download/${orderDetails?._id}`,
+      {
+        responseType: "blob",
+        skipGlobalLoader: true,
       }
-      const blob = await resp.blob();
-      const url = window.URL.createObjectURL(
-        new Blob([blob], { type: "application/pdf" })
-      );
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `invoice_${orderDetails?._id || "invoice"}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error(e);
-      toast({
-        title: "Download error",
-        description: e?.message || "Unknown error",
-        variant: "destructive",
-      });
+    );
+
+    const blob = new Blob([response.data], {
+      type: "application/pdf",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoice_${orderDetails?._id || "invoice"}.pdf`;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Invoice download error:", error);
+
+    let message = "Unable to download invoice";
+
+    // When responseType is blob, backend JSON errors can also arrive as a Blob
+    if (error?.response?.data instanceof Blob) {
+      try {
+        const text = await error.response.data.text();
+        const data = JSON.parse(text);
+        message = data?.message || message;
+      } catch {
+        // Keep default message
+      }
+    } else {
+      message =
+        error?.response?.data?.message ||
+        error?.message ||
+        message;
     }
+
+    toast({
+      title: "Download failed",
+      description: message,
+      variant: "destructive",
+    });
   }
+}
 
   const statusColor = (status) => {
     switch (status) {
