@@ -1,19 +1,60 @@
-import React, { useEffect, useState } from "react";
-import maveliWalkWebp from "../../../assets/maveli-walk.webp";
-import maveliWalkGif from "../../../assets/maveli-walk.gif";
+import React, { useEffect, useMemo, useState } from "react";
 
 /**
- * Maveli walks left → right behind the navbar logo.
- * Fully hidden (opacity 0) while under the logo so no body parts show through.
+ * MaveliSkateWalk — King Maveli skateboard frames skate L→R through the navbar,
+ * hidden (opacity 0) while under the logo so nothing shows through.
  */
-export default function MaveliWalk({ className = "" }) {
-  const [walkSrc, setWalkSrc] = useState(maveliWalkWebp);
+const frameModules = import.meta.glob(
+  "../../../assets/maveli-skate/frame-*.png",
+  { eager: true, import: "default" }
+);
+
+function sortedFrameSrcs() {
+  return Object.entries(frameModules)
+    .sort(([a], [b]) => {
+      const na = Number((a.match(/frame-(\d+)/i) || [])[1] || 0);
+      const nb = Number((b.match(/frame-(\d+)/i) || [])[1] || 0);
+      return na - nb;
+    })
+    .map(([, src]) => src);
+}
+
+export default function MaveliWalk({ className = "", fps = 8 }) {
+  const frames = useMemo(() => sortedFrameSrcs(), []);
+  const [index, setIndex] = useState(0);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const test = new Image();
-    test.onerror = () => setWalkSrc(maveliWalkGif);
-    test.src = maveliWalkWebp;
-  }, []);
+    if (!frames.length) return undefined;
+    let cancelled = false;
+    Promise.all(
+      frames.map(
+        (src) =>
+          new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            img.src = src;
+          })
+      )
+    ).then(() => {
+      if (!cancelled) setReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [frames]);
+
+  useEffect(() => {
+    if (!ready || frames.length < 2) return undefined;
+    const ms = Math.max(40, Math.round(1000 / fps));
+    const id = window.setInterval(() => {
+      setIndex((i) => (i + 1) % frames.length);
+    }, ms);
+    return () => window.clearInterval(id);
+  }, [ready, frames, fps]);
+
+  if (!frames.length) return null;
 
   return (
     <div
@@ -21,7 +62,7 @@ export default function MaveliWalk({ className = "" }) {
       aria-hidden
     >
       <img
-        src={walkSrc}
+        src={frames[index]}
         alt=""
         className="maveli-behind-walk__img"
         draggable={false}
@@ -30,13 +71,12 @@ export default function MaveliWalk({ className = "" }) {
         .maveli-behind-walk {
           position: absolute;
           left: 50%;
-          bottom: 0;
-          /* Slightly larger, still fits the existing 220×80 logo stage */
-          width: 58px;
-          height: 76px;
+          bottom: -2px;
+          width: 88px;
+          height: 78px;
           z-index: 1;
           transform-origin: 50% 100%;
-          animation: maveli-lr-walk 6.8s linear infinite;
+          animation: maveli-lr-skate 12s linear infinite;
           will-change: transform, opacity;
         }
 
@@ -46,75 +86,68 @@ export default function MaveliWalk({ className = "" }) {
           object-fit: contain;
           object-position: bottom center;
           display: block;
-          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.14));
           user-select: none;
           pointer-events: none;
-          transform: scaleX(-1);
         }
 
-        /*
-          Visible only on the left and right of the logo.
-          Mid band (behind logo) → opacity 0 so nothing peeks through.
-        */
-        @keyframes maveli-lr-walk {
+        /* Visible beside logo; fully hidden under logo cover plate */
+        @keyframes maveli-lr-skate {
           0% {
             opacity: 0;
-            transform: translate(-175%, 6px) scale(0.72);
+            transform: translate(-190%, 4px) scale(0.78);
           }
-          6% {
+          5% {
             opacity: 1;
-            transform: translate(-155%, 3px) scale(0.78);
+            transform: translate(-170%, 2px) scale(0.84);
           }
-          18% {
+          22% {
             opacity: 1;
-            transform: translate(-120%, 5px) scale(0.82);
+            transform: translate(-115%, 3px) scale(0.9);
           }
-          28% {
+          30% {
             opacity: 1;
-            transform: translate(-100%, 3px) scale(0.84);
+            transform: translate(-95%, 2px) scale(0.92);
           }
-          /* Entering logo cover — fade out completely */
           36% {
             opacity: 0;
-            transform: translate(-82%, 4px) scale(0.8);
+            transform: translate(-78%, 2px) scale(0.88);
           }
           42%, 58% {
             opacity: 0;
-            transform: translate(-50%, 4px) scale(0.78);
+            transform: translate(-50%, 2px) scale(0.86);
           }
-          /* Leaving logo cover — fade back in */
           64% {
             opacity: 0;
-            transform: translate(-18%, 4px) scale(0.8);
+            transform: translate(-22%, 2px) scale(0.88);
           }
-          72% {
+          70% {
             opacity: 1;
-            transform: translate(0%, 3px) scale(0.84);
+            transform: translate(-5%, 2px) scale(0.92);
           }
-          84% {
+          82% {
             opacity: 1;
-            transform: translate(35%, 5px) scale(0.82);
+            transform: translate(40%, 3px) scale(0.9);
           }
           94% {
             opacity: 1;
-            transform: translate(55%, 3px) scale(0.78);
+            transform: translate(70%, 2px) scale(0.84);
           }
           100% {
             opacity: 0;
-            transform: translate(75%, 6px) scale(0.72);
+            transform: translate(95%, 4px) scale(0.78);
           }
         }
 
         @media (min-width: 640px) {
           .maveli-behind-walk {
-            width: 66px;
-            height: 86px;
+            width: 102px;
+            height: 88px;
           }
         }
 
         @media (min-width: 768px) {
           .maveli-behind-walk {
-            width: 74px;
+            width: 118px;
             height: 96px;
           }
         }

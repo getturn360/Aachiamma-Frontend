@@ -994,13 +994,13 @@ function ShoppingHeader() {
 
     
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center pointer-events-auto" style={{ maxWidth: 280 }}>
-            <div className="relative flex items-center justify-center" style={{ width: 220, height: 80 }}>
+            <div className="relative flex items-center justify-center" style={{ width: 260, height: 80 }}>
               <MaveliWalk />
               {/* Opaque plate so transparent logo pixels never reveal Maveli */}
               <div
                 aria-hidden
                 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[5] pointer-events-none rounded-full bg-white"
-                style={{ width: 96, height: 96 }}
+                style={{ width: 100, height: 100 }}
               />
               <Link
                 to={ROUTES.home}
