@@ -50,7 +50,9 @@ function statusVariant(status) {
   }
 }
 
-/* Date helpers (unchanged) */
+/* Date helpers — India business timezone for consistent order dates */
+const INVOICE_TZ = "Asia/Kolkata";
+
 const getNow = () => {
   try {
     if (typeof window !== "undefined" && window.SERVER_NOW_ISO) {
@@ -61,15 +63,9 @@ const getNow = () => {
   return new Date();
 };
 
-const getTimeZone = () => {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
-  } catch {
-    return undefined;
-  }
-};
+const getTimeZone = () => INVOICE_TZ;
 
-const formatDateYMD = (date, timeZone) => {
+const formatDateYMD = (date, timeZone = INVOICE_TZ) => {
   try {
     return new Intl.DateTimeFormat("en-CA", {
       year: "numeric",
@@ -80,6 +76,23 @@ const formatDateYMD = (date, timeZone) => {
   } catch {
     const d = new Date(date);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+};
+
+/** Display order date for admin table (IST, unambiguous). */
+const formatOrderDateDisplay = (date) => {
+  if (!date) return "-";
+  try {
+    const d = new Date(date);
+    if (Number.isNaN(d.getTime())) return "-";
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: INVOICE_TZ,
+    });
+  } catch {
+    return "-";
   }
 };
 
@@ -663,9 +676,7 @@ export default function AdminOrdersView() {
                 displayOrders.map((orderItem) => {
                   const id = orderItem?._id;
                   const invoiceNumber = getInvoiceNumber(orderItem, invoiceSettings);
-                  const date = orderItem?.orderDate
-                    ? new Date(orderItem.orderDate).toLocaleDateString()
-                    : "-";
+                  const date = formatOrderDateDisplay(orderItem?.orderDate);
                   const price =
                     typeof orderItem?.totalAmount === "number"
                       ? orderItem.totalAmount.toLocaleString("en-IN", {
@@ -844,9 +855,7 @@ export default function AdminOrdersView() {
               ? displayOrders.map((orderItem) => {
                 const id = orderItem?._id;
                 const invoiceNumber = getInvoiceNumber(orderItem, invoiceSettings);
-                const date = orderItem?.orderDate
-                  ? new Date(orderItem.orderDate).toLocaleDateString()
-                  : "-";
+                const date = formatOrderDateDisplay(orderItem?.orderDate);
                 const price =
                   typeof orderItem?.totalAmount === "number"
                     ? orderItem.totalAmount.toLocaleString("en-IN", {

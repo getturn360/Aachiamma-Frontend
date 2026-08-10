@@ -24,6 +24,22 @@ function AdminOrderDetailsView({ orderDetails }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
+  const formatOrderDate = (date) => {
+    if (!date) return "-";
+    try {
+      const d = new Date(date);
+      if (Number.isNaN(d.getTime())) return "-";
+      return d.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        timeZone: "Asia/Kolkata",
+      });
+    } catch {
+      return "-";
+    }
+  };
+
   useEffect(() => {
     if (orderDetails?.orderStatus) {
       setFormData({ status: orderDetails.orderStatus });
@@ -139,9 +155,7 @@ async function handleDownloadInvoice() {
                 { label: "Order ID", value: orderDetails?._id || "-" },
                 {
                   label: "Order Date",
-                  value: orderDetails?.orderDate
-                    ? String(orderDetails.orderDate).split("T")[0]
-                    : "-",
+                  value: formatOrderDate(orderDetails?.orderDate),
                 },
                 { label: "Order Price", value: orderDetails?.totalAmount ? `₹${orderDetails.totalAmount}` : "-" },
                 { label: "Payment Method", value: orderDetails?.paymentMethod || "-" },
