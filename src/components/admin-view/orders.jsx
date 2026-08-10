@@ -26,6 +26,7 @@ import {
   deleteOrderForAdmin,
 } from "@/store/admin/order-slice";
 import { useToast } from "../ui/use-toast";
+import api from "@/api/axios";
 
 const INVOICE_SUFFIX_LENGTH = 5;
 
@@ -373,45 +374,55 @@ export default function AdminOrdersView() {
     if (!orderId) return;
     startDownloading(orderId);
     try {
-      const resp = await fetch(`/api/invoices/download/${orderId}`, {
-        method: "GET",
-        headers: { Accept: "application/pdf" },
+      const response = await api.get(`/api/admin/invoice/download/${orderId}`, {
+        responseType: "blob",
+        skipGlobalLoader: true,
       });
 
-      if (!resp.ok) {
-        console.error("Invoice download failed", resp.status);
- 
-        window.open(`/api/invoices/download/${orderId}`, "_blank", "noopener");
+      const contentType = response?.headers?.["content-type"] || "";
+      if (contentType.includes("application/json")) {
+        const text = await response.data.text();
+        let message = "Unable to download invoice";
+        try {
+          message = JSON.parse(text)?.message || message;
+        } catch (_) {}
+        toast({ title: "Download failed", description: message, variant: "destructive" });
         return;
       }
 
-      const blob = await resp.blob();
-
+      const blob = new Blob([response.data], { type: "application/pdf" });
       let filename = `invoice_${orderId}.pdf`;
-      const cd = resp.headers.get("content-disposition");
+      const cd = response.headers?.["content-disposition"];
       if (cd) {
-        const m = cd.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+        const m = String(cd).match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
         if (m && m[1]) filename = decodeURIComponent(m[1]);
       }
 
-      const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+      const urlObj = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
+      a.href = urlObj;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(urlObj);
     } catch (err) {
       console.error("download invoice error", err);
-
+      let description = "Failed to download invoice. Please try again.";
       try {
-        window.open(`/api/invoices/download/${orderId}`, "_blank", "noopener");
-      } catch (openErr) {
+        if (err?.response?.data instanceof Blob) {
+          const text = await err.response.data.text();
+          const data = JSON.parse(text);
+          if (data?.message) description = data.message;
+        } else if (err?.response?.data?.message) {
+          description = err.response.data.message;
+        }
+      } catch (_) {
+        // keep default
       }
       toast({
         title: "Download failed",
-        description: "Failed to download invoice. Check console for details or try opening the invoice in a new tab.",
+        description,
         variant: "destructive",
       });
     } finally {
@@ -465,28 +476,17 @@ export default function AdminOrdersView() {
     const orderIds = matches.map((o) => String(o._id));
     setIsBulkDownloading(true);
     try {
-      const res = await fetch("/api/invoices/bulk-download", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderIds, singlePdf: true }),
-      });
+      const res = await api.post(
+        "/api/admin/invoice/bulk-download",
+        { orderIds, singlePdf: true },
+        { responseType: "blob", skipGlobalLoader: true }
+      );
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => null);
-        console.error("bulk download failed", res.status, text);
-        toast({
-          title: "Download failed",
-          description: `Bulk download failed (HTTP ${res.status})`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const blob = await res.blob();
+      const blob = new Blob([res.data], { type: res.headers?.["content-type"] || "application/pdf" });
       let filename = `invoices_${invoiceFromSuffix}_to_${invoiceToSuffix}.pdf`;
-      const cd = res.headers.get("content-disposition");
+      const cd = res.headers?.["content-disposition"];
       if (cd) {
-        const m = cd.match(/filename="?(.+?)"?($|;)/);
+        const m = String(cd).match(/filename="?(.+?)"?($|;)/);
         if (m && m[1]) filename = m[1];
       }
 

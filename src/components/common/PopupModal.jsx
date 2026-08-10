@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DOMPurify from "dompurify";
-import RainAndCloudsEffect from "@/components/shopping-view/home/RainAndCloudsEffect";
-import CloudsEffect from "@/components/shopping-view/home/CloudsEffect";
+// import RainAndCloudsEffect from "@/components/shopping-view/home/RainAndCloudsEffect";
+import FlowerShower from "@/components/shopping-view/home/FlowerShower";
+// import CloudsEffect from "@/components/shopping-view/home/CloudsEffect";
 
 /**
  * PopupModal Component
@@ -149,10 +150,11 @@ export default function PopupModal({
             exit="exit"
           />
 
-          {/* Fullscreen Rain Background */}
+          {/* Fullscreen Onam flower shower + clouds */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-            <CloudsEffect />
-            <RainAndCloudsEffect />
+            {/* <CloudsEffect /> */}
+            {/* <RainAndCloudsEffect /> */}
+            <FlowerShower />
           </div>
 
           {/* Core popup container. Stretches dynamically based on split-state */}

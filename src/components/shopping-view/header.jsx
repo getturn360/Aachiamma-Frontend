@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import logoFrontFallback from "../../assets/logo-1.png";
 import logoBackFallback from "../../assets/logo-4.png";
+import maveliImg from "../../assets/maveli-transparent.png";
+import MaveliWalk from "./home/MaveliWalk";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
@@ -689,6 +691,13 @@ function MobileMenu({ navigateTo } = {}) {
 
         <div className="flex items-center justify-between mb-4">
           <Link to={ROUTES.home} className="flex items-center gap-3" onClick={() => setOpen(false)}>
+            <img
+              src={maveliImg}
+              alt="Maveli — Happy Onam"
+              className="w-11 h-14 object-contain select-none"
+              draggable={false}
+              style={{ transform: "rotate(8deg)", transformOrigin: "bottom center" }}
+            />
             <img src={showFront} alt="Logo" className="w-14 h-14 object-contain rounded-md" />
             <div>
               <div className="font-bold text-lg" style={{ color: ACCENT }}>Aachiamma</div>
@@ -984,31 +993,41 @@ function ShoppingHeader() {
           </div>
 
     
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center pointer-events-auto" style={{ maxWidth: 240 }}>
-            <Link
-              to={ROUTES.home}
-              aria-label="home"
-              onClick={() => {
-                setTimeout(() => {
-                  try {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  } catch (e) {
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center pointer-events-auto" style={{ maxWidth: 280 }}>
+            <div className="relative flex items-center justify-center" style={{ width: 220, height: 80 }}>
+              <MaveliWalk />
+              {/* Opaque plate so transparent logo pixels never reveal Maveli */}
+              <div
+                aria-hidden
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[5] pointer-events-none rounded-full bg-white"
+                style={{ width: 96, height: 96 }}
+              />
+              <Link
+                to={ROUTES.home}
+                aria-label="home"
+                className="relative z-10"
+                onClick={() => {
+                  setTimeout(() => {
+                    try {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    } catch (e) {
       console.error("[header.jsx] Error:", e);
     }
-                }, 60);
-              }}
-            >
-              <div style={{ width: 200, height: 64, perspective: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ width: "100%", height: "100%", position: "relative", transformStyle: "preserve-3d", transition: "transform 0.6s", transformOrigin: "50% 50%", transform: rotated ? "rotateY(180deg)" : "rotateY(0deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div style={{ position: "absolute", width: "100%", height: "100%", backfaceVisibility: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <img src={showFront} alt="Front Logo" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
-                  </div>
-                  <div style={{ position: "absolute", width: "100%", height: "100%", backfaceVisibility: "hidden", transform: "rotateY(180deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <img src={showBack} alt="Back Logo" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
+                  }, 60);
+                }}
+              >
+                <div style={{ width: 160, height: 64, perspective: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: "100%", height: "100%", position: "relative", transformStyle: "preserve-3d", transition: "transform 0.6s", transformOrigin: "50% 50%", transform: rotated ? "rotateY(180deg)" : "rotateY(0deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ position: "absolute", width: "100%", height: "100%", backfaceVisibility: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <img src={showFront} alt="Front Logo" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
+                    </div>
+                    <div style={{ position: "absolute", width: "100%", height: "100%", backfaceVisibility: "hidden", transform: "rotateY(180deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <img src={showBack} alt="Back Logo" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
           </div>
 
         

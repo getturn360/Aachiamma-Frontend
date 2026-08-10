@@ -4,6 +4,7 @@ import { DialogContent, DialogTitle } from "../ui/dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import api from "@/api/axios";
 
 
 function ShoppingOrderDetailsView({ orderDetails }) {
@@ -36,36 +37,19 @@ function ShoppingOrderDetailsView({ orderDetails }) {
     if (!orderDetails?._id) return;
     setIsDownloading(true);
     try {
-      const resp = await fetch(`/api/invoices/download/${orderDetails._id}`, {
-        method: "GET",
-        headers: { Accept: "application/pdf" },
-
+      const response = await api.get(`/api/invoices/download/${orderDetails._id}`, {
+        responseType: "blob",
+        skipGlobalLoader: true,
       });
 
-      if (!resp.ok) {
-  
-        const text = await resp.text().catch(() => null);
-        console.error("Invoice download failed (status):", resp.status, text);
-        return;
-      }
-
-      const ct = resp.headers.get("content-type") || "";
-      if (!ct.includes("application/pdf")) {
-        const text = await resp.text().catch(() => "[could not read non-pdf body]");
-        console.error("Server did not return PDF. Body:", text);
-        return;
-      }
-
-      const arrayBuffer = await resp.arrayBuffer();
-
-      const headerBytes = new Uint8Array(arrayBuffer.slice(0, 4));
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const headerBytes = new Uint8Array(await blob.slice(0, 4).arrayBuffer());
       const headerStr = String.fromCharCode(...headerBytes);
       if (!headerStr.startsWith("%PDF")) {
         console.error("Downloaded file does not look like a valid PDF (magic bytes):", headerStr);
         return;
       }
 
-      const blob = new Blob([arrayBuffer], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

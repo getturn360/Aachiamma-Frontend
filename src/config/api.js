@@ -3,11 +3,12 @@
  *
  * Vite: VITE_API_BASE or VITE_API_URL (e.g. http://localhost:5000)
  * Runtime override: window.REACT_APP_API_BASE_URL
- * Production build without env: Fly backend (see PRODUCTION_API_DEFAULT)
- * Dev fallback: "" (same-origin /api/... via Vite proxy)
+ * Browser (no env): "" same-origin — Vite proxy / Vercel /api rewrite
+ *   (keeps auth cookies on the frontend host; avoids 401 on cookie mismatch)
+ * Non-browser production fallback: Fly backend
  */
 
-/** Used when VITE_API_BASE is not set at build time (e.g. Vercel env missing). */
+/** Used for SSR/scripts when VITE_API_BASE is not set. */
 const PRODUCTION_API_DEFAULT = "https://aachiamma-backend.fly.dev";
 
 export function normalizeApiHost(url) {
@@ -40,6 +41,14 @@ export function getApiHost() {
   const fromEnv = normalizeApiHost(buildBase || runtimeBase);
   if (fromEnv) return fromEnv;
 
+  // In the browser, prefer same-origin `/api` (dev proxy or Vercel rewrite)
+  // so httpOnly cookies set on the site host are always sent.
+  try {
+    if (typeof window !== "undefined") return "";
+  } catch {
+    // ignore
+  }
+
   try {
     if (typeof import.meta !== "undefined" && import.meta.env?.PROD) {
       return PRODUCTION_API_DEFAULT;
@@ -51,7 +60,7 @@ export function getApiHost() {
   return "";
 }
 
-/** Axios instance baseURL — empty in dev uses same-origin /api/... paths (Vite proxy). */
+/** Axios instance baseURL — empty uses same-origin /api/... paths. */
 export function getAxiosBaseURL() {
   const host = getApiHost();
   return host || "";

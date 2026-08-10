@@ -20,8 +20,6 @@ export default function RainAndCloudsEffect() {
     const ctx = canvas.getContext("2d");
     let animationFrameId;
 
-
-
     // 3. Responsive sizing
     const resizeCanvas = () => {
       const parent = canvas.parentElement;
@@ -86,15 +84,9 @@ export default function RainAndCloudsEffect() {
       rainParticles.push(createRainParticle(true));
     }
 
-
-
     // 7. Core animation loop
-    const updateAndDraw = (timestamp) => {
+    const updateAndDraw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-
-
-
 
       // --- Draw Parallax Rain Particles ---
       const currentTargetRain = getRainDensity();
@@ -119,14 +111,14 @@ export default function RainAndCloudsEffect() {
         ctx.beginPath();
         // Pointy top of the illustrated teardrop
         ctx.moveTo(0, -p.length / 2);
-        
+
         // Left curve
         ctx.bezierCurveTo(
           -p.width * 0.8, -p.length / 4,
           -p.width * 0.8, p.length / 2,
           0, p.length / 2
         );
-        
+
         // Right curve
         ctx.bezierCurveTo(
           p.width * 0.8, p.length / 2,
