@@ -36,6 +36,7 @@ import ValuesSection from "@/components/shopping-view/home/ValuesSection";
 import FullWidthPromo from "@/components/shopping-view/home/FullWidthPromo";
 import TestimonialSlider from "@/components/shopping-view/home/TestimonialSlider";
 import PaginatedProducts from "@/components/shopping-view/home/PaginatedProducts";
+import MaveliBannerWalk from "@/components/shopping-view/home/MaveliBannerWalk";
 
 const ACCENT = "#08665F";
 
@@ -459,6 +460,8 @@ export default function ShoppingHome() {
           >
             <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: "#ffffff" }} />
           </button>
+
+          {/* <MaveliBannerWalk /> */}
 
           {featureImageList && featureImageList.length > 1 && (
             <div

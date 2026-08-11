@@ -155,12 +155,12 @@ export default function TestimonialSlider() {
   };
 
   return (
-    <section aria-label="Customer testimonials" className="bg-[#F5F1E5]">
-      <div className="w-full mx-auto px-2 sm:px-4 py-8 md:py-12" style={{ paddingBottom: 0 }}>
+    <section aria-label="Customer testimonials" className="bg-[#F5F1E5] overflow-x-hidden">
+      <div className="w-full mx-auto px-4 sm:px-6 pt-8 pb-6 md:pt-12 md:pb-8">
         <SectionTitle text="WHAT OUR CUSTOMERS ARE SAYING" />
 
         <div
-          className="relative w-full text-center overflow-visible"
+          className="relative w-full text-center overflow-hidden"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -174,11 +174,11 @@ export default function TestimonialSlider() {
           aria-roledescription="carousel"
           aria-label="Customer testimonials"
         >
-          <div className="w-full min-h-[300px] sm:min-h-[340px] md:min-h-[380px] lg:min-h-[440px] relative bg-transparent flex flex-col items-center justify-center px-4">
+          <div className="w-full relative bg-transparent flex flex-col items-center justify-center px-1 sm:px-4 min-h-0 md:min-h-[340px] lg:min-h-[400px]">
             
-            <div className="flex flex-col items-center justify-center px-3 sm:px-6" style={wrapperStyle}>
-              <div className="flex items-center justify-center -mt-8">
-                <div className="w-20 sm:w-24 md:w-28 rounded-full overflow-hidden shadow-md bg-transparent transform transition-transform">
+            <div className="flex flex-col items-center justify-center w-full max-w-[920px] mx-auto" style={wrapperStyle}>
+              <div className="flex items-center justify-center mt-0 md:-mt-4">
+                <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden shadow-md bg-transparent shrink-0">
                   <img src={testimonials[index].avatar} alt={`avatar-${index + 1}`} className="w-full h-full object-cover" draggable={false} loading="lazy" />
                 </div>
               </div>
@@ -191,13 +191,15 @@ export default function TestimonialSlider() {
                 ))}
               </div>
 
-              <blockquote className="mt-3 leading-relaxed italic text-gray-600 text-sm md:text-base text-center max-w-[920px]">
+              <blockquote className="mt-3 leading-relaxed italic text-gray-600 text-[13px] sm:text-sm md:text-base text-center w-full break-words [overflow-wrap:anywhere] px-1">
                 “{testimonials[index].quote}”
               </blockquote>
 
-              <div className="mt-3 font-semibold text-sm text-gray-700">{testimonials[index].name}</div>
+              <div className="mt-3 font-semibold text-xs sm:text-sm text-gray-700 text-center px-2 break-words">
+                {testimonials[index].name}
+              </div>
 
-              <div className="mt-4 flex items-center justify-center gap-3" role="tablist" aria-label="testimonial dots">
+              <div className="mt-4 mb-3 flex items-center justify-center gap-3" role="tablist" aria-label="testimonial dots">
                 {testimonials.map((_, i) => {
                   const active = i === index;
                   return (
@@ -244,10 +246,22 @@ export default function TestimonialSlider() {
           )}
         </div>
 
+        <div className="md:hidden flex justify-center mt-5 mb-1" aria-hidden>
+          <span
+            className="block h-[2px] w-16 rounded-full"
+            style={{ background: ACCENT }}
+          />
+        </div>
       </div>
 
-      <div className="w-full -mt-[60px] md:-mt-[80px] lg:-mt-[120px] overflow-hidden">
-        <img src={testimonialBanner} alt="testimonial decorative" className="w-full object-cover block scale-[1.02]" draggable={false} loading="lazy" />
+      <div className="w-full mt-8 md:-mt-[80px] lg:-mt-[120px] overflow-hidden">
+        <img
+          src={testimonialBanner}
+          alt="testimonial decorative"
+          className="w-full h-auto object-cover object-center block"
+          draggable={false}
+          loading="lazy"
+        />
       </div>
     </section>  
   );
