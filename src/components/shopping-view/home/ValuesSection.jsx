@@ -34,7 +34,7 @@ export default function ValuesSection() {
   ];
 
   return (
-    <section aria-label="Our values" className="relative w-full bg-[#F5F1E5] py-16 lg:py-24 overflow-hidden">
+    <section aria-label="Our values" className="relative w-full bg-[#EDF7F5] py-16 lg:py-24 overflow-hidden">
       <div className="relative w-full mx-auto">
         <div className="mb-12 lg:mb-20">
           <SectionTitle text="THE HONEST JOURNEY" />

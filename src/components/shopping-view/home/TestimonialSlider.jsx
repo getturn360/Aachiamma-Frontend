@@ -246,12 +246,14 @@ export default function TestimonialSlider() {
           )}
         </div>
 
+{/* the underline on bottom of testimonial in mobile view */}
         <div className="md:hidden flex justify-center mt-5 mb-1" aria-hidden>
           <span
             className="block h-[2px] w-16 rounded-full"
             style={{ background: ACCENT }}
           />
         </div>
+    
       </div>
 
       <div className="w-full mt-8 md:-mt-[80px] lg:-mt-[120px] overflow-hidden">
