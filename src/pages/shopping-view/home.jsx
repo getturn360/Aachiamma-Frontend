@@ -462,10 +462,10 @@ export default function ShoppingHome() {
             </div>
           )}
 
-          <div className="absolute inset-0 z-20 pointer-events-none flex items-end md:items-center justify-center sm:justify-start px-3 sm:px-10 md:px-16 pb-[30px] sm:pb-12 md:pb-0 md:pt-58 lg:pt-64">
-            <div className="w-full max-w-[18.5rem] sm:max-w-xl md:max-w-2xl text-center sm:text-left px-1">
+          <div className="absolute inset-0 z-20 pointer-events-none flex items-end md:items-center justify-start px-4 sm:px-10 md:px-16 pb-[30px] sm:pb-12 md:pb-0 md:pt-58 lg:pt-64">
+            <div className="w-full max-w-[18.5rem] sm:max-w-xl md:max-w-2xl text-left">
               <p
-                className="inline-flex items-center justify-center sm:justify-start gap-2 text-[#F4E4B8] font-semibold uppercase mb-1 sm:mb-3"
+                className="inline-flex items-center justify-start gap-2 text-[#F4E4B8] font-semibold uppercase mb-1 sm:mb-3"
                 style={{
                   fontSize: "clamp(9px, 2.6vw, 12px)",
                   letterSpacing: "0.14em",
@@ -487,7 +487,7 @@ export default function ShoppingHome() {
                 <span className="block italic font-semibold text-[#F4E4B8]">of Tradition</span>
               </h2>
               <h3
-                className="mt-1.5 sm:mt-4 mx-auto sm:mx-0 text-white/90 font-medium"
+                className="mt-1.5 sm:mt-4 mr-auto text-white/90 font-medium"
                 style={{
                   fontSize: "clamp(11px, 3.3vw, 18px)",
                   lineHeight: 1.4,
