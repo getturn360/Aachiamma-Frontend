@@ -403,14 +403,14 @@ export default function ShoppingHome() {
           }}
           onTouchStart={onHeroTouchStart}
           onTouchEnd={onHeroTouchEnd}
-          className="relative w-full min-h-[220px] aspect-[4/3] xs:aspect-[16/10] sm:aspect-[15/6] sm:min-h-0 md:aspect-auto overflow-hidden hero-carousel-container"
+          className="relative w-full min-h-[260px] aspect-[4/3] sm:aspect-[15/6] sm:min-h-0 md:aspect-auto overflow-hidden hero-carousel-container"
           style={{ zIndex: 10 }}
         >
           <style>{`
             @media (min-width: 375px) {
               .hero-carousel-container {
                 aspect-ratio: 16 / 10;
-                min-height: 240px;
+                min-height: 280px;
               }
             }
             @media (min-width: 425px) {
@@ -462,13 +462,13 @@ export default function ShoppingHome() {
             </div>
           )}
 
-          <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center sm:justify-start px-3 sm:px-10 md:px-16">
-            <div className="w-full max-w-[17.5rem] sm:max-w-xl md:max-w-2xl text-center sm:text-left px-1">
+          <div className="absolute inset-0 z-20 pointer-events-none flex items-end md:items-center justify-center sm:justify-start px-3 sm:px-10 md:px-16 pb-[30px] sm:pb-12 md:pb-0 md:pt-58 lg:pt-64">
+            <div className="w-full max-w-[18.5rem] sm:max-w-xl md:max-w-2xl text-center sm:text-left px-1">
               <p
-                className="inline-flex items-center justify-center sm:justify-start gap-2 text-[#F4E4B8] font-semibold uppercase mb-1.5 sm:mb-3"
+                className="inline-flex items-center justify-center sm:justify-start gap-2 text-[#F4E4B8] font-semibold uppercase mb-1 sm:mb-3"
                 style={{
-                  fontSize: "clamp(8px, 2.4vw, 12px)",
-                  letterSpacing: "0.16em",
+                  fontSize: "clamp(9px, 2.6vw, 12px)",
+                  letterSpacing: "0.14em",
                   textShadow: "0 2px 10px rgba(0,0,0,0.45)",
                 }}
               >
@@ -476,10 +476,10 @@ export default function ShoppingHome() {
                 100% Natural
               </p>
               <h2
-                className="text-white block italic font-semibold text-[#F4E4B8] tracking-tight"
+                className="text-white italic font-semibold tracking-tight"
                 style={{
-                  fontSize: "clamp(16px, 5.2vw, 72px)",
-                  lineHeight: 1.15,
+                  fontSize: "clamp(15px, 4.4vw, 72px)",
+                  lineHeight: 1.2,
                   textShadow: "0 4px 22px rgba(0,0,0,0.5)",
                 }}
               >
@@ -489,8 +489,8 @@ export default function ShoppingHome() {
               <h3
                 className="mt-1.5 sm:mt-4 mx-auto sm:mx-0 text-white/90 font-medium"
                 style={{
-                  fontSize: "clamp(10px, 3vw, 18px)",
-                  lineHeight: 1.35,
+                  fontSize: "clamp(11px, 3.3vw, 18px)",
+                  lineHeight: 1.4,
                   maxWidth: "min(100%, 28rem)",
                   textShadow: "0 2px 12px rgba(0,0,0,0.45)",
                 }}
