@@ -2,17 +2,16 @@ import React from "react";
 import { Helmet } from "react-helmet-async";
 
 const DEFAULTS = {
-  title: "Kerala Homemade Pickles and Snacks | Aachiammafoods",
+  title: "Kerala Homemade Pickles, Snacks & Spices | Aachiammafoods",
   description:
-    "Authentic Kerala homemade pickles and snacks from Aachiammafoods. Traditional recipes, no preservatives. Order online and taste the difference!",
-  robots: "index, follow",
+    "Kerala homemade pickles, snacks & spices from Aachiammafoods. Taste the traditional foods made without preservatives. Order online.",
   author: "Aachiammafoods",
   viewport: "width=device-width, initial-scale=1",
   canonical: "https://aachiammafoods.com/",
   og: {
     title: "Kerala Homemade Pickles, Snacks & Spices | Aachiammafoods",
     description:
-      "Authentic Kerala homemade pickles, snacks & spices from Aachiammafoods. Traditional recipes, no preservatives. Order online and taste the difference!",
+      "Kerala homemade pickles, snacks & spices from Aachiammafoods. Taste the traditional foods made without preservatives. Order online.",
     url: "https://aachiammafoods.com/",
     image: "https://aachiammafoods.com/wp-content/uploads/2025/07/LOGO-FINAL.png",
     siteName: "Aachiammafoods",
@@ -22,8 +21,7 @@ const DEFAULTS = {
   twitter: {
     card: "summary_large_image",
     title: "Kerala Homemade Pickles, Snacks & Spices | Aachiammafoods",
-    description:
-      "Authentic Kerala homemade pickles, snacks & spices from Aachiammafoods. Traditional recipes, no preservatives. Order online and taste the difference!",
+    description:"Kerala homemade pickles, snacks & spices from Aachiammafoods. Taste the traditional foods made without preservatives. Order online.",
     image: "https://aachiammafoods.com/wp-content/uploads/2025/07/LOGO-FINAL.png",
     site: "@aachiammafoods",
     creator: "@aachiammafoods",

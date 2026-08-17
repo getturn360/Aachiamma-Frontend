@@ -403,13 +403,32 @@ export default function ShoppingHome() {
           }}
           onTouchStart={onHeroTouchStart}
           onTouchEnd={onHeroTouchEnd}
-          className="relative w-full aspect-[15/6] md:aspect-auto overflow-hidden hero-carousel-container"
+          className="relative w-full min-h-[220px] aspect-[4/3] xs:aspect-[16/10] sm:aspect-[15/6] sm:min-h-0 md:aspect-auto overflow-hidden hero-carousel-container"
           style={{ zIndex: 10 }}
         >
           <style>{`
+            @media (min-width: 375px) {
+              .hero-carousel-container {
+                aspect-ratio: 16 / 10;
+                min-height: 240px;
+              }
+            }
+            @media (min-width: 425px) {
+              .hero-carousel-container {
+                aspect-ratio: 16 / 9;
+                min-height: 0;
+              }
+            }
+            @media (min-width: 640px) {
+              .hero-carousel-container {
+                aspect-ratio: 15 / 6;
+              }
+            }
             @media (min-width: 768px) {
               .hero-carousel-container {
                 height: calc(100vh - var(--header-height, 80px)) !important;
+                aspect-ratio: auto;
+                min-height: 0;
               }
             }
           `}</style>
@@ -442,6 +461,44 @@ export default function ShoppingHome() {
               <div className="text-center text-gray-600">No banner images available</div>
             </div>
           )}
+
+          <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center sm:justify-start px-3 sm:px-10 md:px-16">
+            <div className="w-full max-w-[17.5rem] sm:max-w-xl md:max-w-2xl text-center sm:text-left px-1">
+              <p
+                className="inline-flex items-center justify-center sm:justify-start gap-2 text-[#F4E4B8] font-semibold uppercase mb-1.5 sm:mb-3"
+                style={{
+                  fontSize: "clamp(8px, 2.4vw, 12px)",
+                  letterSpacing: "0.16em",
+                  textShadow: "0 2px 10px rgba(0,0,0,0.45)",
+                }}
+              >
+                <span className="hidden sm:inline-block w-10 h-px bg-[#F4E4B8]/80" />
+                100% Natural
+              </p>
+              <h2
+                className="text-white block italic font-semibold text-[#F4E4B8] tracking-tight"
+                style={{
+                  fontSize: "clamp(16px, 5.2vw, 72px)",
+                  lineHeight: 1.15,
+                  textShadow: "0 4px 22px rgba(0,0,0,0.5)",
+                }}
+              >
+                The Pure Taste
+                <span className="block italic font-semibold text-[#F4E4B8]">of Tradition</span>
+              </h2>
+              <h3
+                className="mt-1.5 sm:mt-4 mx-auto sm:mx-0 text-white/90 font-medium"
+                style={{
+                  fontSize: "clamp(10px, 3vw, 18px)",
+                  lineHeight: 1.35,
+                  maxWidth: "min(100%, 28rem)",
+                  textShadow: "0 2px 12px rgba(0,0,0,0.45)",
+                }}
+              >
+                We deliver homemade Kerala pickles and snacks.
+              </h3>
+            </div>
+          </div>
 
           <button
             aria-label="Previous slide"
@@ -571,8 +628,37 @@ export default function ShoppingHome() {
 
       </main>
 
-      <div className="w-full overflow-hidden hidden sm:block">
-        <img src={hi1} alt="feature-full-width" className="w-full object-cover block h-48 sm:h-72 md:h-[350px] lg:h-auto" draggable={false} loading="lazy" />
+      <div className="hidden lg:block relative w-full overflow-hidden">
+        <img
+          src={hi1}
+          alt="Traditional Kerala cooking — from grinding spices to sharing homemade food"
+          className="w-full object-cover object-center block lg:h-auto"
+          draggable={false}
+          loading="lazy"
+        />
+        <div className="absolute inset-x-0 bottom-3 grid grid-cols-3 gap-4 px-[100px] pointer-events-none">
+          {[
+            { line: "Irresistible taste of Agraharam recipes", align: "text-left" },
+            { line: "Preservative-free Kerala food", align: "text-center" },
+            { line: "Special flavours for authentic Kerala food", align: "text-right" },
+          ].map(({ line, align }) => (
+            <p
+              key={line}
+              className={`${align} leading-snug`}
+              style={{
+                color: ACCENT,
+                fontSize: "20px",
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontStyle: "italic",
+                fontWeight: 600,
+                letterSpacing: "0.02em",
+                textShadow: "0 1px 8px rgba(255,255,255,0.85)",
+              }}
+            >
+              {line}
+            </p>
+          ))}
+        </div>
       </div>
 
       <FullWidthPromo />

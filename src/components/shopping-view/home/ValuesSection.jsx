@@ -11,25 +11,25 @@ export default function ValuesSection() {
       id: "authenticity",
       title: "Handpicked at Source",
       image: val1,
-      desc: "We begin at trusted local farms — selecting only the freshest produce and purest spices. Every ingredient is chosen for quality, taste, and authenticity.",
+      desc: " We collect fresh vegetables and ingredients from local farms to ensure the quality, taste, and authenticity.",
     },
     {
       id: "experience",
-      title: "Prepared the Traditional Way",
+      title: "Agraharam Recipes ",
       image: val2,
-      desc: "In our Agraharam kitchen, each recipe is cooked in small batches — following simple, time-honoured methods passed down through generations.",
+      desc: "Every product is cooked based on the special Agraharam cooking style that has been passed down through generations.",
     },
     {
       id: "sustainability",
-      title: "Packed Fresh, Same Day",
+      title: "Same-Day Packing",
       image: val3,
-      desc: "Each jar is sealed the very day it’s made to lock in natural aroma and flavour. No preservatives. No artificial colours or flavours.",
+      desc: "We don't use any preservatives or artificial flavours. So, we pack the food on the same day it is cooked to ensure its purity and freshness. ",
     },
     {
       id: "purpose",
-      title: "Shared with Care",
+      title: "Traditional Kerala Food",
       image: val4,
-      desc: "From our kitchen to your table, we deliver food that’s truly homemade — wholesome, safe, and filled with love.",
+      desc: "All our products are handmade with care to ensure the authentic Kerala taste.",
     },
   ];
 
