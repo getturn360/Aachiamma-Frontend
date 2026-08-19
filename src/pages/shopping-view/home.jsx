@@ -36,6 +36,7 @@ import ValuesSection from "@/components/shopping-view/home/ValuesSection";
 import FullWidthPromo from "@/components/shopping-view/home/FullWidthPromo";
 import TestimonialSlider from "@/components/shopping-view/home/TestimonialSlider";
 import PaginatedProducts from "@/components/shopping-view/home/PaginatedProducts";
+import HomeFaqSection from "@/components/shopping-view/home/HomeFaqSection";
 import MaveliBannerWalk from "@/components/shopping-view/home/MaveliBannerWalk";
 
 const ACCENT = "#08665F";
@@ -676,10 +677,12 @@ export default function ShoppingHome() {
           renderProduct={renderProductTile}
         />
       </section>
-
+      <HomeFaqSection />
       <div className="w-full mt-[-20px]">
         <img src={hi3} alt="testimonial decorative" className="w-full object-cover block" draggable={false} loading="lazy" />
       </div>
+
+     
 
       <PopupModal open={showPopup} onClose={handleClosePopup} popup={activePopup} popups={popups} />
     </div>

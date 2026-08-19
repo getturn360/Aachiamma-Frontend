@@ -1,46 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FAQ_ITEMS } from '@/data/faqs';
 
 
 export default function FAQsPage({ accent = '#08665F', onContact }) {
-    const faqs = [
-        {
-            q: 'Are your products homemade?',
-            a: 'Yes! All our products are made using traditional Kerala recipes with high-quality ingredients',
-        },
-        {
-            q: 'How should I store Aachiammas Foods products for freshness?',
-            a: 'Store our products in a cool, dry place away from direct sunlight. Once opened, reseal the package tightly or store it in an airtight container for extended freshness.',
-        },
-        {
-            q: 'Where can I buy Aachiammas Foods products online?',
-            a: 'You can purchase our products online through major e-commerce platforms, our official website, or partner retailers. Also available in Amazon, Flipkart and all major online shopping platforms.You can purchase our products online through major e-commerce platforms, our official website, or partner retailers. Also available in Amazon, Flipkart and all major online shopping platforms.',
-        },
-        {
-            q: 'Do you offer bulk or wholesale purchasing options?',
-            a: 'We currently do not offer bulk or wholesale purchases. All our products are handmade in small batches from our Agraharam home and are available only for direct home delivery. This allows us to maintain the authenticity, quality, and freshness that define our tradition.',
-        },
-        {
-            q: 'Can I modify or cancel my order after placing it?',
-            a: 'Orders can only be modified or canceled within a limited time after placement. Please reach out to our customer support as soon as possible for assistance.',
-        },
-        {
-            q: 'How do I track my order?',
-            a: 'Once your order is dispatched, you will receive a tracking link via email or SMS. You can also track your order status through our website using your order ID.',
-        },
-        {
-            q: 'What locations do you ship to?',
-            a: 'We ship across India and to select international locations. Please check our website or contact customer support to confirm shipping availability in your area.',
-        },
-        {
-            q: 'How long does delivery take?',
-            a: 'Orders are typically processed within 3 business days and delivered within 5-7 days for domestic shipping. International orders may take longer depending on the destination.',
-        },
-        {
-            q: 'Do you offer express or same-day delivery?',
-            a: 'Case to Case',
-        },
-    ];
+    const faqs = FAQ_ITEMS;
 
     const [openIndex, setOpenIndex] = useState(null);
 
