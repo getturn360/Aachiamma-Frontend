@@ -43,11 +43,14 @@ export default function PaginatedProducts({
   return (
     <div id={sectionId}>
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-        {visible.map((product) => (
-          <div key={product._id || product.id} className="transform hover:-translate-y-2 transition">
-            {renderProduct(product)}
-          </div>
-        ))}
+        {visible.map((product, index) => {
+          const productKey = product?._id ?? product?.id ?? `product-${sectionId}-${index}`;
+          return (
+            <div key={String(productKey)} className="transform hover:-translate-y-2 transition">
+              {renderProduct(product)}
+            </div>
+          );
+        })}
       </div>
 
       {!isMobile && totalPages > 1 && (

@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 import BuyNowButton from "../ui/AddToCartButton";
 import { Badge } from "../ui/badge";
 import { Eye, Star as StarIcon } from "lucide-react";
+import { secureMediaUrl } from "@/lib/media-url";
 
 function parseNumericFromLabel(label) {
   if (!label) return Number.POSITIVE_INFINITY;
@@ -121,7 +122,7 @@ export default function ShoppingProductTile({
           <div className="w-full overflow-hidden rounded-t-md md:rounded-t-2xl relative">
             <div className="aspect-square w-full overflow-hidden bg-white">
               <img
-                src={product?.image}
+                src={secureMediaUrl(product?.image)}
                 alt={product?.title}
                 className="w-full h-full object-cover transition-all duration-300 ease-in-out md:hover:scale-105"
                 loading="lazy"

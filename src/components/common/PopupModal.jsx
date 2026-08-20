@@ -5,6 +5,7 @@ import DOMPurify from "dompurify";
 // import RainAndCloudsEffect from "@/components/shopping-view/home/RainAndCloudsEffect";
 import FlowerShower from "@/components/shopping-view/home/FlowerShower";
 // import CloudsEffect from "@/components/shopping-view/home/CloudsEffect";
+import { secureMediaUrl } from "@/lib/media-url";
 
 /**
  * PopupModal Component
@@ -88,10 +89,11 @@ export default function PopupModal({
     const sanitizedHtml = item.html ? DOMPurify.sanitize(item.html) : "";
 
     if (item.url) {
+      const src = secureMediaUrl(item.url);
       return (
         <motion.img
-          key={item.url}
-          src={item.url}
+          key={src}
+          src={src}
           alt={item.title || "Promo"}
           className="w-full h-full object-cover block rounded-2xl"
           initial={{ opacity: 0.9, scale: 0.98 }}

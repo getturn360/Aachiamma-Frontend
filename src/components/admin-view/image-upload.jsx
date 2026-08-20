@@ -53,7 +53,8 @@ function ProductImageUpload({
       });
 
       if (response?.data?.success) {
-        setUploadedImageUrl(response.data.result.url);
+        const result = response.data.result;
+        setUploadedImageUrl(result.secure_url || result.url);
       } else {
     
         console.error("Upload response:", response?.data);

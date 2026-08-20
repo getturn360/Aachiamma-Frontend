@@ -17,7 +17,12 @@ setupApiInterceptors(store, setLoading, logoutUser, setUser);
 
 createRoot(document.getElementById("root")).render(
   <HelmetProvider>
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Provider store={store}>
         <ErrorBoundary>
           <App />

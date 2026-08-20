@@ -15,6 +15,7 @@ import { fetchPopups } from "@/store/popup-slice";
 import SEO from "@/components/common/SEO";
 
 import { addProductToCart } from "@/lib/add-to-cart";
+import { secureMediaUrl } from "@/lib/media-url";
 
 import hi1 from "@/assets/h-i1.png";
 import hi3 from "@/assets/h-i3.png";
@@ -440,7 +441,7 @@ export default function ShoppingHome() {
                 className={`absolute inset-0 transition-opacity duration-1000 ease-in-out transform ${idx === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"}`}
                 aria-hidden={idx === currentSlide ? "false" : "true"}
               >
-                <img src={slide?.image} alt={slide?.title || `slide-${idx}`} className="w-full h-full object-cover" draggable={false} style={{ pointerEvents: "none", borderRadius: 0 }} />
+                <img src={secureMediaUrl(slide?.image)} alt={slide?.title || `slide-${idx}`} className="w-full h-full object-cover" draggable={false} style={{ pointerEvents: "none", borderRadius: 0 }} />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30" />
                 {slide?.title && (
                   <div className="absolute left-4 sm:left-8 bottom-6 sm:bottom-8 text-white drop-shadow-md max-w-xl z-20">

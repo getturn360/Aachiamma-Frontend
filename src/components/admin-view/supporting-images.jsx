@@ -22,7 +22,7 @@ export default function SupportingImages({ images = [], setImages }) {
 
         const res = await api.post("/api/admin/products/upload-image", fd);
         if (res?.data?.success) {
-          setImages((prev) => [...prev, res.data.result.url]);
+          setImages((prev) => [...prev, res.data.result.secure_url || res.data.result.url]);
         }
       }
     } catch (e) {

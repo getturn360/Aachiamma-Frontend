@@ -1,6 +1,7 @@
 // client/src/api/axios.js
 import axios from "axios";
 import { getAxiosBaseURL } from "../config/api";
+import { secureMediaDeep } from "../lib/media-url";
 
 const api = axios.create({
   withCredentials: true,
@@ -9,6 +10,14 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   config.baseURL = getAxiosBaseURL();
   return config;
+});
+
+// Upgrade http:// media URLs (e.g. Cloudinary) so HTTPS pages don't log Mixed Content
+api.interceptors.response.use((response) => {
+  if (response?.data) {
+    response.data = secureMediaDeep(response.data);
+  }
+  return response;
 });
 
 let interceptorsAttached = false;
