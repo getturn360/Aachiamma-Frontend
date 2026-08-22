@@ -51,8 +51,8 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
     return (
         <>
             <SEO
-                title="Authentic Kerala Agraharam Recipes | About aachiammafoods"
-                description="Discover aachiammafoods and our authentic Kerala Agraharam recipes, traditional pickles, homemade snacks and preservative-free South Indian flavors."
+                title="Authentic Kerala Agraharam Homemade Food | Aachiammafoods "
+                description="Buy authentic Kerala Agraharam homemade food from Aachiammafoods. Cooked using traditional recipes and fresh ingredients. We use no preservatives. Order today!"
                 keywords={[
                     "Kerala Agraharam recipes",
                     "homemade Kerala snacks",
