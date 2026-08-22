@@ -1,3 +1,6 @@
+/** How many FAQs the home page preview shows; about page uses the rest. */
+export const FAQ_PREVIEW_COUNT = 5;
+
 export const FAQ_ITEMS = [
   {
     q: "Where can I buy Aachiammafoods online?",

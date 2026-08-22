@@ -4,9 +4,11 @@ import { FAQ_ITEMS, FAQ_PREVIEW_COUNT } from "@/data/faqs";
 
 const ACCENT = "#08665F";
 
-export default function HomeFaqSection() {
-  const faqs = FAQ_ITEMS.slice(0, FAQ_PREVIEW_COUNT);
+export default function AboutFaqSection() {
+  const faqs = FAQ_ITEMS.slice(FAQ_PREVIEW_COUNT);
   const [openIndex, setOpenIndex] = useState(null);
+
+  if (!faqs.length) return null;
 
   function toggle(i) {
     setOpenIndex(openIndex === i ? null : i);
@@ -20,7 +22,7 @@ export default function HomeFaqSection() {
   }
 
   return (
-    <section aria-label="Frequently asked questions" className="w-full bg-white text-gray-900 py-16 md:py-20 px-6 md:px-12 lg:px-28">
+    <section aria-label="More frequently asked questions" className="w-full bg-white text-gray-900 py-16 md:py-20 px-6 md:px-12 lg:px-28">
       <div className="max-w-4xl mx-auto">
         <motion.header
           initial={{ opacity: 0, y: 8 }}
@@ -35,16 +37,16 @@ export default function HomeFaqSection() {
             >
               FAQ
             </span>
-            <h1 className="mt-6 text-3xl md:text-4xl font-extrabold">Frequently asked questions</h1>
+            <h2 className="mt-6 text-3xl md:text-4xl font-extrabold">Frequently asked questions</h2>
             <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
-              Below are answers to questions we get asked often. If you don’t find what you need, use the contact button at the end to send us a message.
+              More answers about our pickles, snacks, spice powders, and orders. If you still need help, use the contact button above to reach us.
             </p>
           </div>
         </motion.header>
 
         <div className="mt-12 space-y-4">
           {faqs.map((f, i) => {
-            const contentId = `home-faq-content-${i}`;
+            const contentId = `about-faq-content-${i}`;
             return (
               <motion.div
                 key={f.q}
@@ -76,7 +78,7 @@ export default function HomeFaqSection() {
                       aria-expanded={openIndex === i}
                       aria-controls={contentId}
                       className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#08665F]"
-                      style={{ color: openIndex === i ? ACCENT : ACCENT }}
+                      style={{ color: ACCENT }}
                       aria-label={openIndex === i ? "Collapse answer" : "Expand answer"}
                     >
                       <motion.svg

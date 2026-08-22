@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import heroImageDefault from "@/assets/feature-hero.jpg";
 import SEO from "@/components/common/SEO";
+import AboutFaqSection from "@/components/shopping-view/about/AboutFaqSection";
 import { Leaf, ChefHat, Sparkles, ShieldCheck, Heart, Clock } from "lucide-react";
 
 
@@ -17,7 +18,7 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
     const steps = [
         {
             title: 'Handpicked Ingredients',
-            desc: 'Fresh produce and spices selected daily from trusted local sources.',
+            desc: 'Freshly collected ingredients from native farmers.',
             icon: Leaf,
 
             accentBg: 'bg-emerald-50/80',
@@ -27,7 +28,7 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
         },
         {
             title: 'Clean Home Kitchen',
-            desc: 'Prepared in a hygienic Agraharam kitchen following careful practices.',
+            desc: 'Kerala homemade snacks & pickles prepared and packed in the Agraharam kitchen.',
             icon: ChefHat,
 
             accentBg: 'bg-amber-50/80',
@@ -37,7 +38,7 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
         },
         {
             title: 'Same-day Packing',
-            desc: 'Packed on the day of preparation to preserve natural taste.',
+            desc: 'We pack on the same day to sustain the freshness and uniqueness of the taste.',
             icon: Sparkles,
 
             accentBg: 'bg-teal-50/80',
@@ -85,7 +86,7 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
 
 
                             <h1 className="mt-8 text-4xl md:text-5xl font-extrabold tracking-tight text-gray-950">
-                                Aachiammafoods
+                            Authentic Kerala Agraharam Homemade Food
                             </h1>
 
                             <div
@@ -96,17 +97,18 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                                 }}
                             >
                                 <span className="block text-2xl md:text-3xl font-black tracking-tight" style={{ color: accent }}>
-                                    Pure Homemade
+                                The Pure Taste of Kerala
                                 </span>
                                 <span className="block text-lg md:text-xl font-semibold text-emerald-800/80 mt-1">
-                                    Fresh Every Day
+                                Agraharam Food
+
                                 </span>
                             </div>
 
                             <p className="mt-8 text-gray-600 max-w-3xl text-lg leading-relaxed">
-                                We prepare small-batch, home-style foods using only handpicked, natural ingredients. No
-                                preservatives. No artificial colours or flavours. Each jar is prepared and packed fresh — made in
-                                our Agraharam kitchen with care and simple, traditional methods.
+                            Cooked in a Traditional Agraharam Kitchen
+                             We cook traditional Palakkad Agraharam food using authentic recipes. We never cook large amounts of food together to preserve the uniqueness of the products. No preservatives or artificial colours are used, and foods are packed on the same day of cooking.
+
                             </p>
 
                             <div className="mt-10 space-y-4 max-w-xl">
@@ -118,9 +120,10 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                                         <Heart className="w-5 h-5 stroke-[2.5]" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900 text-sm tracking-tight">Honest Cooking</h4>
+                                        <h4 className="font-bold text-gray-900 text-sm tracking-tight"> Secret Behind the Taste
+                                        </h4>
                                         <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                                            Our methods are simple and time-honoured — nothing artificial is added. We believe good food begins with clean ingredients and careful hands.
+                                        Palakkad Agraharam food recipes and freshly collected ingredients ensure the unique Kerala taste.
                                         </p>
                                     </div>
                                 </motion.div>
@@ -133,9 +136,9 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                                         <Clock className="w-5 h-5 stroke-[2.5]" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900 text-sm tracking-tight">Daily Freshness</h4>
+                                        <h4 className="font-bold text-gray-900 text-sm tracking-tight">Fresh and Authentic</h4>
                                         <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                                            Small batches prepared and packed on the same day for bright, natural flavour. Best consumed fresh.
+                                        Only a small batch of products is cooked and packed at a time to preserve the taste of Kerala homemade snacks & pickles.
                                         </p>
                                     </div>
                                 </motion.div>
@@ -211,7 +214,8 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                     <section className="mt-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                         <div>
                             <motion.h4 initial={{ opacity: 0, y: 6 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-2xl font-bold">Our Promise</motion.h4>
-                            <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mt-6 text-gray-600 max-w-xl text-lg leading-relaxed">We never use artificial preservatives, colours or chemicals. Our methods are traditional — honest, simple and focused on taste. If you prefer natural flavour and freshly prepared items, our jars are made for you.</motion.p>
+                            <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mt-6 text-gray-600 max-w-xl text-lg leading-relaxed">As a homemade Kerala food brand, we make our customers' health our first priority. That's why we don't use artificial flavours or chemical preservatives, and we follow proven traditional methods of Agraharam cooking to ensure the authentic taste.
+                            </motion.p>
 
                             <div className="mt-8 space-y-4">
                                 <motion.div
@@ -269,17 +273,20 @@ export default function AboutInner({ heroImage = heroImageDefault, onContact }) 
                         className="mt-24 max-w-4xl mx-auto p-4 rounded-3xl border border-emerald-100/20 bg-emerald-50/10 backdrop-blur-sm grid grid-cols-1 sm:grid-cols-3 gap-4"
                     >
                         <div className="border border-emerald-100 rounded-2xl py-3.5 px-6 text-center text-[11px] font-bold tracking-wider uppercase text-emerald-900 bg-emerald-50/80 hover:bg-emerald-50 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-200">
-                            Made in our Agraharam kitchen
+                        Taste and purity from Agraharam Kitchen
+
                         </div>
                         <div className="border border-emerald-100 rounded-2xl py-3.5 px-6 text-center text-[11px] font-bold tracking-wider uppercase text-emerald-900 bg-emerald-50/80 hover:bg-emerald-50 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-200">
-                            No Preservatives
+                        No preservatives and chemical flavours
                         </div>
                         <div className="border border-emerald-100 rounded-2xl py-3.5 px-6 text-center text-[11px] font-bold tracking-wider uppercase text-emerald-900 bg-emerald-50/80 hover:bg-emerald-50 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-200">
-                            Consume fresh for best taste
+                        Freshly prepared and packed
                         </div>
                     </motion.div>
                 </div>
             </section>
+
+            <AboutFaqSection />
         </>
     );
 }
