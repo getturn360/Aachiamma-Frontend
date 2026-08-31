@@ -156,7 +156,7 @@ export default function PopupModal({
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
             {/* <CloudsEffect /> */}
             {/* <RainAndCloudsEffect /> */}
-            <FlowerShower />
+            {/* <FlowerShower /> */}
           </div>
 
           {/* Core popup container. Stretches dynamically based on split-state */}
