@@ -709,7 +709,7 @@ function MobileMenu({ navigateTo } = {}) {
           <div className="px-1">
             <MenuItems onItemClick={() => setOpen(false)} navigateTo={(p) => { navigate(p); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
       console.error("[header.jsx] Error:", err);
-    } },60); }} excludeIds={['about','faq','contact']} mobile />
+    } },60); }} excludeIds={['about','contact']} mobile />
           </div>
 
           <div className="mt-2 grid grid-cols-2 gap-3">
@@ -728,14 +728,6 @@ function MobileMenu({ navigateTo } = {}) {
     } },60); }}
               style={{ borderColor: "rgba(8,102,95,0.06)" }}
             >Blog</button>
-
-            <button
-              className="py-3 rounded-lg font-medium shadow-sm border text-sm"
-              onClick={() => { setOpen(false); navigate(ROUTES.faq); setTimeout(()=>{ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch (err) {
-      console.error("[header.jsx] Error:", err);
-    } },60); }}
-              style={{ borderColor: "rgba(8,102,95,0.06)" }}
-            >FAQ</button>
 
             <button
               className="py-3 rounded-lg font-medium shadow-sm border text-sm"
@@ -1030,9 +1022,6 @@ function ShoppingHeader() {
               </button>
               <button onClick={() => { navigateTo(ROUTES.blog); }} className="text-sm font-medium" style={{ color: ACCENT }}>
                 Blog
-              </button>
-              <button onClick={() => { navigateTo(ROUTES.faq); }} className="text-sm font-medium" style={{ color: ACCENT }}>
-                FAQ
               </button>
               <button onClick={() => { navigateTo(ROUTES.contact); }} className="text-sm font-medium" style={{ color: ACCENT }}>
                 Contact

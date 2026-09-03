@@ -10,7 +10,6 @@ Aachiammafoods brings the taste of traditional Kerala homes to customers through
 - [Shop](https://aachiammafoods.com/listing): Main shopping page
 - [About Us](https://aachiammafoods.com/about): Brand story and background
 - [Contact](https://aachiammafoods.com/contact): Contact information and enquiries
-- [FAQ](https://aachiammafoods.com/faq): Frequently asked questions
 - [Blog](https://www.aachiammafoods.com/blog/): Articles and updates
 
 ## Product Categories

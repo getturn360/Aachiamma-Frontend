@@ -33,7 +33,6 @@ import UnauthPage from "./pages/unauth-page";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import AboutInner from "./pages/shopping-view/about";
 import ContactPage from "./pages/shopping-view/contact";
-import FAQsPage from "./pages/shopping-view/faqs";
 import TermsPage from "./pages/shopping-view/TermsPage";
 import PrivacyPolicy from "./pages/shopping-view/legal";
 import RefundPolicy from "./pages/shopping-view/RefundPolicy";
@@ -204,7 +203,6 @@ function App() {
           <Route path="payment-success" element={<PaymentSuccessPage />} />
           <Route path="about" element={<AboutInner />} />
           <Route path="contact" element={<ContactPage />} />
-          <Route path="faq" element={<FAQsPage />} />
           <Route path="terms" element={<TermsPage />} />
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="refunds" element={<RefundPolicy />} />

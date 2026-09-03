@@ -296,14 +296,6 @@ export default function Footer() {
                       Contact
                     </button>
                   </li>
-                  <li>
-                    <button
-                      className="block hover:text-white transition text-left w-full text-sm py-1"
-                      onClick={() => navigateTo(ROUTES.faq)}
-                    >
-                      FAQ
-                    </button>
-                  </li>
                 </ul>
               </nav>
             </div>
